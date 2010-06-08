@@ -110,7 +110,7 @@ def ProcessSubsection(out, items, subtotalTitle):
 def CreateJobStatment(jobKey, invItems, d):
     if jobKey[0:2] == "01": return
     job = d.jobs[jobKey]
-    if job['Weird']: return
+    #if job['Weird']: return # we should even create weird invoices - we their time and expenses anyway
     out = Output(d.p)
     OutputTitle(out, job)
     
@@ -159,12 +159,21 @@ def CreateJobStatment(jobKey, invItems, d):
     out.Subtotal('Expenses total', totalExpenses)
     net = totalWork+totalExpenses
     out.Subtotal('Net total', net)
+    #FIXME - I don't think the following 3 lines do anything
     job['work'] = work
     job['expenses'] = expenses
     job['net'] = net
-    
+        
     out.add(common.annotation(job))
     out.save(jobKey + '.rtf')
+    
+    # remember what we have produced for the invoice summaries
+    if job['Weird']: # all bets are off regards what the values should be
+        invoice = { 'work': 0 , 'expenses': 0, 'net': 0}
+    else:
+        invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': net}
+    d.invoices[jobKey] = invoice
+
 
 ###########################################################################
 

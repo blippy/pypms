@@ -2,6 +2,11 @@ PROCEDURES
 
 run pypms
 
-run post (in progress)
+run post (in progress) (quite a dangerous facility)
+
+Perform any manual adjustments to tblInvoice you require
 
 run mobil (in progress)
+
+Utility extras:
+* unpost - to eliminate a month from tblInvoice (be careful - it will zap a month)

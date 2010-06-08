@@ -33,7 +33,12 @@ def records(fieldnames, sql):
         
     return values
 
-
+def ExecuteSql(sql):
+    try:
+        conn = DbOpen()
+        conn.execute(sql)
+    finally:
+        conn.Close()
    
 
 def RecordsList(sql, fieldspec):
