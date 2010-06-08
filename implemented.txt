@@ -1,0 +1,8 @@
+timesheets
+- annotate with wip and weird
+- wip'd invoices need to be annotated as such
+
+
+workstatements
+- put in references
+- no VAT (keep this behaviour)

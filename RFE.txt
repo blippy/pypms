@@ -1,0 +1,11 @@
+workstatements
+- include approver and date
+- create weird invoices, but annotate them as such
+
+something to reconcile invoice summary with database
+
+email chargeability report
+
+timesheets should indicate if they need clients signature
+
+jobs gui
