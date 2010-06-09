@@ -7,29 +7,31 @@ class config:
         self.lines = self.fin.readlines()
         self.fin.close()
     
-    def read(self):
+    def __readLine(self):
         line = self.lines[0].strip()
         self.lines = self.lines[1:]
         return line        
     
-    def more(self): return len(self.lines) > 0
+    def __more(self): return len(self.lines) > 0
+
+    def load(self):
+        'Load in the configuration information'
+        self.jobs = {}
+        while self.__more():
+            line = self.__readLine()
+            print '*' , line , '*'
+            if line == 'job':
+                job = {}
+                for field in ['job', 'contact', 'title', 'desc', 'po' , 'units']:
+                    job[field] = self.__readLine()
+                self.jobs[job['job']] = job
         
         
 
 def main():
-    jobs = {}
     conf = config()
-    while conf.more():
-        line = conf.read()
-        print '*' , line , '*'
-        if line == 'job':
-            job = {}
-            for field in ['job', 'contact', 'title', 'desc', 'po' , 'units']:
-                job[field] = conf.read()
-            jobs[job['job']] = job
-            
-            
-    print jobs
+    conf.load()                        
+    print conf.jobs
     # FIXME
 
 if  __name__ == "__main__":

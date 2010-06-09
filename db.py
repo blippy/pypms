@@ -71,8 +71,6 @@ def GetJobs():
 def GetTasks(p):
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
     fieldspec = [('JobCode', str), ('JCDescription', str), ('TaskNo', str), ('TaskDes', str)]
-    # FIXME we're going to need the task description. See
-    # http://www.peterbe.com/plog/unicode-to-ascii
     recs = RecordsList(sql, fieldspec)
     tasks = {}
     for r in recs: tasks[ (r['JobCode'], r['TaskNo']) ] = r

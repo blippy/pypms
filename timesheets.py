@@ -1,38 +1,35 @@
+# Create timesheet files
+
 import datetime, pdb
+from itertools import groupby
 
-from itertools import groupby #, ifilter
-
-import common, data
-
-###########################################################################
-
+import common, data, rtf
 
 ###########################################################################
 
-def CreateJobsheet(jobcode, jobTimes, periodText, d):
+def CreateJobsheet(jobcode, jobTimes, d, title, outdir):
 
-    body = []
+    out = rtf.Rtf()
+
     job = d.jobs[jobcode]
-    title = job['title']
+    jobTitle = job['title']
     approver = job['TsApprover']
-    #if job['job'] == '2669': pdb.set_trace()
     if approver == 'None': approver = ''
     
-    def descline(name, value): return '{0:14s}{1:s} \\par \n'.format(name, value)
-     
+    def descline(name, value): out.add('{0:14s}{1:s}'.format(name, value))
+         
     for taskKey, taskGroup in groupby(jobTimes, common.mkKeyFunc('Task')):
         taskTitle = taskKey + ' - ' + d.tasks[(jobcode, taskKey)]['TaskDes']
         for personKey, personGroup in groupby( taskGroup, common.mkKeyFunc('Person')):
-            #pdb.set_trace()
-            text = '\\f0\\fs30 Timesheet: %s \\par \\f0\\fs18 ' % (periodText)
-            text+= descline('Job number:', jobcode)
-            text+= descline('Description:',	title)
-            text+= descline('Task:', taskTitle)
+            out.addTitle(title)
+            descline('Job number:', jobcode)
+            descline('Description:',	jobTitle)
+            descline('Task:', taskTitle)
             personName = d.employees[personKey]
-            text+= descline('Person:', personName)
-            text+= '\\par \\par \n'
+            descline('Person:', personName)
+            out.para()
             
-            text += '{0:10s} {1:>9s}   {2:s} \\par \\par \n'.format('Date', 'Qty', 'Description')
+            out.add('{0:10s} {1:>9s}   {2:s}'.format('Date', 'Qty', 'Description') , 2)
             totalTime = 0
             for timeItem in personGroup:
                 timeVal = timeItem['TimeVal']
@@ -42,27 +39,21 @@ def CreateJobsheet(jobcode, jobTimes, periodText, d):
                 day = asDate.strftime('%a %d %b')
                 workDone = timeItem['WorkDone']
                 if workDone == '..': workDone = ''
-                text += '%s %9.3f   %s \\par \n' % (day, timeVal, workDone)
+                out.add('%s %9.3f   %s' % (day, timeVal, workDone))
                 
-            text += '\n \\par \n{0:10s} {1:9.3f} \\par \n'.format('Total', totalTime)
-            text += '\n \\par \\par \\par \nApproved: ______________________________________ \\par {0:s}'.format(approver)
-            text += common.annotation(job)
-            body.append(text)
-                
-    return '\n\\page\n'.join(body)
+            out.para()
+            out.add('{0:10s} {1:9.3f}'.format('Total', totalTime))
+            out.annotation(job, approver)
+            out.page()
+
+    out.save(outdir, jobcode + ".rtf" )
 
 
 def main(d):
-    root = d.p.outDir() + '\\timesheets'
-    common.makedirs(root)
-    periodText = d.p.mmmmyyyy()
-
+    title = 'Timesheet: ' + d.p.mmmmyyyy()
+    outdir = d.p.outDir() + '\\timesheets'
     for jobKey, jobGroup in groupby(d.timeItems, common.mkKeyFunc('JobCode')):
-        text = '{\\rtf {\\fonttbl {\\f0 Consolas;}}'
-        text += CreateJobsheet(jobKey, jobGroup, periodText, d)
-        text += '}'
-        fullName = root + "\\" + jobKey + ".rtf"
-        with open(fullName, "w") as f: f.write(text)
+        CreateJobsheet(jobKey, jobGroup, d, title, outdir)
 
 if  __name__ == "__main__":
     d = data.Data()

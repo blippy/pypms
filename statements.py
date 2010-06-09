@@ -5,54 +5,21 @@ import pdb
 from itertools import groupby, ifilter
 from operator import itemgetter, attrgetter
 
-import common, data
+import common, data, rtf
 
 
 ###########################################################################
 
+# FIXME - probable bad idea
 typeWork, typeExpense = range(2) # create enumerated invoice type
 
 
 
-###########################################################################
 
-class Output:
-    
-    def __init__(self, p):
-        self.outdir = p.outDir() + '\\statements'
-        periodText = p.mmmmyyyy()
-        self.text = '{\\rtf {\\fonttbl {\\f0 Consolas;}}\\f0\\fs30 Work Statement: %s \\par \\f0\\fs18 ' % (periodText)
-        
-    def add(self, text, newLines = 1):
-        if not text: return
-        self.text += text
-        self.lines(newLines)
-        
-    def lines(self, numLines = 1):
-        'Add new lines to output'
-        self.text += '\\par \n' * numLines
-
-    def heading(self):
-        self.add( '\\par \n{0:44s}{1:>9s}{2:>9s}{3:>9s}'.format('', 'Quantity', 'Price', 'Value'),  2)
-
-    def InvLine(self, desc , qty, price, value):
-        text = '   {0:41.41s}{1:9.2f}{2:9.2f}{3:9.2f}'.format(desc , qty, price, value)
-        self.add(text)
-        
-    def Subtotal(self, desc, value):
-        'Output a subtotal'
-        text = '   {0:41.41s}{1:9.2s}{2:9.2s}{3:9.2f}'.format(desc , '', '', value)
-        self.add(text)
-
-        
-    def save(self, fname):
-        common.makedirs(self.outdir)
-        fullName = "%s\\%s" % (self.outdir, fname)
-        with open(fullName, "w") as f: f.write(self.text + '}')
 
 ###########################################################################
 
-def OutputTitle(out, job):
+def AddTopInfo(out, job):
     address = job['address'] # whole address
     address = address.split('\r')
     address1 = address[0] # first line of address
@@ -62,13 +29,14 @@ def OutputTitle(out, job):
     
     references = job['references']
     references = references.replace('\n', '\\par \n')
-    out.add(references)
+    out.add(references, 2)
     
-    out.heading()
+    heading =  '{0:44s}{1:>9s}{2:>9s}{3:>9s}'.format('', 'Quantity', 'Price', 'Value')
+    out.add(heading,  2)
 
 
  
-
+###########################################################################
 
 class Section:
     def __init__(self):
@@ -78,7 +46,6 @@ class Section:
         
     def AddWork(self, item, price, personName):
         if not self.workEntries.has_key(personName): self.workEntries[personName] = { 'desc' : personName , 'qty' : 0, 'price' : price }
-        #print item
         self.workEntries[personName]['qty'] += item['TimeVal']
         
     def Work(self):
@@ -91,8 +58,15 @@ class Section:
         self.expenseEntries.append( { 'desc' : desc , 'qty' : exp_factor, 'price' : item['Amount'] })
         
 
-    
-    
+ 
+###########################################################################
+ 
+def subtotal(out, desc, value):
+    'Output a subtotal'
+    #FIXME - devise a better way so that the format depends on whether something is a string or a number
+    text = '   {0:41.41s}{1:9.2s}{2:9.2s}{3:9.2f}'.format(desc , '', '', value)
+    out.add(text)
+        
 def ProcessSubsection(out, items, subtotalTitle):
     if len(items) == 0: return 0, 0 # don't do anything if there are no items
     total = 0
@@ -100,19 +74,24 @@ def ProcessSubsection(out, items, subtotalTitle):
         desc, qty, price = el['desc'], el['qty'], el['price']
         value = round(qty * price, 2)
         total += value
-        out.InvLine(desc, qty, price, value)
+        text = '   {0:41.41s}{1:9.2f}{2:9.2f}{3:9.2f}'.format(desc , qty, price, value)
+        out.add(text)
        
     numItems = len(items)
-    if numItems >1: out.Subtotal(subtotalTitle, total)
-    out.lines()
+    if numItems >1: subtotal(out, subtotalTitle, total)
+    out.para()
     return total, numItems
     
 def CreateJobStatment(jobKey, invItems, d):
     if jobKey[0:2] == "01": return
     job = d.jobs[jobKey]
     #if job['Weird']: return # we should even create weird invoices - we their time and expenses anyway
-    out = Output(d.p)
-    OutputTitle(out, job)
+    
+    # out = Output(d.p) # deprecated method
+    title = "Work Statement: %s" % (d.p.mmmmyyyy())
+    out = rtf.Rtf()
+    out.addTitle(title)
+    AddTopInfo(out, job)
     
     invItems = list(invItems)
       
@@ -139,6 +118,8 @@ def CreateJobStatment(jobKey, invItems, d):
             else: s.AddExpense(item, exp_factor)
         sections.append(s)
     
+
+        
     # output the sections
     sections.sort(key= lambda x: x.ordering)    
     totalWork = 0
@@ -150,22 +131,19 @@ def CreateJobStatment(jobKey, invItems, d):
         totalWork += work
         totalExpenses += expenses
         if numPeople > 0 and numExpenses >0: 
-            out.Subtotal('Task subtotal', work+expenses)
-            out.lines()
+            subtotal(out, 'Task subtotal', work+expenses)
+            out.para()
         
     # output grand summary
     out.add('Overall summary')
-    out.Subtotal('Work total', totalWork)
-    out.Subtotal('Expenses total', totalExpenses)
+    subtotal(out, 'Work total', totalWork)
+    subtotal(out, 'Expenses total', totalExpenses)
     net = totalWork+totalExpenses
-    out.Subtotal('Net total', net)
-    #FIXME - I don't think the following 3 lines do anything
-    job['work'] = work
-    job['expenses'] = expenses
-    job['net'] = net
-        
-    out.add(common.annotation(job))
-    out.save(jobKey + '.rtf')
+    subtotal(out, 'Net total', net)
+
+     
+    out.annotation(job, 'A SPENCE - Managing Director')
+    out.save(d.p.outDir() + '\\statements', jobKey + '.rtf')
     
     # remember what we have produced for the invoice summaries
     if job['Weird']: # all bets are off regards what the values should be

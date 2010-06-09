@@ -2,10 +2,14 @@ workstatements
 - include approver and date
 - create weird invoices, but annotate them as such
 
+mobil workstatments
+
 something to reconcile invoice summary with database
 
 email chargeability report
 
 timesheets should indicate if they need clients signature
+
+yaml file should also be stored in the monthly directory
 
 jobs gui

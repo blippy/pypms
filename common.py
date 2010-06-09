@@ -21,6 +21,10 @@ def makedirs(path):
     if not os.path.exists(path): os.makedirs(path)
 
 
+# FIXME - ensure all file saving goes though this function
+def spit(fname, text):
+    'Write TEXT to file FNAME'
+    with open(fname, "w") as f: f.write(self.text)
 
 ###########################################################################
 # logging
@@ -42,23 +46,13 @@ def mkKeyFunc(fieldName):
     def func(rec): return rec[fieldName]
     return func
 
-###########################################################################
 
-def annotation(job):
-    'Return some RTF text for non-vanilla jobs'
-    annotations = []
-    text = ''
-    if job['Weird']: annotations.append('Unorthodox')
-    if job['WIP']: annotations.append('WIP')
-    if len(annotations) > 0:
-        text = '\\par\\par\\f0\\fs12Ann: %s' % (' '.join(annotations))
-    else: text = ''
-    return text
 
 ###########################################################################
 
 def AsAscii(text):
     'convert text into ASCII string'
+    # http://www.peterbe.com/plog/unicode-to-ascii
     return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
 
 def AsFloat(text):

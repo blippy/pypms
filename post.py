@@ -23,6 +23,7 @@ def ImportManualInvoices(d):
         try: desc = row[6]
         except IndexError: desc = ''
         #print job, net, vat, total
+        # FIXME
         
 def AugmentPms(d):
     "Add tblInvoice records for jobs that it doesn't already have"
