@@ -17,22 +17,41 @@ def DbOpen():
 
 def IsEmpty(rs): return rs.EOF or rs.BOF # is a recordset empty?
 
-def records(fieldnames, sql):    
-    values = []
+# FIXME - consider using the ADODB functions GetAll() or GetRows()
+
+def ForEachRecord(sql, func):
+    'Do the FUNC for each record in a recordset returned by a SQL statment'
     try:
         conn = DbOpen()
         rs = win32com.client.Dispatch(r'ADODB.Recordset')
         rs.Open(sql, conn, 1, 3)
         if not IsEmpty(rs): rs.MoveFirst()  
         while not IsEmpty(rs):
-            rec = [rs.Fields(fieldname).Value for fieldname in fieldnames]
-            values.append(rec)
+            func(rs)            
             rs.MoveNext()        
     finally:
         conn.Close()
-        
-    return values
 
+def records(fieldnames, sql):
+    values = []
+    def func(rs): 
+        rec = [rs.Fields(fieldname).Value for fieldname in fieldnames]
+        values.append(rec)
+    ForEachRecord(sql, func)
+    return values
+ 
+
+def XXXSingleColumn(sql):
+    'Assume that the SQL statement just returns a single field. Obtain the values for that field'
+    values = []
+    def func(rs): 
+        rec = [rs.Fields(0).Value for fieldname in fieldnames]
+        values.append(rec)
+    ForEachRecord(sql, func)
+    return values
+    
+    
+    
 def ExecuteSql(sql):
     try:
         conn = DbOpen()

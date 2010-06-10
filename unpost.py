@@ -2,14 +2,18 @@
 
 import db, period
 
+def ZapEntries(per):
+    sql = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'" % (per.mmmmyyyy())
+    db.ExecuteSql(sql)
+    
 def main():
     print "DANGER WILL ROBINSON! DANGER! DANGER!"
     print "You are about to delete invoices from the database"
-    p = period.Period()
-    p.inputPeriod()
-    sql = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'" % (p.mmmmyyyy())
-    db.ExecuteSql(sql)
+    per = period.Period()
+    per.inputPeriod()
+    ZapEntries(per)
     print 'Finished'
+    
     
 if  __name__ == "__main__":
     main()

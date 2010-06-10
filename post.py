@@ -1,12 +1,22 @@
 # post invoices
 
 # works on lappy, but not iMac
+"""
+When the user clicks on Post Invoices in PMS, it activates macro 
+    mcrInvoice,
+which in turn runs query 
+    qappSuumaryReportActiveJobsOnly+HoursInvoiced
+This query takes 3 paramemters, in the following order:
+    * text8.Value - StartDate - e.g. 01/05/2010
+    * text10,Value - EndDate - e.g. 31/05/2010
+    * Combo33 - Billing Perdio - e.g. May 2010
 
+"""
 import datetime
 
 import win32com.client
 
-import data, db, excel
+import data, db, excel, unpost
 #from db import database
 from common import AsAscii, AsFloat
 
@@ -25,7 +35,7 @@ def ImportManualInvoices(d):
         #print job, net, vat, total
         # FIXME
         
-def AugmentPms(d):
+def XXXAugmentPms(d):
     "Add tblInvoice records for jobs that it doesn't already have"
     
     # Currently in the database
@@ -49,50 +59,88 @@ def AugmentPms(d):
         finally:
             conn.Close()
 
+def InsertFreshMonth(conn, d):
+    'Put a selection of zeros in tblInvoice'
     
-def UpdatePms(d):
+    # Determine which jobs need to be recorded in tblInvoice
+    invBillingPeriod = d.p.mmmmyyyy()
+    sql = "SELECT JobCode FROM tblTasks WHERE JobActive=Yes"
+    sql = "SELECT JobCode FROM tblTasks"
+    activeJobs = set([str(rec[0]) for rec in db.records(['JobCode'], sql)])
+    ignoreJobs = set(['010500', '010400', '010300', '010200', '3. Sundry', '404550'])
+    jobsToCreate = activeJobs - ignoreJobs
+    
+    invDate = datetime.date.today().strftime('%d/%m/%Y')
+    for jobcode in jobsToCreate:
+        fmt =  "INSERT INTO tblInvoice "
+        fmt += "(InvDate, InvBillingPeriod, InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime, InvJobCode, InvComments, InvPODatabaseCosts, InvCapital,InvStock)"
+        fmt += " VALUES "
+        fmt += "('%s', '%s', 0, 0, 0, 0, 0, 0, 0, '%s', 'PyPms', 0, 0, 0) " #WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
+        sql = fmt % (invDate, invBillingPeriod, jobcode)
+        #print sql
+        conn.execute(sql)
+
+    #print jobsToCreate
+    
+def UpdatePms(conn, d):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
     
     # Jobs requiring entries
     invBillingPeriod = d.p.mmmmyyyy()
     sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  invBillingPeriod + "'"
-    codes = [rec[0] for rec in db.records(['InvJobCode'], sql)]
+    codes = [str(rec[0]) for rec in db.records(['InvJobCode'], sql)]
+    invoices = d.invoices
     
-    try:
-        conn = db.DbOpen()
-        for code in codes:
-            
-            # determine what entries should be made to the table of invoices
-            invoice = d.invoices[code]
-            ubi = 0
-            wip = 0
-            invoicedOut = 0
-            party3 = 0
-            work = 0
-            if d.jobs[code]['WIP']:
-                ubi = invoice['work']
-                wip = invoice['expenses']
-            else:
-                party3 = invoice['expenses']
-                work = invoice['work']
-                invoicedOut = invoice['net']
-                
-                
-            # now post those entries
-            fmt = "UPDATE tblInvoice SET InvBIA=0, InvUBI=%d, InvWIP=%d, InvAccrual=0,InvInvoice=%d, Inv3rdParty=%d, InvTime=%d , InvComments='PyPms autofilled', InvPODatabaseCosts=0, InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-            sql = fmt % (ubi, wip, invoicedOut, party3, work, code, invBillingPeriod)
-            conn.Execute(sql)
-    finally:
-        conn.Close()
+    for code in codes:
         
-    
-    
-    
-if  __name__ == "__main__":
+        if not invoices.has_key(code): continue # might be an active job for which we have no time or expenses
+        # determine what entries should be made to the table of invoices
+        invoice = invoices[code]
+        ubi = 0
+        wip = 0
+        invoicedOut = 0
+        party3 = 0
+        work = invoice['work']
+        if d.jobs[code]['WIP']:
+            ubi = invoice['work']
+            wip = invoice['expenses']
+        else:
+            party3 = invoice['expenses']
+            invoicedOut = invoice['net']
+            
+            
+        # now post those entries
+        fmt = "UPDATE tblInvoice SET InvBIA=0, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
+        sql = fmt % (ubi, wip, invoicedOut, party3, work, code, invBillingPeriod)
+        conn.Execute(sql)
+
+        
+
+def usingconn(conn):
+    # FIXME some of this stuff will need reinstating - I don't know what, yet
     d = data.Data()
     d.restore()
-    ImportManualInvoices(d)
-    AugmentPms(d)
-    UpdatePms(d)
+    # ImportManualInvoices(d) FIXME reinstate
+    #AugmentPms(d)
+    unpost.ZapEntries(d.p)
+    # Run the PMS query to create the monthly invoices
+    #print 'So far so good'
+    
+    #query = 'qappSummaryReportActiveJobsOnly+HoursInvoice'
+    #query = 'mcrInvoice'
+    #print "query is: ", query
+    #conn.DoCmd.RunSQL('qappSummaryReportActiveJobsOnly+HoursInvoiced', '01/05/2010', '31/05/2010', 'May 2010')
+    #conn.Run('mcrInvoice', '01/05/2010', '31/05/2010', 'May 2010')
+    #conn.Run(query, ['May 2010'])
+    InsertFreshMonth(conn, d)
+    UpdatePms(conn, d)
+ 
+def main():
+    conn = db.DbOpen()
+    try: usingconn(conn)
+    finally: conn.Close()
+    
+if  __name__ == "__main__":
+    main()
     print 'Finished'
