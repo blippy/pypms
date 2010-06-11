@@ -12,4 +12,8 @@ timesheets should indicate if they need clients signature
 
 yaml file should also be stored in the monthly directory
 
+post health stats to Jon
+
+make pypms avaiable to Jon
+
 jobs gui

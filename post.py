@@ -123,7 +123,7 @@ def usingconn(conn):
     d.restore()
     # ImportManualInvoices(d) FIXME reinstate
     #AugmentPms(d)
-    unpost.ZapEntries(d.p)
+    unpost.zap_entries(d.p)
     # Run the PMS query to create the monthly invoices
     #print 'So far so good'
     

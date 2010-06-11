@@ -1,17 +1,21 @@
-# zap a month of invoices (tblInvoice)
+'Zap a month of invoices (tblInvoice)'
 
-import db, period
+import db
+import period
 
-def ZapEntries(per):
-    sql = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'" % (per.mmmmyyyy())
+def zap_entries(per):
+    'Remove all recorded invoices for the period PER'
+    fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'"
+    sql = fmt % (per.mmmmyyyy())
     db.ExecuteSql(sql)
     
 def main():
+    'Main point of entry - only for use on the command line, though.'
     print "DANGER WILL ROBINSON! DANGER! DANGER!"
     print "You are about to delete invoices from the database"
     per = period.Period()
     per.inputPeriod()
-    ZapEntries(per)
+    zap_entries(per)
     print 'Finished'
     
     

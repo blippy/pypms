@@ -70,11 +70,11 @@ def RecordsList(sql, fieldspec):
     return result
   
 def GetEmployees(p):
-    sql = 'SELECT Person, PersonNAME FROM tblEmployeeDetails ORDER BY Person'
-    fieldspec = [('Person', str), ('PersonNAME', str)]
+    sql = 'SELECT * FROM tblEmployeeDetails'
+    fieldspec = [('Person', str), ('PersonNAME', str), ('IsStaff', bool)]
     recs = RecordsList(sql, fieldspec)
     employees = {}    
-    for r in recs: employees[r['Person']] = r['PersonNAME']
+    for r in recs: employees[r['Person']] = r
     return employees
 
 def GetJobs():
