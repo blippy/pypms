@@ -9,55 +9,21 @@ which in turn runs query
 This query takes 3 paramemters, in the following order:
     * text8.Value - StartDate - e.g. 01/05/2010
     * text10,Value - EndDate - e.g. 31/05/2010
-    * Combo33 - Billing Perdio - e.g. May 2010
+    * Combo33 - Billing Period - e.g. May 2010
 
 """
+
+import csv
 import datetime
 
 import win32com.client
 
+import common
 import data, db, excel, unpost
 #from db import database
 from common import AsAscii, AsFloat
-
-def ImportManualInvoices(d):
-    'Import invoices entered manually in spreadsheet'
-    fileName = 'M:\\Finance\\Invoices\\Inv summaries %s\\Inv Summary %s.xls' % (d.p.y, d.p.yyyymm())
-    wsName = 'Invoices'
-    invoiceLines = excel.ImportWorksheet(fileName, wsName)
-    for row in invoiceLines:
-        job = row[2] #, net, vat, total = row[2:5]
-        if not d.jobs.has_key(job): continue
-        id = row[0]
-        net, vat , total = map(AsFloat, row[3:6])
-        try: desc = row[6]
-        except IndexError: desc = ''
-        #print job, net, vat, total
-        # FIXME
+import maninv
         
-def XXXAugmentPms(d):
-    "Add tblInvoice records for jobs that it doesn't already have"
-    
-    # Currently in the database
-    invBillingPeriod = d.p.mmmmyyyy()
-    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  invBillingPeriod + "'"
-    alreadyCreated = set()
-    for rec in db.records(['InvJobCode'], sql): alreadyCreated.add(str(rec[0]))
-    
-    # Jobs we need to have
-    jobsRequired = set()
-    for el in d.expenses + d.timeItems: jobsRequired.add(el['JobCode'])
- 
-    # Now create the jobs that we need
-    jobsToCreate = (jobsRequired - alreadyCreated)  - set(['010500', '010400', '010300', '010200'])
-    for job in jobsToCreate:
-        invDate = datetime.date.today().strftime('%d/%m/%Y')
-        sql = "INSERT INTO tblInvoice (InvDate, InvBillingPeriod, InvJobCode) VALUES ('%s', '%s', '%s')" % (invDate, invBillingPeriod, job)
-        try:
-            conn = db.DbOpen()
-            conn.execute(sql)
-        finally:
-            conn.Close()
 
 def InsertFreshMonth(conn, d):
     'Put a selection of zeros in tblInvoice'
@@ -90,7 +56,7 @@ def UpdatePms(conn, d):
     invBillingPeriod = d.p.mmmmyyyy()
     sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  invBillingPeriod + "'"
     codes = [str(rec[0]) for rec in db.records(['InvJobCode'], sql)]
-    invoices = d.invoices
+    invoices = d.auto_invoices
     
     for code in codes:
         
@@ -102,39 +68,68 @@ def UpdatePms(conn, d):
         invoicedOut = 0
         party3 = 0
         work = invoice['work']
+        party3 = invoice['expenses']
         if d.jobs[code]['WIP']:
             ubi = invoice['work']
             wip = invoice['expenses']
-        else:
-            party3 = invoice['expenses']
+        else:        
             invoicedOut = invoice['net']
             
             
+        # sum the invoices entered manually
+        manual_invoice_total = 0.0
+        if d.manual_invoices.has_key(code):
+            for inv in d.manual_invoices[code]:
+                manual_invoice_total += float(inv['net'])
+
+        
         # now post those entries
+        invoice_total = invoicedOut + manual_invoice_total
         fmt = "UPDATE tblInvoice SET InvBIA=0, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (ubi, wip, invoicedOut, party3, work, code, invBillingPeriod)
+        sql = fmt % (ubi, wip, invoice_total, party3, work, code, invBillingPeriod)
         conn.Execute(sql)
 
         
+def create_invoice_summary(d):
+    path = d.p.outDir() + '\\craig'
+    common.makedirs(path)
+    file_name = path + "\\invoices.csv"
+    out = csv.writer(open(file_name, 'wb'))
+    out.writerow(['Ref', 'Client', 'Job', 'Net', 'Desc'])
+    total = 0.0
+    
+    #def txt(input): return "'" + input
+    def txt(input): return input
+    def number(input): return '%.2f' % (input)
 
+    # spit out the manual invoices
+    for job_code in d.manual_invoices.keys():
+        for inv in d.manual_invoices[job_code]:
+            #FIXME - ought to be possible to work out who the client is
+            net = inv['net']
+            total += net
+            out.writerow([txt(inv['id']), inv['client'], txt(job_code), number(net), inv['desc']])
+        
+    # write out the computed invoices
+    for job_code in d.auto_invoices:
+        inv = d.auto_invoices[job_code]
+        #FIXME - ought to be possible to work out who the client is
+        net = inv['net']
+        if net <> 0.0:
+            total += net
+            out.writerow(["", "", txt(job_code), number(inv['net'])])
+        
+    out.writerow([])
+    out.writerow(['Total', '', '', number(total)])
+        
 def usingconn(conn):
-    # FIXME some of this stuff will need reinstating - I don't know what, yet
     d = data.Data()
     d.restore()
-    # ImportManualInvoices(d) FIXME reinstate
-    #AugmentPms(d)
+    maninv.import_manual_invoices(d)
     unpost.zap_entries(d.p)
-    # Run the PMS query to create the monthly invoices
-    #print 'So far so good'
-    
-    #query = 'qappSummaryReportActiveJobsOnly+HoursInvoice'
-    #query = 'mcrInvoice'
-    #print "query is: ", query
-    #conn.DoCmd.RunSQL('qappSummaryReportActiveJobsOnly+HoursInvoiced', '01/05/2010', '31/05/2010', 'May 2010')
-    #conn.Run('mcrInvoice', '01/05/2010', '31/05/2010', 'May 2010')
-    #conn.Run(query, ['May 2010'])
     InsertFreshMonth(conn, d)
     UpdatePms(conn, d)
+    create_invoice_summary(d)
  
 def main():
     conn = db.DbOpen()

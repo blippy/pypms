@@ -1,5 +1,8 @@
 PROCEDURES
 
+
+Month-end procedures:
+
 run pypms
 
 run post (in progress) (quite a dangerous facility)

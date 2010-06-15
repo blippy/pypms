@@ -24,7 +24,7 @@ def makedirs(path):
 # FIXME - ensure all file saving goes though this function
 def spit(fname, text):
     'Write TEXT to file FNAME'
-    with open(fname, "w") as f: f.write(self.text)
+    with open(fname, "w") as f: f.write(text)
 
 ###########################################################################
 # logging

@@ -1,0 +1,108 @@
+<Treepad version 3.0>
+dt=Text
+<node>
+pypms
+0
+PyPms technical notes
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+Database schema
+1
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+tblInvoice
+2
+InvDate
+InvBillingPeriod
+InvBIA
+InvUBI
+InvWIP
+InvAccrual
+InvInvoice
+Inv3rdParty
+InvTime
+InvJobCode
+InvComments
+InvPODatabase
+InvCapital
+InvStock
+
+
+The table is constructed by calling MS Access macro mcrInvoice , which is based on query qappSummaryReportActiveJobsOnly+HoursInvoiced
+It is a query which takes the parameters:
+* text8.Valee - Start Date - e.g. 01/05/02010
+* text10.Value - End Date - e.g. 31/05/2010
+* Combo33 - Billing Period - e.g. May 2010
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+Interesting jobs
+1
+
+	weird	wip	
+2603	N		N
+2761	N		Y
+2709	Y		N
+2718	Y		Y
+
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+Yaml schema
+1
+charges:
+  ? !!python/tuple ['010200', '0', ALLSTAFF]
+  : 0.0
+
+employees:
+  AB: {IsStaff: false, Person: AB, PersonNAME: A Black}
+
+expenses:
+- {Amount: 32.0, Desc: EXPENSES, JobCode: '2169', Name: 'R WATSON ', Period: 21/04/10,
+  Task: '', iType: 1}
+
+
+
+jobs:
+  '010200': {Autoprint: false, ID: 126, TsApprover: A SPENCE - Managing Director,
+    WIP: true, Weird: false, active: true, address: None, briefclient: '0', exp_factor: 1.0,
+    job: '010200', references: "PO ...", title: Overhead, vatable: true}
+
+
+
+
+p: !!python/object:period.Period {m: 5, y: 2010}
+
+tasks:
+  ? !!python/tuple ['010200', '0']
+  : {JCDescription: Overhead Time, JobCode: '010200', TaskDes: General Overhaed, TaskNo: '0'}
+
+timeItems:
+- {DateVal: '2010-05-03', JobCode: '010200', Person: ALS, Task: '0', TimeVal: 7.5,
+  WorkDone: .., iType: 0}
+
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+auto_invoices
+2
+auto_invoices:
+  '2169': {expenses: 659.70000000000005, net: 38454.299999999996, work: 37794.599999999999}
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+manual_invoices
+2
+manual_invoices:
+  '2169':
+  - {client: MOBIL, desc: INTERNAL DUE TO INCORRECT HOURS, id: CR98, job: '2169',
+    net: -40614.440000000002}
+
+<end node> 5P9i0s8y19Z

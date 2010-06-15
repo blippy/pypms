@@ -45,6 +45,7 @@ class Section:
         self.expenseEntries = []
         
     def AddWork(self, item, price, personName):
+        #print personName
         if not self.workEntries.has_key(personName): self.workEntries[personName] = { 'desc' : personName , 'qty' : 0, 'price' : price }
         self.workEntries[personName]['qty'] += item['TimeVal']
         
@@ -113,7 +114,7 @@ def CreateJobStatment(jobKey, invItems, d):
             if item['iType'] == typeWork: 
                 person = item['Person']
                 price = d.charges[(jobKey, taskKey, person)]
-                personName = d.employees[person]
+                personName = d.employees[person]['PersonNAME']
                 s.AddWork(item, price, personName)
             else: s.AddExpense(item, exp_factor)
         sections.append(s)
@@ -146,16 +147,15 @@ def CreateJobStatment(jobKey, invItems, d):
     out.save(d.p.outDir() + '\\statements', jobKey + '.rtf')
     
     # remember what we have produced for the invoice summaries
-    if job['Weird']: # all bets are off regards what the values should be
-        invoice = { 'work': 0 , 'expenses': 0, 'net': 0}
-    else:
-        invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': net}
-    d.invoices[jobKey] = invoice
+    if job['Weird']: net = 0.0
+    invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': net}
+    d.auto_invoices[jobKey] = invoice
 
 
 ###########################################################################
 
-def main(d):
+def main(d = None):
+    if not d: d = data.Data(restore = True)
     
     # create invoice items
     invItems = []        
@@ -173,8 +173,5 @@ def main(d):
     for jobKey, jobGroup in groupby(invItems, common.mkKeyFunc('JobCode')): CreateJobStatment(jobKey, jobGroup, d)
     
 if  __name__ == "__main__":
-    d = data.Data()
-    d.restore()
-    main(d)
-    d.store()
+    main()
     print 'Finished'

@@ -52,5 +52,4 @@ class Rtf:
         'Save Rtf file'
         common.makedirs(dir)
         fullName = "%s\\%s" % (dir, fname)
-        with open(fullName, "w") as f:
-            f.write(self.text + '}') 
+        common.spit(fullName, self.text + '}') 

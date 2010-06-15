@@ -1,3 +1,6 @@
+# The reports are usually stored in
+# \\Cbegbrabssrv01\quality\Intertek\HSE Records\Monthly Returns
+
 import data
 import period
     

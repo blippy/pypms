@@ -15,9 +15,10 @@ class Data:
     
     yamlFile = 'M:\\Finance\\pypms\\out\\current.yml'
     
-    def __init__(self, p = None):
+    def __init__(self, p = None, restore = False):
         if not p: p = period.Period(usePrev = True)
         self.p = p # period
+        if restore: self.restore()
 
     def load(self):
         p = self.p
@@ -27,7 +28,8 @@ class Data:
         self.timeItems = db.GetTimeitems(p)
         self.charges = db.GetCharges(p)
         self.expenses = expenses.main(p)
-        self.invoices = {}
+        self.auto_invoices = {}
+        self.manual_invoices = {}
         
 
     def store(self): 
@@ -42,6 +44,10 @@ class Data:
         
     def restore(self): 
         with open(self.__class__.yamlFile, 'r') as f: self.__dict__ = yaml.load(f)
+        
+    def __del__(self):
+        #print "Data class being deleted"
+        self.store()
 
 
 
@@ -49,13 +55,12 @@ class Data:
    
 ###########################################################################
 
-
-    
-
-if  __name__ == "__main__":
-    # perform a simple test
-    p = period.Period(usePrev = True)
+def main():
+    'Just used for testing purposes'
     d = Data()
     d.load()
     d.store()
-    print "Finished"
+    
+if  __name__ == "__main__":
+    main()
+    print 'Finished'

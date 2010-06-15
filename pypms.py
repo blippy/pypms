@@ -18,7 +18,7 @@ def core(usePrevMonth = False):
     d.load()
     statements.main(d)
     timesheets.main(d)
-    d.store()
+    #d.store()
     common.loginfo("end")
 
 
