@@ -18,7 +18,7 @@ def core(usePrevMonth = False):
     d.load()
     statements.main(d)
     timesheets.main(d)
-    #d.store()
+    d.store()
     common.loginfo("end")
 
 
@@ -45,7 +45,7 @@ def protectedProcess(usePrevMonth = False):
         print txt
         common.logerror(txt)
 
-def main():
+def main(): 
     protectedProcess()
     print "Finished. Press any key to exit"
     msvcrt.getch()

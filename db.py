@@ -65,7 +65,8 @@ def RecordsList(sql, fieldspec):
     fieldnames = [x[0] for x in fieldspec]
     for r in records(fieldnames, sql):
         recs = {}
-        for (fieldname, fieldtype), fieldvalue in izip(fieldspec, r): recs[fieldname] = fieldtype(fieldvalue)
+        for (fieldname, fieldtype), fieldvalue in izip(fieldspec, r):
+            recs[fieldname] = fieldtype(fieldvalue)
         result.append(recs)
     return result
   
@@ -105,7 +106,7 @@ def GetTimeitems(p):
         d1 = datetime.date(d.year, d.month, d.day)
         return d1.strftime('%Y-%m-%d')
     
-    fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', float), ('Task', str), ('WorkDone', str)]
+    fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', float), ('Task', str), ('WorkDone', unicode)]
     recs = RecordsList(sql, fieldspec)
     return recs
 

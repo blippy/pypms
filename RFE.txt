@@ -1,3 +1,9 @@
+The invoice summary should show the automated invoices in job order
+
+tblInvoice:InvPODatabase should show extracted expenses, not just leave blank
+
+produce an expenses summary
+
 workstatements
 - include approver and date
 - create weird invoices, but annotate them as such

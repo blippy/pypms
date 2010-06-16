@@ -47,7 +47,8 @@ class Data:
         
     def __del__(self):
         #print "Data class being deleted"
-        self.store()
+        #self.store()
+        pass
 
 
 
@@ -57,6 +58,12 @@ class Data:
 
 def main():
     'Just used for testing purposes'
+    
+    usePrevMonth = False # set or unset according to taste
+    p = period.Period()
+    if usePrevMonth: p.decMonth()
+    else: p.inputPeriod()
+    
     d = Data()
     d.load()
     d.store()

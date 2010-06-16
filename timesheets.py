@@ -25,7 +25,7 @@ def CreateJobsheet(jobcode, jobTimes, d, title, outdir):
             descline('Job number:', jobcode)
             descline('Description:',	jobTitle)
             descline('Task:', taskTitle)
-            personName = d.employees[personKey]
+            personName = d.employees[personKey]['PersonNAME']
             descline('Person:', personName)
             out.para()
             

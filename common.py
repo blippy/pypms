@@ -1,3 +1,4 @@
+import codecs
 import datetime, json, logging, pprint, os, unicodedata
 
 import db, expenses, period
@@ -24,7 +25,9 @@ def makedirs(path):
 # FIXME - ensure all file saving goes though this function
 def spit(fname, text):
     'Write TEXT to file FNAME'
-    with open(fname, "w") as f: f.write(text)
+    #with open(fname, "w") as f: f.write(text)
+    #with codecs.open(fname, "w", "utf-8") as f: f.write(text)
+    with codecs.open(fname, "w", "Latin-1") as f: f.write(text)
 
 ###########################################################################
 # logging
@@ -51,8 +54,8 @@ def mkKeyFunc(fieldName):
 ###########################################################################
 
 def AsAscii(text):
-    'convert text into ASCII string'
-    # http://www.peterbe.com/plog/unicode-to-ascii
+    '''Convert text into ASCII string. Useful resource:
+    http://www.peterbe.com/plog/unicode-to-ascii'''
     return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
 
 def AsFloat(text):
