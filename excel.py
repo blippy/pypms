@@ -1,5 +1,6 @@
 # Excel manipulation
 
+import os
 
 import win32com.client.dynamic
 #import numpy
@@ -16,7 +17,6 @@ import common
     
 def ImportWorksheet(fileName, wsName):
     xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
-    #fileName = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
     wb = xlapp.Workbooks.Open(fileName)
     ws = wb.Worksheets(wsName)
     numApproxRows = ws.UsedRange.Rows.Count # not necessarily truly accurate, but good enough
@@ -47,8 +47,18 @@ def ImportWorksheet(fileName, wsName):
     return result
 
 
+def create_workbook(file_name, func):
+    if os.path.isfile(file_name): os.remove(file_name)
+    xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
+    wb = xlapp.Workbooks.Add()
+    func(wb)
+    wb.SaveAs(file_name)
+    wb.Close(SaveChanges = 0)
+    xlapp.Quit()
+    del xlapp
 
 
 
 if  __name__ == "__main__":
-    print ImportWorksheet('M:\\Finance\\Invoices\\Inv summaries 2010\\Inv Summary 2010-04.xls', 'Invoices')
+    create_workbook('M:\\Finance\\pypms\\out\\2010-06\\craig\\test.xls')
+    print 'Finished'

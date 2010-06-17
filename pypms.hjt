@@ -49,7 +49,6 @@ Interesting jobs
 2709	Y		N
 2718	Y		Y
 
-
 <end node> 5P9i0s8y19Z
 dt=Text
 <node>
@@ -86,7 +85,6 @@ timeItems:
 - {DateVal: '2010-05-03', JobCode: '010200', Person: ALS, Task: '0', TimeVal: 7.5,
   WorkDone: .., iType: 0}
 
-
 <end node> 5P9i0s8y19Z
 dt=Text
 <node>
@@ -101,8 +99,6 @@ dt=Text
 manual_invoices
 2
 manual_invoices:
-  '2169':
-  - {client: MOBIL, desc: INTERNAL DUE TO INCORRECT HOURS, id: CR98, job: '2169',
-    net: -40614.440000000002}
+- {client: TAQA, desc: '', irn: '7675', job: '2721', net: 2500.0}
 
 <end node> 5P9i0s8y19Z

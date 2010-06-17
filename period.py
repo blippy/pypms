@@ -1,3 +1,4 @@
+import calendar
 import datetime, msvcrt, os, sys, traceback
 
 import common
@@ -84,4 +85,14 @@ class Period:
         result = d.strftime('%B %Y')
         return result
     
-
+    def first(self):
+        'Return the first day of the invoice billing period in the form 01/01/2010'
+        result = '01/%02d/%04d' % (self.m, self.y)
+        return result
+    
+    def last(self):
+        'Return the last day of the invoice billing period in the form 31/01/2010'
+        num_of_days = calendar.monthrange(self.y, self.m)[1]
+        result = '%02d/%02d/%04d' % (num_of_days, self.m, self.y)
+        return result
+        

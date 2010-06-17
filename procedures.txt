@@ -6,6 +6,7 @@ Month-end procedures:
 run pypms
 
 run post (in progress) (quite a dangerous facility)
+run invsummary - produces the invoice summary
 
 Perform any manual adjustments to tblInvoice you require
 

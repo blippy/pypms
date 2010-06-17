@@ -1,6 +1,7 @@
 import codecs
 import datetime, json, logging, pprint, os, unicodedata
 
+import data
 import db, expenses, period
 
 
@@ -62,3 +63,13 @@ def AsFloat(text):
     'Convert text into a float'
     text = text.replace(',', '')
     return float(text)
+
+###########################################################################
+
+def run_current(main_func):
+    'A standard run routine calling using the current yaml'
+    # FIXME - use this function in many places, e.g. maininv.py
+    d = data.Data()
+    d.restore()
+    main_func(d)
+    d.store()

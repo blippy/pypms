@@ -13,6 +13,8 @@ This query takes 3 paramemters, in the following order:
 
 """
 
+###########################################################################
+
 import csv
 import datetime
 
@@ -20,10 +22,11 @@ import win32com.client
 
 import common
 import data, db, excel, unpost
-#from db import database
+import invsummary
 from common import AsAscii, AsFloat
-import maninv
         
+
+############################################################################
 
 def InsertFreshMonth(conn, d):
     'Put a selection of zeros in tblInvoice'
@@ -47,7 +50,9 @@ def InsertFreshMonth(conn, d):
         conn.execute(sql)
 
     #print jobsToCreate
-    
+
+###########################################################################
+
 def UpdatePms(conn, d):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
@@ -78,8 +83,8 @@ def UpdatePms(conn, d):
             
         # sum the invoices entered manually
         manual_invoice_total = 0.0
-        if d.manual_invoices.has_key(code):
-            for inv in d.manual_invoices[code]:
+        for inv in d.manual_invoices:
+            if inv['job'] == code:
                 manual_invoice_total += float(inv['net'])
 
         
@@ -89,48 +94,44 @@ def UpdatePms(conn, d):
         sql = fmt % (ubi, wip, invoice_total, party3, work, code, invBillingPeriod)
         conn.Execute(sql)
 
-        
-def create_invoice_summary(d):
-    path = d.p.outDir() + '\\craig'
-    common.makedirs(path)
-    file_name = path + "\\invoices.csv"
-    out = csv.writer(open(file_name, 'wb'))
-    out.writerow(['Ref', 'Client', 'Job', 'Net', 'Desc'])
-    total = 0.0
-    
-    #def txt(input): return "'" + input
-    def txt(input): return input
-    def number(input): return '%.2f' % (input)
+###########################################################################
 
-    # spit out the manual invoices
-    for job_code in d.manual_invoices.keys():
-        for inv in d.manual_invoices[job_code]:
-            #FIXME - ought to be possible to work out who the client is
-            net = inv['net']
-            total += net
-            out.writerow([txt(inv['id']), inv['client'], txt(job_code), number(net), inv['desc']])
-        
-    # write out the computed invoices
-    for job_code in d.auto_invoices:
-        inv = d.auto_invoices[job_code]
-        #FIXME - ought to be possible to work out who the client is
-        net = inv['net']
-        if net <> 0.0:
-            total += net
-            out.writerow(["", "", txt(job_code), number(inv['net'])])
-        
-    out.writerow([])
-    out.writerow(['Total', '', '', number(total)])
-        
+def add_purchase_orders(conn, d):
+
+    # Retrieve the relevant info from the database
+    from_date = d.p.first()
+    to_date = d.p.last()
+    # lifted from PMS query qselPOCosts
+    fmt = """SELECT tblPurchaseItems.POJobCode AS [code], Sum([POValue]*[POQty]) AS [cost]
+        FROM tblPurchaseOrders INNER JOIN tblPurchaseItems ON 
+        tblPurchaseOrders.PONumber = tblPurchaseItems.PONumber
+        WHERE (((tblPurchaseOrders.PODate) Between #%s# And #%s#))
+        GROUP BY tblPurchaseItems.POJobCode"""
+    sql = fmt % (from_date, to_date)
+    print sql
+    costs = {}
+    for rec in db.records(['code', 'cost'], sql):
+        costs[str(rec[0])] = rec[1]
+    
+    # Add PO costs to database
+    print costs
+    # FIXME now
+
+    
+###########################################################################
+
 def usingconn(conn):
     d = data.Data()
     d.restore()
-    maninv.import_manual_invoices(d)
+    invsummary.import_manual_invoices(d)
     unpost.zap_entries(d.p)
     InsertFreshMonth(conn, d)
     UpdatePms(conn, d)
-    create_invoice_summary(d)
- 
+    add_purchase_orders(conn, d)
+    #create_invoice_summary(d)
+
+###########################################################################
+
 def main():
     conn = db.DbOpen()
     try: usingconn(conn)
