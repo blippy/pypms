@@ -59,8 +59,8 @@ def UpdatePms(conn, d):
     
     # Jobs requiring entries
     invBillingPeriod = d.p.mmmmyyyy()
-    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  invBillingPeriod + "'"
-    codes = [str(rec[0]) for rec in db.records(['InvJobCode'], sql)]
+    code_records = db.GetInvoices(d, ['InvJobCode'])
+    codes = [str(rec[0]) for rec in code_records]
     invoices = d.auto_invoices
     
     for code in codes:

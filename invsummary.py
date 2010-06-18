@@ -5,8 +5,11 @@
 
 import common
 import data
+import db
 import excel
 
+
+    
 ###########################################################################
 
 def import_manual_invoices(d):
@@ -14,6 +17,8 @@ def import_manual_invoices(d):
     #fileName = 'M:\\Finance\\Invoices\\Inv summaries %s\\Inv Summary %s.xls' % (d.p.y, d.p.yyyymm())
     fileName = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (d.p.y, d.p.yyyymm())
     wsName = 'ManualInvoices'
+    #import_invoices_from_excel(d, fileName, wsName)
+    
     invoiceLines = excel.ImportWorksheet(fileName, wsName)
     
     def nth(row, index):
@@ -74,6 +79,7 @@ def create_invoice_summary(d):
             for col_value in row:
                 col_num +=1
                 ws.Cells(row_num, col_num).Value = col_value
+            ws.Cells(row_num, 4).NumberFormat = "0.00"
 
     path = d.p.outDir() + '\\craig'
     common.makedirs(path)
@@ -83,7 +89,37 @@ def create_invoice_summary(d):
 ###########################################################################
 
 def create_reconciliation(d):
-    print "FIXME NOW"
+    
+    invoices = {}
+    
+    # Obtain the invoice amounts from the database
+    recs = db.GetInvoices(d, ['InvJobCode', 'InvInvoice'])
+    for rec in recs:
+        job_code = str(rec[0])
+        invoices[job_code] = { 'db' : rec[1] , 'excel' : 0.0}
+        
+    # How much are we billing out?
+    for invoice in d.manual_invoices:
+        net = invoice['net']
+        job_code = invoice['job']
+        invoices[job_code]['excel'] += net
+    job_codes = d.auto_invoices.keys()
+    for job_code in job_codes:
+        inv = d.auto_invoices[job_code]
+        net = inv['net']
+        invoices[job_code]['excel'] += net
+            
+    # now compare the invoices side-by-side
+    job_codes = invoices.keys()
+    job_codes.sort()
+    for job_code in job_codes:
+        db_value = invoices[job_code]['db']
+        excel_value = invoices[job_code]['excel']
+        diff = db_value - excel_value
+        if abs(diff) > 20: print '*** Check:'
+        print jobcode, db_value, excel_value, diff
+        
+    print "FIXME NOW - need to test this - but needs a posting first"
 
 ###########################################################################
 def main(d):

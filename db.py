@@ -78,6 +78,11 @@ def GetEmployees(p):
     for r in recs: employees[r['Person']] = r
     return employees
 
+def GetInvoices(d, field_list):
+    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  d.p.mmmmyyyy() + "'"
+    return records(field_list, sql)
+
+    
 def GetJobs():
     sql = 'SELECT * FROM jobs'
     fieldspec = [('ID', int), ('job', str), ('title', str), ('address', str), ('references', str), ('briefclient', str), 
