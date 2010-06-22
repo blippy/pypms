@@ -107,15 +107,21 @@ def add_purchase_orders(conn, d):
         tblPurchaseOrders.PONumber = tblPurchaseItems.PONumber
         WHERE (((tblPurchaseOrders.PODate) Between #%s# And #%s#))
         GROUP BY tblPurchaseItems.POJobCode"""
-    sql = fmt % (from_date, to_date)
-    print sql
+    fmt = "SELECT * FROM qryPO WHERE BillingPeriod='%s'"
+    sql = fmt % (d.p.yyyymm())
+    #sql = fmt % (from_date, to_date)
+    #print sql
     costs = {}
-    for rec in db.records(['code', 'cost'], sql):
+    for rec in db.records(['Code', 'Cost'], sql):
         costs[str(rec[0])] = rec[1]
     
     # Add PO costs to database
-    print costs
-    # FIXME now
+    #print costs
+    for job_code in costs:
+        cost = costs[job_code]
+        fmt = "UPDATE tblInvoice SET InvPODatabaseCosts=%.2f WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
+        sql = fmt % (cost, job_code, d.p.mmmmyyyy())
+        conn.Execute(sql)
 
     
 ###########################################################################
