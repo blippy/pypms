@@ -21,9 +21,14 @@ outroot = 'M:\\Finance\\pypms\\out'
 def makedirs(path):
     path = os.path.abspath(path)
     if not os.path.exists(path): os.makedirs(path)
+    
+def reportdir(d):
+    'Return the report directory'
+    return outroot + "\\" + d.p.yyyymm() + "\\reports"
 
 
 # FIXME - ensure all file saving goes though this function
+# FIXME - should create intermediate directories if necessary
 def spit(fname, text):
     'Write TEXT to file FNAME'
     #with open(fname, "w") as f: f.write(text)

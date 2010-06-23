@@ -1,11 +1,13 @@
 # The reports are usually stored in
 # \\Cbegbrabssrv01\quality\Intertek\HSE Records\Monthly Returns
 
+import common
 import data
 import period
     
 
 def main():
+    # FIXME - determine if selecting the period really has any effect, or just uses current.yml
     p = period.Period()
     p.inputPeriod()
     d = data.Data(p)
@@ -26,10 +28,17 @@ def main():
             if jobcode == '010400' or jobcode == '010500': 
                 leave_and_sickness += time_val
         
-    print 'Statistics'
-    def line(text, value): return '%40s %8.f' % (text, value)
-    print line('Staff hours less leave and sickness', total_staff_hours - leave_and_sickness)
-    print line('Total hours', total_all_hours)
+    output = 'Statistics\n'
+    def line(text, value): return '%40s %8.f\n' % (text, value)
+    output += line('Staff hours less leave and sickness', total_staff_hours - leave_and_sickness)
+    output += line('Total hours', total_all_hours)
+    print output
+    dir = common.reportdir(d)
+    common.makedirs(dir)    
+    filename = dir +'\\health.txt'    
+    common.spit(filename, output)
+    print 'A copy of the results are in ' + filename
+    
     
 
 if  __name__ == "__main__":

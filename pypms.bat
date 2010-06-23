@@ -1,1 +1,3 @@
-c:\python26\python.exe pypms.py
+rem c:\python26\python.exe pypms.py
+cmd
+exit

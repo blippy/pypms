@@ -1,7 +1,7 @@
 '''Create a manual invoice summary
 '''
 
-#import csv
+import pdb
 
 import common
 import data
@@ -81,8 +81,8 @@ def create_invoice_summary(d):
                 ws.Cells(row_num, col_num).Value = col_value
             ws.Cells(row_num, 4).NumberFormat = "0.00"
 
-    path = d.p.outDir() + '\\craig'
-    common.makedirs(path)
+    path = common.reportdir(d)
+    common.makedirs(path) # FIXME - this should probably do elsewhere
     file_name = path + "\\invoices.xls"
     excel.create_workbook(file_name, excel_func)
 
@@ -102,7 +102,11 @@ def create_reconciliation(d):
     for invoice in d.manual_invoices:
         net = invoice['net']
         job_code = invoice['job']
-        invoices[job_code]['excel'] += net
+        try:
+            invoices[job_code]['excel'] += net
+        except KeyError:
+            msg = "ERR101: No job code " + job_code
+            raise common.DataIntegrityError(msg)
     job_codes = d.auto_invoices.keys()
     for job_code in job_codes:
         inv = d.auto_invoices[job_code]
@@ -110,16 +114,32 @@ def create_reconciliation(d):
         invoices[job_code]['excel'] += net
             
     # now compare the invoices side-by-side
+    output_text = 'RECONCILIATION BETWEEN INVOICE SUMMARY AND PMS\n'
+    output_text += '%7s %10s %10s %10s\n' % ('JOB', 'DBASE', 'EXCEL', 'DIFF')
+    
+    def write_line(code, v1, v2):
+        diff = float(db_value) - float(excel_value)
+        if abs(diff) > 2:
+            warning_flag = '***'
+        else:
+            warning_flag = ''
+        return '%7s %10.2f %10.2f %10.2f %s\n' % (code, v1, v2, diff, warning_flag)
+        
     job_codes = invoices.keys()
     job_codes.sort()
+    db_total = 0.0
+    excel_total = 0.0
     for job_code in job_codes:
-        db_value = invoices[job_code]['db']
-        excel_value = invoices[job_code]['excel']
-        diff = db_value - excel_value
-        if abs(diff) > 20: print '*** Check:'
-        print jobcode, db_value, excel_value, diff
+        db_value = float(invoices[job_code]['db'])
+        db_total += db_value
+        excel_value = float(invoices[job_code]['excel'])
+        excel_total += excel_value
+        output_text += write_line(job_code, db_value, excel_value)
+        #pdb.set_trace()
         
-    print "FIXME NOW - need to test this - but needs a posting first"
+    output_text += '\n\n'
+    output_text += write_line('TOTAL', db_total, excel_total)
+    common.spit(common.reportdir(d) + "\\monthrec.txt", output_text)
 
 ###########################################################################
 def main(d):

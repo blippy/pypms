@@ -135,6 +135,7 @@ def usingconn(conn):
     UpdatePms(conn, d)
     add_purchase_orders(conn, d)
     #create_invoice_summary(d)
+    d.store()
 
 ###########################################################################
 

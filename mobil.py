@@ -19,7 +19,7 @@ class config:
         self.jobs = {}
         while self.__more():
             line = self.__readLine()
-            print '*' , line , '*'
+            #print '*' , line , '*'
             if line == 'job':
                 job = {}
                 for field in ['job', 'contact', 'title', 'desc', 'po' , 'units']:
@@ -32,7 +32,16 @@ def main():
     conf = config()
     conf.load()                        
     print conf.jobs
+    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK\n'
+    
+    job_codes = conf.jobs.keys()
+    job_codes.sort()
+    for job_code in job_codes:
+        pass
     # FIXME
+    
+    print output_text
+    # FIXME Outputs: reports\mobil.txt
 
 if  __name__ == "__main__":
     main()

@@ -1,25 +1,15 @@
-The invoice summary should show the automated invoices in job order
-
-tblInvoice:InvPODatabase should show extracted expenses, not just leave blank
-
 produce an expenses summary
 
-workstatements
-- include approver and date
-- create weird invoices, but annotate them as such
+recovery report
 
-mobil workstatments
-
-something to reconcile invoice summary with database
+mobil workstatements
 
 email chargeability report
-
-timesheets should indicate if they need clients signature
 
 yaml file should also be stored in the monthly directory
 
 post health stats to Jon
 
-make pypms avaiable to Jon
+make pypms available to Jon
 
 jobs gui

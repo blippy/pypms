@@ -1,5 +1,7 @@
 # Module for manipulating RTF files
 
+import datetime
+
 import common
 
 class Rtf:
@@ -34,9 +36,8 @@ class Rtf:
         self.para(3)
         self.add('Approved: ______________________________________')        
         self.add(approver)
+        self.add(datetime.datetime.today().strftime("%d %B %Y"))
         
-        # FIXME NOW - add date
-
         annotations = []
         if job['Weird']: annotations.append('Unorthodox')
         if job['WIP']: annotations.append('WIP')

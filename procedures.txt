@@ -3,15 +3,32 @@ PROCEDURES
 
 Month-end procedures:
 
-run pypms
+Start pypms.bat
 
-run post (in progress) (quite a dangerous facility)
-run invsummary - produces the invoice summary
+run pypms.py
+
+run post.py (in progress) (quite a dangerous facility)
+
+run invsummary.py - produces the invoice summary
+Examine craig\monthrec.txt. Ensure that there are no diffs.
+Examine craig\invoices.xls. Ensure it matches with monthrec.txt and PMS
 
 Perform any manual adjustments to tblInvoice you require
 
-run mobil (in progress)
+run health.py, and give results to Jon. The figures do not have to be 100%.
+Outputs: reports\health.txt
+
+run mobil.py (in progress)
+Outputs: reports\mobil.txt
 
 Utility extras:
 * unpost - to eliminate a month from tblInvoice (be careful - it will zap a month)
 * health - report that Jon needs for his stats
+
+TROUBLESHOOTING
+
+ERR101: No job code NNN
+Occurs when running invsummary.
+Maybe it has found an expense/invoice for a job that isn't in PMS.
+Check that the job code is correct, and that you have set up a job with at least one active task for that job.
+You will need to rerun post.py before attempting to rerun invsummary again.

@@ -147,8 +147,11 @@ def CreateJobStatment(jobKey, invItems, d):
     out.save(d.p.outDir() + '\\statements', jobKey + '.rtf')
     
     # remember what we have produced for the invoice summaries
-    if job['Weird']: net = 0.0
-    invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': net}
+    if job['Weird'] or job['WIP']: 
+        billed = 0.0
+    else:
+        billed = net
+    invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': billed}
     d.auto_invoices[jobKey] = invoice
 
 
