@@ -33,8 +33,7 @@ def main():
     output += line('Staff hours less leave and sickness', total_staff_hours - leave_and_sickness)
     output += line('Total hours', total_all_hours)
     print output
-    dir = common.reportdir(d)
-    common.makedirs(dir)    
+    dir = common.reportdir(d.p)
     filename = dir +'\\health.txt'    
     common.spit(filename, output)
     print 'A copy of the results are in ' + filename

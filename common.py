@@ -22,9 +22,11 @@ def makedirs(path):
     path = os.path.abspath(path)
     if not os.path.exists(path): os.makedirs(path)
     
-def reportdir(d):
+def reportdir(p):
     'Return the report directory'
-    return outroot + "\\" + d.p.yyyymm() + "\\reports"
+    dir = outroot + "\\" + p.yyyymm() + "\\reports"
+    makedirs(dir)
+    return dir
 
 
 # FIXME - ensure all file saving goes though this function

@@ -10,10 +10,12 @@ run pypms.py
 run post.py (in progress) (quite a dangerous facility)
 
 run invsummary.py - produces the invoice summary
-Examine craig\monthrec.txt. Ensure that there are no diffs.
-Examine craig\invoices.xls. Ensure it matches with monthrec.txt and PMS
+Examine reports\monthrec.txt. Ensure that there are no diffs.
+Examine reports\invoices.xls. Ensure it matches with monthrec.txt and PMS
 
 Perform any manual adjustments to tblInvoice you require
+
+run recoveries.py - spots recoveries in PMS
 
 run health.py, and give results to Jon. The figures do not have to be 100%.
 Outputs: reports\health.txt

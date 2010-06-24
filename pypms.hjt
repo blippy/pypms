@@ -61,16 +61,9 @@ charges:
 employees:
   AB: {IsStaff: false, Person: AB, PersonNAME: A Black}
 
-expenses:
-- {Amount: 32.0, Desc: EXPENSES, JobCode: '2169', Name: 'R WATSON ', Period: 21/04/10,
-  Task: '', iType: 1}
 
 
 
-jobs:
-  '010200': {Autoprint: false, ID: 126, TsApprover: A SPENCE - Managing Director,
-    WIP: true, Weird: false, active: true, address: None, briefclient: '0', exp_factor: 1.0,
-    job: '010200', references: "PO ...", title: Overhead, vatable: true}
 
 
 
@@ -92,6 +85,26 @@ auto_invoices
 2
 auto_invoices:
   '2169': {expenses: 659.70000000000005, net: 38454.299999999996, work: 37794.599999999999}
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+expenses
+2
+expenses:
+- {Amount: 32.0, Desc: EXPENSES, JobCode: '2169', Name: 'R WATSON ', Period: 21/04/10,
+  Task: '', iType: 1}
+
+
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+jobs
+2
+jobs:
+  '010200': {Autoprint: false, ID: 126, TsApprover: A SPENCE - Managing Director,
+    WIP: true, Weird: false, active: true, address: None, briefclient: '0', exp_factor: 1.0,
+    job: '010200', references: "PO ...", title: Overhead, vatable: true}
 
 <end node> 5P9i0s8y19Z
 dt=Text

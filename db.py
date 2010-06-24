@@ -92,7 +92,8 @@ def GetJobs():
     jobs = {}
     for r in recs: jobs[r['job']] = r
     return jobs
-        
+ 
+
 def GetTasks(p):
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
     fieldspec = [('JobCode', str), ('JCDescription', str), ('TaskNo', str), ('TaskDes', str)]

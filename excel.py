@@ -59,6 +59,24 @@ def create_workbook(file_name, func):
 
 
 
+def create_report(p, desc, list_of_rows, numeric_field):
+    
+    def excel_func(wb):        
+        ws = wb.Worksheets('Sheet1')
+        ws.Name = desc
+        row_num = 0
+        for row in list_of_rows:
+            row_num += 1
+            col_num = 0
+            for col_value in row:
+                col_num +=1
+                ws.Cells(row_num, col_num).Value = col_value
+            ws.Cells(row_num, numeric_field).NumberFormat = "0.00"
+
+    file_name = common.reportdir(p) + '\\' + desc.lower() + '.xls'
+    create_workbook(file_name, excel_func)
+    
+    
 if  __name__ == "__main__":
     create_workbook('M:\\Finance\\pypms\\out\\2010-06\\craig\\test.xls')
     print 'Finished'

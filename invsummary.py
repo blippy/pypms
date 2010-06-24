@@ -69,22 +69,7 @@ def create_invoice_summary(d):
     output.append([])
     output.append(['Total', '', '', number(total)])
     
-    def excel_func(wb):        
-        ws = wb.Worksheets('Sheet1')
-        ws.Name = 'Invoices'
-        row_num = 0
-        for row in output:
-            row_num += 1
-            col_num = 0
-            for col_value in row:
-                col_num +=1
-                ws.Cells(row_num, col_num).Value = col_value
-            ws.Cells(row_num, 4).NumberFormat = "0.00"
-
-    path = common.reportdir(d)
-    common.makedirs(path) # FIXME - this should probably do elsewhere
-    file_name = path + "\\invoices.xls"
-    excel.create_workbook(file_name, excel_func)
+    excel.create_report(d.p, "Invoices", output, 2)
 
 ###########################################################################
 
@@ -139,7 +124,7 @@ def create_reconciliation(d):
         
     output_text += '\n\n'
     output_text += write_line('TOTAL', db_total, excel_total)
-    common.spit(common.reportdir(d) + "\\monthrec.txt", output_text)
+    common.spit(common.reportdir(d.p) + "\\monthrec.txt", output_text)
 
 ###########################################################################
 def main(d):
