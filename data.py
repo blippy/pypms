@@ -30,6 +30,7 @@ class Data:
         self.expenses = expenses.main(p)
         self.auto_invoices = {}
         self.manual_invoices = {}
+        self.invoice_tweaks = {}
         
 
     def store(self): 

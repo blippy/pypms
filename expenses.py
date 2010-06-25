@@ -10,9 +10,8 @@ import period
 
 
 
-def read_expenses(p):
-    fileName = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
-    rows = excel.ImportWorksheet(fileName, 'Expenses')
+def read_expenses(p):    
+    rows = excel.ImportWorksheet(common.camelxls(p), 'Expenses')
     expenses = []
     fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
     for row in rows[1:]:
@@ -44,7 +43,7 @@ def create_report(p, expenses):
 
     output.append([])
     output.append(['TOTAL', total])
-    excel.create_report(p, "expenses", output, 2)
+    excel.create_report(p, "expenses", output, [2])
     
 def main(p):
     expenses = read_expenses(p)

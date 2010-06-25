@@ -21,7 +21,11 @@ outroot = 'M:\\Finance\\pypms\\out'
 def makedirs(path):
     path = os.path.abspath(path)
     if not os.path.exists(path): os.makedirs(path)
-    
+ 
+def camelxls(p):
+    'Return the filename for the Camel Excel input file'
+    return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
+
 def reportdir(p):
     'Return the report directory'
     dir = outroot + "\\" + p.yyyymm() + "\\reports"
@@ -58,6 +62,24 @@ def mkKeyFunc(fieldName):
     return func
 
 
+###########################################################################
+# dictionay functions
+
+# FIXME - use this extensively
+def dget(dictionary_name, key, value = 0.0):
+    '''Obtain a value from a dictionay, using default VALUE if key not found'''    
+    try: 
+        result = dictionary_name[key]
+    except KeyError:
+        result = value
+    return result
+
+# FIXME - use this extensively
+def dplus(dictionary_name, key, value):
+    '''Accumulate a value for a dictionary, using 0.00 if the key is not already defined'''
+    if not dictionary_name.has_key(key): dictionary_name[key] = 0.0
+    dictionary_name[key] += value
+    
 
 ###########################################################################
 
@@ -69,6 +91,7 @@ def AsAscii(text):
 def AsFloat(text):
     'Convert text into a float'
     text = text.replace(',', '')
+    if text == '': text = '0.0'
     return float(text)
 
 ###########################################################################

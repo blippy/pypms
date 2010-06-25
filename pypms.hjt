@@ -95,6 +95,14 @@ expenses:
 - {Amount: 32.0, Desc: EXPENSES, JobCode: '2169', Name: 'R WATSON ', Period: 21/04/10,
   Task: '', iType: 1}
 
+<end node> 5P9i0s8y19Z
+dt=Text
+<node>
+invoice_tweaks
+2
+invoice_tweaks:
+- {Comment: how now brown cow, Inv3rdParty: 600.0, InvAccrual: 400.0, InvBIA: 100.0,
+  InvInvoice: 500.0, InvTime: 700.0, InvUBI: 200.0, InvWIP: 300.0, Job: '2169', Recovery: 800.0}
 
 <end node> 5P9i0s8y19Z
 dt=Text

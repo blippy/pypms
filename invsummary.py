@@ -14,12 +14,8 @@ import excel
 
 def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
-    #fileName = 'M:\\Finance\\Invoices\\Inv summaries %s\\Inv Summary %s.xls' % (d.p.y, d.p.yyyymm())
-    fileName = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (d.p.y, d.p.yyyymm())
-    wsName = 'ManualInvoices'
-    #import_invoices_from_excel(d, fileName, wsName)
-    
-    invoiceLines = excel.ImportWorksheet(fileName, wsName)
+
+    invoiceLines = excel.ImportWorksheet(common.camelxls(d.p), 'ManualInvoices')
     
     def nth(row, index):
         try: result = row[index]
@@ -34,6 +30,14 @@ def import_manual_invoices(d):
         #if not manual_invoices.has_key(job): manual_invoices[job] = []
         manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
     d.manual_invoices = manual_invoices
+    
+def accumulate(d):
+    # FIXME - this can probably be used in many other places
+    result = {}
+    for el in d.manual_invoices:
+        common.dplus(result, el['job'], el['net'])
+    return result
+    
  
 ###########################################################################
 

@@ -23,6 +23,7 @@ import win32com.client
 import common
 import data, db, excel, unpost
 import invsummary
+import invtweaks
 from common import AsAscii, AsFloat
         
 
@@ -63,35 +64,53 @@ def UpdatePms(conn, d):
     codes = [str(rec[0]) for rec in code_records]
     invoices = d.auto_invoices
     
+    manual_invoices = invsummary.accumulate(d)
+    tweaks = invtweaks.accumulate(d)
+    
     for code in codes:
         
-        if not invoices.has_key(code): continue # might be an active job for which we have no time or expenses
-        # determine what entries should be made to the table of invoices
-        invoice = invoices[code]
-        ubi = 0
-        wip = 0
-        invoicedOut = 0
-        party3 = 0
-        work = invoice['work']
-        party3 = invoice['expenses']
-        if d.jobs[code]['WIP']:
-            ubi = invoice['work']
-            wip = invoice['expenses']
-        else:        
-            invoicedOut = invoice['net']
+        bia = 0.0
+        ubi = 0.0
+        wip = 0.0
+        accrual = 0.0
+        invoice_total = 0.0
+        party3 = 0.0
+        invoice_time = 0.0
+        comments = ''
+        
+        # adjust for automated invoices
+        if invoices.has_key(code):
+            invoice = invoices[code]
+            invoice_time += invoice['work']
+            party3 += invoice['expenses']
+            if d.jobs[code]['WIP']:
+                ubi += invoice['work']
+                wip += invoice['expenses']
+            else:        
+                invoice_total += invoice['net']
             
             
-        # sum the invoices entered manually
-        manual_invoice_total = 0.0
-        for inv in d.manual_invoices:
-            if inv['job'] == code:
-                manual_invoice_total += float(inv['net'])
+        # adjust for manual invoices
+        invoice_total += common.dget(manual_invoices, code, 0.0)
+        
+        # adjust for invoice tweaks
+        tweak = common.dget(tweaks, code, None)
+        if tweak:
+            party3 += tweak['Inv3rdParty']
+            accrual += tweak['InvAccrual']
+            bia += tweak['InvBIA']
+            invoice_total += tweak['InvInvoice']
+            invoice_time += tweak['InvTime']
+            ubi += tweak['InvUBI']
+            wip += tweak['InvWIP']
+            
 
         
         # now post those entries
-        invoice_total = invoicedOut + manual_invoice_total
-        fmt = "UPDATE tblInvoice SET InvBIA=0, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (ubi, wip, invoice_total, party3, work, code, invBillingPeriod)
+        fmt = "UPDATE tblInvoice SET InvBIA=%.2f, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, "
+        fmt += "Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, "
+        fmt += "InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
+        sql = fmt % (bia, ubi, wip, invoice_total, party3, work, code, invBillingPeriod)
         conn.Execute(sql)
 
 ###########################################################################

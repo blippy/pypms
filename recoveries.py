@@ -5,6 +5,8 @@ import common
 import db
 import excel
 
+# FIXME make use of the recoveries in invoice_tweaks
+
 ###########################################################################
 def main(d):
     
@@ -47,7 +49,7 @@ def main(d):
         
     output.append([])
     output.append(['TOTAL', total_recovery, total_manual])
-    excel.create_report(d.p, "Recoveries", output, 2)
+    excel.create_report(d.p, "Recoveries", output, [2])
         
     #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
         

@@ -94,6 +94,10 @@ def GetJobs():
     return jobs
  
 
+def GetQryWip(field_list):
+    sql = 'SELECT * FROM qryWIP'
+    return records(field_list, sql)
+
 def GetTasks(p):
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
     fieldspec = [('JobCode', str), ('JCDescription', str), ('TaskNo', str), ('TaskDes', str)]

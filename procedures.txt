@@ -7,20 +7,31 @@ Start pypms.bat
 
 run pypms.py
 
-run post.py (in progress) (quite a dangerous facility)
+In camel, adjust InvTweak for the tblInvoice diffs you want to make
+run invtweak.py - IN PROGRESS
+Inputs: camel.xls InvTweaks
+Perform any manual adjustments to tblInvoice you require
+
+run post.py - posts manual and automated invoices to PMS - !DANGER! it removes any invoice
+information that's already in PMS for the month you choose
 
 run invsummary.py - produces the invoice summary
 Examine reports\monthrec.txt. Ensure that there are no diffs.
 Examine reports\invoices.xls. Ensure it matches with monthrec.txt and PMS
 
-Perform any manual adjustments to tblInvoice you require
+
 
 run recoveries.py - spots recoveries in PMS
 
 run health.py, and give results to Jon. The figures do not have to be 100%.
 Outputs: reports\health.txt
 
-run mobil.py (in progress)
+run wip.py 
+Outputs: reports\wip.xls - a wip summary
+Compare it to what we think it should be
+
+
+run mobil.py (in progress) - YOU WONT BE ABLE TO USE THIS YET
 Outputs: reports\mobil.txt
 
 Utility extras:
