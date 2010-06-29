@@ -73,7 +73,7 @@ def create_invoice_summary(d):
     output.append([])
     output.append(['Total', '', '', number(total)])
     
-    excel.create_report(d.p, "Invoices", output, 2)
+    excel.create_report(d.p, "Invoices", output, [4])
 
 ###########################################################################
 
@@ -107,7 +107,7 @@ def create_reconciliation(d):
     output_text += '%7s %10s %10s %10s\n' % ('JOB', 'DBASE', 'EXCEL', 'DIFF')
     
     def write_line(code, v1, v2):
-        diff = float(db_value) - float(excel_value)
+        diff = float(v1) - float(v2)
         if abs(diff) > 2:
             warning_flag = '***'
         else:

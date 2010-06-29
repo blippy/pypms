@@ -110,7 +110,7 @@ def UpdatePms(conn, d):
         fmt = "UPDATE tblInvoice SET InvBIA=%.2f, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, "
         fmt += "Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, "
         fmt += "InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (bia, ubi, wip, invoice_total, party3, work, code, invBillingPeriod)
+        sql = fmt % (bia, ubi, wip, invoice_total, party3, invoice_time, code, invBillingPeriod)
         conn.Execute(sql)
 
 ###########################################################################

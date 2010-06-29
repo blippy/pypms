@@ -41,6 +41,11 @@ def spit(fname, text):
     #with codecs.open(fname, "w", "utf-8") as f: f.write(text)
     with codecs.open(fname, "w", "Latin-1") as f: f.write(text)
 
+
+# FIXME - use this more
+def save_report(p, filename, text):
+    spit(reportdir(p) + '\\' + filename, text)
+
 ###########################################################################
 # logging
 
@@ -81,6 +86,16 @@ def dplus(dictionary_name, key, value):
     dictionary_name[key] += value
     
 
+# FIXME - use this extensively
+def combine_dict_keys(list_of_dicts):
+    result = set()
+    for dic in list_of_dicts:
+        for key in dic.keys():
+            result.add(key)
+    result = list(result)
+    result.sort()
+    return result
+    
 ###########################################################################
 
 def AsAscii(text):
@@ -95,6 +110,7 @@ def AsFloat(text):
     return float(text)
 
 ###########################################################################
+# functions difficult to classify
 
 def run_current(main_func):
     'A standard run routine calling using the current yaml'
@@ -103,3 +119,10 @@ def run_current(main_func):
     d.restore()
     main_func(d)
     d.store()
+    
+def tri(truth, true_result, false_result):
+    'Simulate the C ?: operator'
+    if truth:
+        return true_result
+    else:
+        return false_result

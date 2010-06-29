@@ -1,57 +1,83 @@
 '''Spot recoveries in PMS
 '''
 
+import operator
+
 import common
+from common import dget
 import db
 import excel
 
-# FIXME make use of the recoveries in invoice_tweaks
 
 ###########################################################################
-def main(d):
-    
-    # summate manual invoices - they will give clues as to likely recoveries
-    manuals = {}
-    # FIXME - this kind of incrementing should be refactored and used extensively
-    for manual_invoice in d.manual_invoices:
-        job_code = manual_invoice['job']
-        if not manuals.has_key(job_code): manuals[job_code] = 0.0
-        manuals[job_code]  += manual_invoice['net']
 
-
-    # create a report of the recoveries
-    output = [['Job', 'Recovery', 'Manual', 'WIP?', 'Weird?', 'Comment']]
+def get_dbase_recoveries(d):
+    #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
     field_list = ['InvJobCode', 'InvComments', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime']
     invoices = db.GetInvoices(d, field_list)    
-    total_recovery = 0.0
-    total_manual = 0.0
+
+    recoveries = {}
     for invoice in invoices:
-        job_code = invoice[0]
+        job_code = common.AsAscii(invoice[0])
         comment = invoice[1]
         as_floats = map(float, invoice[2:])
         InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime = as_floats
         recovery = InvBIA + InvUBI + InvWIP + InvAccrual + InvInvoice - Inv3rdParty - InvTime
         if abs(recovery)< 20.0: continue # ignore immaterial recoveries
-        total_recovery += recovery
-        recovery
+        recoveries[job_code] = recovery
+    return recoveries
+
+def get_camel_recoveries(d):
+    xl = excel.ImportWorksheet(common.camelxls(d.p), 'InvTweaks')
+    recoveries = {}
+
+    for line in xl[1:]:
+        job_code = line[0]
+        amount = common.AsFloat(line[8])
+        if amount == 0.0: continue
+        comment = line[9]
+        if not recoveries.has_key(job_code): recoveries[job_code] = []
+        recoveries[job_code].append((amount, comment))
+    return recoveries
+
+
+###########################################################################
+def main(d):
+    db_recoveries = get_dbase_recoveries(d)
+    camel_recoveries = get_camel_recoveries(d)    
+    output = 'RECOVERY RECONILIATION\n\n'
     
-        # FIXME - candidate for refactoring and using extensively
-        if manuals.has_key(job_code): manual_amount = manuals[job_code]
-        else: manual_amount = 0.0
-        total_manual += manual_amount
+    def line(amount, comment): return  '    %9.2f %s\n' % (amount, comment)
+
+    tweaks_grand_total = 0.0
+    pms_grand_total = 0.0
+    for job_code in common.combine_dict_keys([camel_recoveries, db_recoveries]):
+        wip = common.tri(d.jobs[job_code]['WIP'], 'wip' , '')
+        weird = common.tri(d.jobs[job_code]['Weird'], 'weird ', '')
+        output += 'JOB %s %s %s\n' % (job_code, wip, weird)
         
-        job = d.jobs[job_code]
-        if job['WIP']: wip = 'Y'
-        else: wip = ''
-        if job['Weird']: weird = 'Y'
-        else: weird = ''
-        output.append([job_code, recovery, manual_amount, wip, weird, comment])
-        
-    output.append([])
-    output.append(['TOTAL', total_recovery, total_manual])
-    excel.create_report(d.p, "Recoveries", output, [2])
-        
-    #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
+        #output += '  Per InvTweaks\n'
+        tweak_total = 0.0
+        for tweak in dget(camel_recoveries, job_code, []):
+            amount, comment = tweak
+            tweak_total += amount
+            output += line(amount, comment)
+        output += line(tweak_total , 'TWEAK TOTAL')
+        tweaks_grand_total += tweak_total
+            
+        recovery = dget(db_recoveries, job_code)
+        output += line(recovery , 'PMS RECOVERY')
+        diff = tweak_total - recovery
+        flag = common.tri(abs(diff) > 20.0, ' **** CHECK THIS', '')
+        output += line(diff , 'DIFF' + flag + '\n\n')
+        pms_grand_total += recovery
+       
+    output += 'SUMMARY:\n'
+    output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
+    output += line(pms_grand_total, 'PMS GRAND TOTAL')
+    output += line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF')        
+    common.save_report(d.p, 'recoveries.txt', output)
+    
         
 if  __name__ == "__main__":
     common.run_current(main)
