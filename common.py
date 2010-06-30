@@ -16,12 +16,15 @@ class DataIntegrityError(Exception):
 
 ###########################################################################
 # file and directory handling utilties    
-outroot = 'M:\\Finance\\pypms\\out'
 
 def makedirs(path):
     path = os.path.abspath(path)
     if not os.path.exists(path): os.makedirs(path)
- 
+
+outroot = 'M:\\Finance\\pypms\\out'
+makedirs(outroot)
+
+
 def camelxls(p):
     'Return the filename for the Camel Excel input file'
     return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
