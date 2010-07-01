@@ -24,7 +24,7 @@ class Rtf:
 
     def add(self, text, newLines = 1):
         if not text: return
-        self.text += text
+        self.text += common.AsAscii(text)
         self.para(newLines)
       
     def setFontSize(self, size):

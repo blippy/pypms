@@ -20,12 +20,7 @@ run invsummary.py - produces the invoice summary
 Examine reports\monthrec.txt. Ensure that there are no diffs.
 Examine reports\invoices.xls. Ensure it matches with monthrec.txt and PMS
 
-
-
 run recoveries.py - spots recoveries in PMS
-
-run health.py, and give results to Jon. The figures do not have to be 100%.
-Outputs: reports\health.txt
 
 run wip.py 
 Outputs: reports\wip.xls - a wip summary
@@ -34,6 +29,8 @@ Compare it to what we think it should be
 print the files in folder statements - these are the invoices
 run rtfsprint.py - prints the timesheets
 
+run health.py, and give results to Jon. The figures do not have to be 100%.
+Outputs: reports\health.txt
 
 run mobil.py (in progress) - YOU WONT BE ABLE TO USE THIS YET
 Outputs: reports\mobil.txt

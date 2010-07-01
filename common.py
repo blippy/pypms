@@ -104,7 +104,10 @@ def combine_dict_keys(list_of_dicts):
 def AsAscii(text):
     '''Convert text into ASCII string. Useful resource:
     http://www.peterbe.com/plog/unicode-to-ascii'''
-    return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
+    if type(text) == str:
+        return text
+    else:
+        return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
 
 def AsFloat(text):
     'Convert text into a float'

@@ -1,0 +1,7 @@
+Go to directory
+n:\IT\software\python26
+Install the following software:
+- python-2.6.5.msi
+- pywin32-214.win32-py2.6.exe
+- PyYAML-3.09.win32.py2.6.exe
+
