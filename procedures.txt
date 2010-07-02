@@ -32,6 +32,8 @@ run rtfsprint.py - prints the timesheets
 run health.py, and give results to Jon. The figures do not have to be 100%.
 Outputs: reports\health.txt
 
+Send to Craig: invoice summary, reports: expenses.xls, invoices.xls, recoveries.xls
+
 run mobil.py (in progress) - YOU WONT BE ABLE TO USE THIS YET
 Outputs: reports\mobil.txt
 
