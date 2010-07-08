@@ -1,6 +1,8 @@
 '''Create a manual invoice summary
 '''
 
+import functools
+import itertools
 import pdb
 
 import common
@@ -41,24 +43,48 @@ def accumulate(d):
  
 ###########################################################################
 
-def create_invoice_summary(d):    
-    total = 0.0
-
-    output = []
-    output.append(['Ref', 'Client', 'Job', 'Net', 'Desc'])
-    
-    #def txt(input): return "'" + input
-    def txt(input): return input
+def create_invoice_summary_func(d, wb):
+    def numbered(alist): return itertools.izip(range(0, len(alist)), alist)        
+    def txt(text): return common.AsAscii(text)
     def number(input): return '%.2f' % (input)
+    
+    ws = wb.Worksheets('Sheet1')
+    ws.Name = 'Invoices'    
 
+    for coln, coltitle in numbered(['Ref', 'Client', 'Job', 'Net', 'VAT', 'Gross', 'Desc']):
+        ws.Cells(1, coln+1).Value = coltitle
+        
+    total = 0.0
+    rown = 2
+
+    def addline(rown, irn, client, job_code, net, desc):
+        ws.Cells(rown, 1).Value = txt(irn)
+        ws.Cells(rown, 2).Value = client
+        ws.Cells(rown, 3).Value = txt(job_code)
+        ws.Cells(rown, 4).Value = number(net)
+        ws.Cells(rown, 4).NumberFormat = "0.00"
+        
+        vatable = d.jobs[job_code]['vatable']
+        if vatable: rate = 0.175
+        else: rate = 0.0
+        formula = '=round(RC[-1]*%f, 2)' % (rate)
+        ws.Cells(rown, 5).Formula = formula
+        
+        ws.Cells(rown, 5).NumberFormat = "0.00"
+        ws.Cells(rown, 6).Formula = '=RC[-2]+RC[-1]' # Gross
+        ws.Cells(rown, 6).NumberFormat = "0.00"
+        ws.Cells(rown, 7).Value = desc
+        
+        
+        
     # spit out the manual invoices
     for invoice in d.manual_invoices:
-        #FIXME - ought to be possible to work out who the client is
+        rown += 1
+        #FIXME - ought to be possible to work out who the client is            
         net = invoice['net']
         total += net
-        output.append([txt(invoice['irn']), invoice['client'], txt(invoice['job']), 
-            number(net), invoice['desc']])
-        
+        addline(rown, invoice['irn'], invoice['client'], invoice['job'], net, invoice['desc'])
+    
     # write out the computed invoices
     job_codes = d.auto_invoices.keys()
     job_codes.sort()
@@ -67,13 +93,23 @@ def create_invoice_summary(d):
         #FIXME - ought to be possible to work out who the client is
         net = inv['net']
         if net <> 0.0:
+            rown += 1
             total += net
-            output.append(["", "", txt(job_code), number(inv['net'])])
-        
-    output.append([])
-    output.append(['Total', '', '', number(total)])
+            addline(rown, "", "", job_code, inv['net'], '')
     
-    excel.create_report(d.p, "Invoices", output, [4])
+    # write the totals
+    rown += 2
+    ws.Cells(rown, 1).Value = 'Total'
+    formula = '=SUM(R[-%d]C:R[-1]C)' % (rown -2)
+    for col in [4,5,6]:
+        ws.Cells(rown, col).Formula = formula
+        ws.Cells(rown, col).NumberFormat = "0.00"
+
+
+def create_invoice_summary(d): 
+    fname = common.reportfile(d.p, "invoices.xls")
+    func = functools.partial(create_invoice_summary_func, d)
+    excel.create_workbook(fname, func)
 
 ###########################################################################
 

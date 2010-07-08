@@ -12,8 +12,23 @@ import common
 #import period
 
 
+#class excelapp:
+#        def __enter__(self):
+#            set things up
+#            return thing
+#        def __exit__(self, type, value, traceback):
+#            tear things down
+#
+#    with controlled_execution() as thing:
+#         some code
 
+ 
+def XXXxlopen():
+    return win32com.client.dynamic.Dispatch("Excel.Application")
 
+def XXXxlclose(xlapp):
+    xlapp.Quit()
+    del xlapp    
     
 def ImportWorksheet(fileName, wsName):
     xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
@@ -35,7 +50,7 @@ def ImportWorksheet(fileName, wsName):
         sloppy.append(row)
     wb.Close(SaveChanges = 0)
     xlapp.Quit()
-    del xlapp
+    del xlapp  
     
     # now reduce the number of rows and columns read in
     sloppy = sloppy[0:numActualRows]
@@ -55,7 +70,7 @@ def create_workbook(file_name, func):
     wb.SaveAs(file_name)
     wb.Close(SaveChanges = 0)
     xlapp.Quit()
-    del xlapp
+    del xlapp 
 
 
 

@@ -35,6 +35,10 @@ def reportdir(p):
     makedirs(dir)
     return dir
 
+# FIXME - use this more extensively
+def reportfile(p, fname):
+    'Return a full filename for a report'
+    return reportdir(p) + '\\' + fname
 
 # FIXME - ensure all file saving goes though this function
 # FIXME - should create intermediate directories if necessary
@@ -47,7 +51,8 @@ def spit(fname, text):
 
 # FIXME - use this more
 def save_report(p, filename, text):
-    spit(reportdir(p) + '\\' + filename, text)
+    fullname = reportfile(p, filename)
+    spit(fullname, text)
 
 ###########################################################################
 # logging

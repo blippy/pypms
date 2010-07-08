@@ -1,6 +1,10 @@
-HIGH - invoices should include VAT
+job 2638 - shouldn't print references as 'None' on statement
 
 timesheets - they print a spare blank page in job e.g. 2325 - get rid of this
+
+Show WIP added during the month so that we can easily add time+exp
+
+in camel 2010-06 ManInvoices. We put the centrica job in as 2731 but it sb 2731,02. However, pypms did pick it up.
 
 mobil workstatements
 
