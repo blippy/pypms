@@ -28,7 +28,7 @@ class Rtf:
         self.para(newLines)
       
     def setFontSize(self, size):
-        self.add('\\f0\\fs%d' % (size))
+        self.add('\\f0\\fs%d' % (size), newLines = 0)
         
     def annotation(self, job, approver):
         'Return some RTF text for non-vanilla jobs'

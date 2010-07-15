@@ -1,9 +1,6 @@
 import codecs
 import datetime, json, logging, pprint, os, unicodedata
 
-import data
-import db, expenses, period
-
 
 ###########################################################################
     
@@ -74,7 +71,21 @@ def mkKeyFunc(fieldName):
     def func(rec): return rec[fieldName]
     return func
 
-
+def aggregate(seq, keyfunc):
+    #FIXME prolly use this extensively
+    dic = {}
+    for x in seq:
+        key = keyfunc(x)
+        if not dic.has_key(key): dic[key] = []
+        dic[key].append(x)
+    
+    lis=[]
+    for k in dic.keys():
+        lis.append((k, dic[k]))
+    lis.sort(key = lambda x: x[0]) # sort on the key
+    
+    return lis
+    
 ###########################################################################
 # dictionay functions
 
@@ -109,7 +120,9 @@ def combine_dict_keys(list_of_dicts):
 def AsAscii(text):
     '''Convert text into ASCII string. Useful resource:
     http://www.peterbe.com/plog/unicode-to-ascii'''
-    if type(text) == str:
+    if text is None:
+        return ''
+    elif type(text) == str:
         return text
     else:
         return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
@@ -123,13 +136,7 @@ def AsFloat(text):
 ###########################################################################
 # functions difficult to classify
 
-def run_current(main_func):
-    'A standard run routine calling using the current yaml'
-    # FIXME - use this function in many places, e.g. maininv.py
-    d = data.Data()
-    d.restore()
-    main_func(d)
-    d.store()
+
     
 def tri(truth, true_result, false_result):
     'Simulate the C ?: operator'

@@ -2,10 +2,11 @@
 
 #import itertools
 import pdb
-from itertools import groupby, ifilter
+#from itertools import groupby, ifilter
 from operator import itemgetter, attrgetter
 
 import common, data, rtf
+from common import aggregate
 
 
 ###########################################################################
@@ -25,10 +26,13 @@ def AddTopInfo(out, job):
     address1 = address[0] # first line of address
     out.add(address1)    
     out.add(job['title'])
-    out.add("SREL job code: " + job['job'], 2)
+    job_code = job['job']
+    out.add("SREL job code: " + job_code, 2)
     
+    #if job_code  == '2638' : pdb.set_trace()
     references = job['references']
     references = references.replace('\n', '\\par \n')
+    #references = common.AsAscii(references)
     out.add(references, 2)
     
     heading =  '{0:44s}{1:>9s}{2:>9s}{3:>9s}'.format('', 'Quantity', 'Price', 'Value')
@@ -100,7 +104,7 @@ def CreateJobStatment(jobKey, invItems, d):
     
     # distribute invoice items into sections
     sections = [] # a list of Section classes
-    for taskKey, taskGroup in groupby(invItems, common.mkKeyFunc('Task')):
+    for taskKey, taskGroup in aggregate(invItems, common.mkKeyFunc('Task')):
         s = Section()
         if taskKey == '' : 
             s.heading = 'Expenses not categorised to a specific task'
@@ -143,7 +147,7 @@ def CreateJobStatment(jobKey, invItems, d):
     subtotal(out, 'Net total', net)
 
      
-    out.annotation(job, 'A SPENCE - Managing Director')
+    out.annotation(job, '')
     out.save(d.p.outDir() + '\\statements', jobKey + '.rtf')
     
     # remember what we have produced for the invoice summaries
@@ -173,7 +177,8 @@ def main(d = None):
     def invSorter(a, b): return cmp(a['JobCode'], b['JobCode']) or cmp(a['Task'], b['Task']) or (a['iType'] < b['iType'])        
     invItems.sort(invSorter)
         
-    for jobKey, jobGroup in groupby(invItems, common.mkKeyFunc('JobCode')): CreateJobStatment(jobKey, jobGroup, d)
+    for jobKey, jobGroup in aggregate(invItems, common.mkKeyFunc('JobCode')): 
+        CreateJobStatment(jobKey, jobGroup, d)
     
 if  __name__ == "__main__":
     main()

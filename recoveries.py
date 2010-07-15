@@ -5,6 +5,7 @@ import operator
 
 import common
 from common import dget
+import data
 import db
 import excel
 
@@ -80,5 +81,5 @@ def main(d):
     
         
 if  __name__ == "__main__":
-    common.run_current(main)
+    data.run_current(main)
     print 'Finished'

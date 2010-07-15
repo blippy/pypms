@@ -53,7 +53,15 @@ class Data:
 
 
 
+###########################################################################
 
+def run_current(main_func):
+    'A standard run routine calling using the current yaml'
+    # FIXME - use this function in many places, e.g. maininv.py
+    d = Data()
+    d.restore()
+    main_func(d)
+    d.store()
    
 ###########################################################################
 

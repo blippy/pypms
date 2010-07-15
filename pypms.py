@@ -47,8 +47,8 @@ def protectedProcess(usePrevMonth = False):
 
 def main(): 
     protectedProcess()
-    print "Finished. Press any key to exit"
-    msvcrt.getch()
+    print "Finished"
+    #msvcrt.getch()
 
 def profileit():
     "Use this if you want to perform a profile analysis of the code"

@@ -6,6 +6,7 @@ from itertools import izip
 import win32com.client, yaml
 
 import common
+from common import AsAscii
 
 
 def DbOpen():
@@ -85,18 +86,16 @@ def GetInvoices(d, field_list):
     
 def GetJobs():
     sql = 'SELECT * FROM jobs'
-    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', str), ('references', str), ('briefclient', str), 
+    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), ('references', AsAscii), ('briefclient', str), 
         ('active', bool), ('vatable', bool), ('exp_factor', float), ('WIP', bool), ('Weird', bool), 
-        ('Autoprint', bool), ('TsApprover', str)]      
+        ('Autoprint', bool), ('TsApprover', AsAscii)]      
     recs = RecordsList(sql, fieldspec)
     jobs = {}
     for r in recs: jobs[r['job']] = r
     return jobs
  
 
-def GetQryWip(field_list):
-    sql = 'SELECT * FROM qryWIP'
-    return records(field_list, sql)
+
 
 def GetTasks(p):
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
