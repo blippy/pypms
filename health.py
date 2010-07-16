@@ -5,14 +5,9 @@ import common
 import data
 import period
     
+###########################################################################
 
-def main():
-    # FIXME - determine if selecting the period really has any effect, or just uses current.yml
-    p = period.Period()
-    p.inputPeriod()
-    d = data.Data(p)
-    d.load()
-    
+def main(d):    
     total_all_hours = 0.0
     total_staff_hours = 0.0
     leave_and_sickness = 0.0
@@ -38,8 +33,9 @@ def main():
     common.spit(filename, output)
     print 'A copy of the results are in ' + filename
     
-    
+
+###########################################################################
 
 if  __name__ == "__main__":
-    main()
+    data.run_current(main)
     print 'Finished'

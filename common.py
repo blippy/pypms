@@ -86,6 +86,15 @@ def aggregate(seq, keyfunc):
     
     return lis
     
+def summate(seq, keyfunc):
+    # FIXME - make more use of this function
+    total = 0.0
+    for el in seq:
+        v = keyfunc(el)
+        total +=v
+    return total
+    
+    
 ###########################################################################
 # dictionay functions
 

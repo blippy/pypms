@@ -1,8 +1,10 @@
 '''Create a WIP summary
 '''
 
+import pdb
+
 import common
-from common import aggregate, AsAscii
+from common import aggregate, AsAscii, summate
 import data
 import db
 import excel
@@ -10,35 +12,13 @@ import excel
 
 ###########################################################################
 
-def process_job(output, job_code, invoices):
-    
-    # FIXME NOW
-    
-    #ubi_total = 0.0
-    #wip_total = 0.0
-    #total = 0.0
-    
-    def summate(invoices, fieldname):
-        # FIXME HIGH - move to common
-        total = 0.0
-        for inv in invoices:
-            v = float(x[fieldname])
-            total +=v
-        return total
-        
-    for invoice in invoices:
-        ubi_ytd = summate(invoice, 'InvUBI')
-        wip_ytd = summate(invoice, 'InvWIP')
-        #job_code, ubi, wip, job_total = wip_entry
-        #ubi = float(ubi)
-        #wip = float(wip)
-        #job_total = float(job_total)
-        #if abs(ubi) <0.01 and abs(wip) < 0.01: continue
-        #ubi_total += ubi
-        #wip_total += wip
-        #total += job_total
-    return ["something"] # or maybe nothing
-        
+def sums(invoices):
+    #pdb.set_trace()
+    ufunc = lambda x: float(x['InvUBI'])
+    wfunc = lambda x: float(x['InvWIP'])
+    ubi_ytd = summate(invoices, ufunc)
+    wip_ytd = summate(invoices, wfunc)    
+    return ubi_ytd, wip_ytd, ubi_ytd + wip_ytd
 
 ###########################################################################
 def main(d):
@@ -47,19 +27,40 @@ def main(d):
         ('InvUBI', float), ('InvWIP', float)]
     #wips_for_this_month = db.GetInvoices(d, fieldspec)
     wips = db.RecordsList("SELECT * FROM tblInvoice", fieldspec)
+    billing_period = d.p.mmmmyyyy()
+    monthlies = filter(lambda x: x['InvBillingPeriod'] == billing_period, wips)
+    
     
     output = []
-    output.append(['Job', 'UBI', 'WIP', 'TOTAL'])
+    output.append(['Job', 'UBI', 'WIP', 'TOTAL', 'UBI', 'WIP', 'TOTAL'])
+    output.append(['', 'YTD', 'YTD', 'YTD', 'CUR', 'CUR', 'CUR'])
+    
+    # output the totals for each job code
     for job_code, invoices in aggregate(wips, common.mkKeyFunc("InvJobCode")):
-        job = process_job(output, job_code, invoices)
-        if job: output.append(job)
-        #output.append([job_code, ubi, wip, job_total])
+        ubi_ytd, wip_ytd, sum_ytd = sums(invoices)
+        cur = filter(lambda x: x['InvJobCode'] == job_code, monthlies)
+        ubi_cur, wip_cur, sum_cur = sums(cur)
+        line = [job_code, ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
+        
+        # maybe add the line to output
+        total = reduce( lambda x,y: abs(x)+abs(y), line[1:])
+        if total > 0.01: output.append(line)
+            
 
+    # output the totals
     output.append([])
-    output.append(['TOTAL', ubi_total, wip_total, total])
-    excel.create_report(d.p, "Wip", output, [2,3,4])
+    ubi_ytd, wip_ytd, sum_ytd = sums(wips)
+    ubi_cur, wip_cur, sum_cur = sums(monthlies)
+    line = ['TOTAL', ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
+    output.append(line)
+    
+    excel.create_report(d.p, "Wip", output, [2, 3 ,4, 5, 6, 7])
+
+    # FIXME NOW
 
         
+###########################################################################
+
 if  __name__ == "__main__":
     data.run_current(main)
     print 'Finished'    
