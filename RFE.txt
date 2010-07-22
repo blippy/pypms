@@ -1,5 +1,7 @@
 do a health thing for jon
 
+log errors and also bail out
+
 in camel 2010-06 ManInvoices. We put the centrica job in as 2731 but it sb 2731,02. However, pypms did pick it up.
 
 mobil workstatements

@@ -22,7 +22,7 @@ def core(usePrevMonth = False):
     common.loginfo("end")
 
 
-def protectedProcess(usePrevMonth = False):        
+def XXXprotectedProcess(usePrevMonth = False):        
     try:        
         core(usePrevMonth)
         print "########     ###     ######   ######  "
@@ -45,18 +45,23 @@ def protectedProcess(usePrevMonth = False):
         print txt
         common.logerror(txt)
 
-def main(): 
+def XXXmain(): 
     protectedProcess()
     print "Finished"
     #msvcrt.getch()
 
 def profileit():
     "Use this if you want to perform a profile analysis of the code"
-    cProfile.run('pypms.protectedProcess(True)', 'profresults')
-    p = pstats.Stats('profresults')
+    fname = '../profresults.dat'
+    cProfile.run('pypms.protectedProcess(True)', fname)
+    p = pstats.Stats(fname)
     p.sort_stats('cumulative')
     p.print_stats()
+    #p.dump_stats('../profile.txt')
     
 
 
-if  __name__ == "__main__": main()
+if  __name__ == "__main__":
+    print "You're on your own"
+    main()
+    print 'Finished'

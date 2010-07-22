@@ -17,6 +17,7 @@ import excel
 def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
 
+    pdb.set_trace()
     invoiceLines = excel.ImportWorksheet(common.camelxls(d.p), 'ManualInvoices')
     
     def nth(row, index):

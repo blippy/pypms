@@ -3,24 +3,8 @@
 import os
 
 import win32com.client.dynamic
-#import numpy
-
-#import yaml
 
 import common
-#from common import AsAscii
-#import period
-
-
-#class excelapp:
-#        def __enter__(self):
-#            set things up
-#            return thing
-#        def __exit__(self, type, value, traceback):
-#            tear things down
-#
-#    with controlled_execution() as thing:
-#         some code
 
  
 def XXXxlopen():

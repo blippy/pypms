@@ -1,7 +1,6 @@
 # Extract expenses from the spreadsheet
 
 import win32com.client.dynamic
-#import yaml
 
 import common
 import data
@@ -45,18 +44,16 @@ def create_report(p, expenses):
     output.append([])
     output.append(['TOTAL', total])
     excel.create_report(p, "expenses", output, [2])
-    
-def main(p):
-    expenses = read_expenses(p)
-    create_report(p, expenses)
-    return expenses
-    
+  
+###########################################################################
 
+def main(d):
+    expenses = read_expenses(d.p)
+    create_report(d.p, expenses)
+    d.expenses = expenses
+    
+###########################################################################
 
 if  __name__ == "__main__":
-    d = data.Data()
-    d.restore()
-    #p = period.Period(usePrev = True)
-    expenses = main(d.p)
-    #print expenses
+    data.run_current(main)
     print 'Finished'

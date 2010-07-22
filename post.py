@@ -107,10 +107,11 @@ def UpdatePms(conn, d):
 
         
         # now post those entries
+        comment = 'PyPms ' + str(period.now())
         fmt = "UPDATE tblInvoice SET InvBIA=%.2f, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, "
-        fmt += "Inv3rdParty=%.2f, InvTime=%.2f , InvComments='PyPms autofilled', InvPODatabaseCosts=0, "
+        fmt += "Inv3rdParty=%.2f, InvTime=%.2f , InvComments='%s', InvPODatabaseCosts=0, "
         fmt += "InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (bia, ubi, wip, invoice_total, party3, invoice_time, code, invBillingPeriod)
+        sql = fmt % (bia, ubi, wip, invoice_total, party3, invoice_time, comment, code, invBillingPeriod)
         conn.Execute(sql)
 
 ###########################################################################
@@ -143,26 +144,18 @@ def add_purchase_orders(conn, d):
         conn.Execute(sql)
 
     
+
 ###########################################################################
 
-def usingconn(conn):
-    d = data.Data()
-    d.restore()
+def main(d):
+    conn = db.DbOpen()
     invsummary.import_manual_invoices(d)
     unpost.zap_entries(d.p)
     InsertFreshMonth(conn, d)
     UpdatePms(conn, d)
     add_purchase_orders(conn, d)
-    #create_invoice_summary(d)
-    d.store()
-
-###########################################################################
-
-def main():
-    conn = db.DbOpen()
-    try: usingconn(conn)
-    finally: conn.Close()
+    conn.Close()
     
 if  __name__ == "__main__":
-    main()
+    data.run_current(main)
     print 'Finished'

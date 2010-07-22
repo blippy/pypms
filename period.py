@@ -1,7 +1,9 @@
 import calendar
-import datetime, msvcrt, os, sys, traceback
+import datetime, os, sys, traceback
 
 import common
+
+def now(): return datetime.datetime.now()
 
 class Period:
     def __init__(self, usePrev = False):        
@@ -9,7 +11,7 @@ class Period:
         if usePrev: self.decMonth()
 
     def setToCurrent(self):
-        t = datetime.datetime.now()
+        t = now()
         self.y = t.year
         self.m = t.month
         
@@ -36,10 +38,10 @@ class Period:
         return value
 
     def askYear(self):
-        return self.askNumber('Year', datetime.datetime.now().year, 2000, 2020)
+        return self.askNumber('Year', now().year, 2000, 2020)
             
     def askMonth(self):
-        return self.askNumber('Month', datetime.datetime.now().month, 1, 12)
+        return self.askNumber('Month', now().month, 1, 12)
 
     def decMonth(self):
         self.m -= 1

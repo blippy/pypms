@@ -1,6 +1,22 @@
 PROCEDURES
 
+==============================================================================================
+NEW METHOD FROM 22-Jul-2010
 
+run pydra.py
+
+# perp() - set the action period to previous invoicing period
+
+Either do:
+1. Reload a stored cache:
+   load() - To fetch data from the filed cache or
+2. Fetch a new one:
+   dbf() - Fetch data for the action period into the cache
+   
+
+bye() - saves the cache and exits pydra
+
+==============================================================================================
 Month-end procedures:
 
 Start pypms.bat
@@ -14,12 +30,13 @@ run invtweaks.py - adjusts the yml file for the tweaks that it finds
 Inputs: camel.xls!InvTweaks
 
 run push.py, which runs the following:
-- run post.py - posts manual and automated invoices to PMS - !DANGER! it removes any invoice
-information that's already in PMS for the month you choose
 
 - run invsummary.py - produces the invoice summary
 Examine reports\monthrec.txt. Ensure that there are no diffs.
 Examine reports\invoices.xls. Ensure it matches with monthrec.txt and PMS
+
+- run post.py - posts manual and automated invoices to PMS - !DANGER! it removes any invoice
+information that's already in PMS for the month you choose
 
 - run recoveries.py - spots recoveries in PMS
 
@@ -42,6 +59,7 @@ Utility extras:
 * unpost - to eliminate a month from tblInvoice (be careful - it will zap a month)
 * health - report that Jon needs for his stats
 
+==============================================================================================
 TROUBLESHOOTING
 
 ERR101: No job code NNN

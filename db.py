@@ -3,7 +3,7 @@
 import datetime, pdb
 from itertools import izip
 
-import win32com.client, yaml
+import win32com.client
 
 import common
 from common import AsAscii
@@ -29,7 +29,8 @@ def ForEachRecord(sql, func):
         if not IsEmpty(rs): rs.MoveFirst()  
         while not IsEmpty(rs):
             func(rs)            
-            rs.MoveNext()        
+            rs.MoveNext()    
+        rs.Close()
     finally:
         conn.Close()
 
@@ -129,12 +130,19 @@ def GetCharges(p):
     for r in recs: charges[ (r['JobCode'], r['TaskNo'], r['Person'] )] = r['PersonCharge']
     return charges
 
-
-
-def test():
-    fieldspec = { 'charges' : [['JobCode', 'str'], ('TaskNo', str), ('Person', str), ('PersonCharge', float)],
-    'foo' : [['bar', 'smurf']]}
-    print yaml.dump(fieldspec)
+def fetch(d):
+    p = d['period']
+    d['employees'] = GetEmployees(p)
+    d['jobs'] = GetJobs()
+    d['tasks'] = GetTasks(p)
+    d['timeItems'] = GetTimeitems(p)
+    d['charges'] = GetCharges(p)
+    return
+    # FIXME this info will have to be loaded at some future date
+    expenses.main(p)
+    self.auto_invoices = {}
+    self.manual_invoices = {}
+    self.invoice_tweaks = {}    
     
 if  __name__ == "__main__": 
     test()

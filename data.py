@@ -1,7 +1,9 @@
-import json
+import pdb
 #import pickle
+import pprint
+import shelve
 
-import yaml
+#import yaml
 
 import db, expenses, period
 
@@ -11,49 +13,35 @@ import db, expenses, period
 
 ###########################################################################
 
-class Data:
-    
-    yamlFile = 'M:\\Finance\\pypms\\out\\current.yml'
-    
-    def __init__(self, p = None, restore = False):
-        if not p: p = period.Period(usePrev = True)
-        self.p = p # period
-        if restore: self.restore()
 
-    def load(self):
-        p = self.p
-        self.employees = db.GetEmployees(p)
-        self.jobs = db.GetJobs()
-        self.tasks = db.GetTasks(p)
-        self.timeItems = db.GetTimeitems(p)
-        self.charges = db.GetCharges(p)
-        self.expenses = expenses.main(p)
-        self.auto_invoices = {}
-        self.manual_invoices = {}
-        self.invoice_tweaks = {}
-        
+    
+def XXX__init__(self, p = None):
+    if not p: p = period.Period(usePrev = True)
+    self.p = p # period
+    self.restore()
 
-    def store(self): 
-        with open(self.__class__.yamlFile, 'w') as f: yaml.dump(self.__dict__, f)
-        
-        # create a shortened dictionary for developer convenience
-        return # maybe reinstate this later
-        short = {}
-        for key in self.__dict__.keys():
-            short[key] = self.__dict__[key][:5]
-        print short
-        
-    def restore(self): 
-        with open(self.__class__.yamlFile, 'r') as f: self.__dict__ = yaml.load(f)
-        
-    def __del__(self):
-        #print "Data class being deleted"
-        #self.store()
-        pass
+    
 
 
 
 ###########################################################################
+
+
+__storage_filename = 'M:\\Finance\\pypms\\out\\current.shl'
+
+def open():
+    print 'Loading cache'
+    dbase = shelve.open(__storage_filename, writeback = True)
+    #with open(__storage_filename, 'rb') as f:
+    #    pkl = pickle.load(f)
+    return dbase
+    
+def XXXsave(pkl):
+    print 'Saving cache'
+    with open(__storage_filename, 'wb') as f:
+        pickle.dump(pkl, f, pickle.HIGHEST_PROTOCOL)
+        
+
 
 def run_current(main_func):
     'A standard run routine calling using the current yaml'
