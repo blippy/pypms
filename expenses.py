@@ -10,7 +10,8 @@ import period
 
 
 
-def read_expenses(p):    
+def read_expenses(d):
+    p = d['period']
     rows = excel.ImportWorksheet(common.camelxls(p), 'Expenses')
     expenses = []
     fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
@@ -21,13 +22,13 @@ def read_expenses(p):
             try: expense[fieldName] = fieldType(text)
             except ValueError: pass
         if expense['JobCode']: expenses.append(expense) # only add an expense if it's "genuine" - i.e. it has a job number
-    return expenses
+    d['expenses'] = expenses
 
-def create_report(p, expenses):
+def create_report(d):
     total = 0.0
 
     output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
-    sorted_expenses = sorted(expenses, key= lambda x: x['JobCode'])
+    sorted_expenses = sorted(d['expenses'], key= lambda x: x['JobCode'])
     for expense_item in sorted_expenses:
         job_code = expense_item['JobCode']
         per = expense_item['Period']
@@ -43,14 +44,13 @@ def create_report(p, expenses):
 
     output.append([])
     output.append(['TOTAL', total])
-    excel.create_report(p, "expenses", output, [2])
+    excel.create_report(d['period'], "expenses", output, [2])
   
 ###########################################################################
 
 def main(d):
-    expenses = read_expenses(d.p)
-    create_report(d.p, expenses)
-    d.expenses = expenses
+    read_expenses(d)
+    create_report(d)
     
 ###########################################################################
 

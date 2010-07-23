@@ -1,4 +1,4 @@
-# FIXME NOW - moving over to GetRows
+# FIXME - moving over to GetRows
 
 import itertools
 import timeit
@@ -17,7 +17,7 @@ def testmain():
     sql = "SELECT Person, PersonNAME, IsStaff FROM tblEmployeeDetails"
     rs.Open(sql, conn, 1, 3)
     
-    # FIXME HIGH - also consider using GetAll and GetArray
+    # FIXME - also consider using GetAll and GetArray
     recs = rs.GetRows()
     #Person,PersonNAME, PersonCompany, Active, Complete, IsStaff = recs
     fieldspec = [('Person', str), ('PersonNAME', str), ('IsStaff', bool)]

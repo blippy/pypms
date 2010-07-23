@@ -17,8 +17,8 @@ import excel
 def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
 
-    pdb.set_trace()
-    invoiceLines = excel.ImportWorksheet(common.camelxls(d.p), 'ManualInvoices')
+    #pdb.set_trace()
+    invoiceLines = excel.ImportWorksheet(common.camelxls(d['period']), 'ManualInvoices')
     
     def nth(row, index):
         try: result = row[index]
@@ -28,16 +28,16 @@ def import_manual_invoices(d):
     manual_invoices = []
     for row in invoiceLines:
         irn, client, job, net, desc = [nth(row, idx) for idx in range(0,5)]
-        if not d.jobs.has_key(job): continue
+        if not d['jobs'].has_key(job): continue
         net = common.AsFloat(net)        
         #if not manual_invoices.has_key(job): manual_invoices[job] = []
         manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
-    d.manual_invoices = manual_invoices
+    d['manual_invoices'] = manual_invoices
     
 def accumulate(d):
     # FIXME - this can probably be used in many other places
     result = {}
-    for el in d.manual_invoices:
+    for el in d['manual_invoices']:
         common.dplus(result, el['job'], el['net'])
     return result
     
@@ -65,7 +65,7 @@ def create_invoice_summary_func(d, wb):
         ws.Cells(rown, 4).Value = number(net)
         ws.Cells(rown, 4).NumberFormat = "0.00"
         
-        vatable = d.jobs[job_code]['vatable']
+        vatable = d['jobs'][job_code]['vatable']
         if vatable: rate = 0.175
         else: rate = 0.0
         formula = '=round(RC[-1]*%f, 2)' % (rate)
@@ -79,7 +79,7 @@ def create_invoice_summary_func(d, wb):
         
         
     # spit out the manual invoices
-    for invoice in d.manual_invoices:
+    for invoice in d['manual_invoices']:
         rown += 1
         #FIXME - ought to be possible to work out who the client is            
         net = invoice['net']
@@ -87,10 +87,11 @@ def create_invoice_summary_func(d, wb):
         addline(rown, invoice['irn'], invoice['client'], invoice['job'], net, invoice['desc'])
     
     # write out the computed invoices
-    job_codes = d.auto_invoices.keys()
+    #pdb.set_trace()
+    job_codes = d['auto_invoices'].keys()
     job_codes.sort()
     for job_code in job_codes:
-        inv = d.auto_invoices[job_code]
+        inv = d['auto_invoices'][job_code]
         #FIXME - ought to be possible to work out who the client is
         net = inv['net']
         if net <> 0.0:
@@ -108,7 +109,7 @@ def create_invoice_summary_func(d, wb):
 
 
 def create_invoice_summary(d): 
-    fname = common.reportfile(d.p, "invoices.xls")
+    fname = common.reportfile(d['period'], "invoices.xls")
     func = functools.partial(create_invoice_summary_func, d)
     excel.create_workbook(fname, func)
 
@@ -125,7 +126,7 @@ def create_reconciliation(d):
         invoices[job_code] = { 'db' : rec[1] , 'excel' : 0.0}
         
     # How much are we billing out?
-    for invoice in d.manual_invoices:
+    for invoice in d['manual_invoices']:
         net = invoice['net']
         job_code = invoice['job']
         try:
@@ -133,9 +134,9 @@ def create_reconciliation(d):
         except KeyError:
             msg = "ERR101: No job code " + job_code
             raise common.DataIntegrityError(msg)
-    job_codes = d.auto_invoices.keys()
+    job_codes = d['auto_invoices'].keys()
     for job_code in job_codes:
-        inv = d.auto_invoices[job_code]
+        inv = d['auto_invoices'][job_code]
         net = inv['net']
         invoices[job_code]['excel'] += net
             
@@ -165,7 +166,7 @@ def create_reconciliation(d):
         
     output_text += '\n\n'
     output_text += write_line('TOTAL', db_total, excel_total)
-    common.spit(common.reportdir(d.p) + "\\monthrec.txt", output_text)
+    common.spit(common.reportdir(d['period']) + "\\monthrec.txt", output_text) # FIXME maybe it would be better if common.reportdir() just took in d
 
 ###########################################################################
 def main(d):

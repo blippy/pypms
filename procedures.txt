@@ -1,22 +1,27 @@
 PROCEDURES
 
-==============================================================================================
+=========================================================================================
 NEW METHOD FROM 22-Jul-2010
 
-run pydra.py
+--- BACKUP THE DATABSE BEFORE PROCEEDING ---
+
+run pydra.bat
 
 # perp() - set the action period to previous invoicing period
 
-Either do:
-1. Reload a stored cache:
-   load() - To fetch data from the filed cache or
-2. Fetch a new one:
-   dbf() - Fetch data for the action period into the cache
-   
+stage1() - does the following:   
+  dbg() - Fetch data for the action period into the cache  
+  expg() - Fetch expenses from spreadsheet for period.
+  exps() - Create expenses spreadsheet.
+  works() - create the invoice statements
+  times() - create timesheets
+
+stage2() - does the following:
+  ...
 
 bye() - saves the cache and exits pydra
 
-==============================================================================================
+=========================================================================================
 Month-end procedures:
 
 Start pypms.bat
@@ -59,7 +64,7 @@ Utility extras:
 * unpost - to eliminate a month from tblInvoice (be careful - it will zap a month)
 * health - report that Jon needs for his stats
 
-==============================================================================================
+=========================================================================================
 TROUBLESHOOTING
 
 ERR101: No job code NNN

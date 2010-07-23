@@ -27,7 +27,7 @@ def main(d):
         ('InvUBI', float), ('InvWIP', float)]
     #wips_for_this_month = db.GetInvoices(d, fieldspec)
     wips = db.RecordsList("SELECT * FROM tblInvoice", fieldspec)
-    billing_period = d.p.mmmmyyyy()
+    billing_period = d['period'].mmmmyyyy()
     monthlies = filter(lambda x: x['InvBillingPeriod'] == billing_period, wips)
     
     
@@ -54,7 +54,7 @@ def main(d):
     line = ['TOTAL', ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
     output.append(line)
     
-    excel.create_report(d.p, "Wip", output, [2, 3 ,4, 5, 6, 7])
+    excel.create_report(d['period'], "Wip", output, [2, 3 ,4, 5, 6, 7])
 
         
 ###########################################################################

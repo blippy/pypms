@@ -78,5 +78,10 @@ def create_report(p, desc, list_of_rows, numeric_fields):
     
     
 if  __name__ == "__main__":
-    create_workbook('M:\\Finance\\pypms\\out\\2010-06\\craig\\test.xls')
+    def xlfunc(wb):
+        ws = wb.Worksheets('Sheet1')
+        ws.Cells(1,1).Value = 'Basic test works'
+    fname = 'c:\\test.xls'
+    create_workbook(fname, xlfunc)
+    print 'Simple spreadsheet created at', fname
     print 'Finished'

@@ -39,13 +39,13 @@ def AddPersonToJobsheet(personKey, personGroup, out):
 
 def CreateJobsheet(jobcode, job_times, d, title, outdir):
     out = rtf.Rtf()
-    job = d.jobs[jobcode]         
+    job = d['jobs'][jobcode]         
     sheets = aggregate(job_times, lambda x: (x['Task'], x['Person']))
     last_key = sheets[-1][0]
     for key, values in sheets:
         task, initials = key
-        taskTitle = task + ' - ' + d.tasks[(jobcode, task)]['TaskDes']
-        person_name = d.employees[initials]['PersonNAME']
+        taskTitle = task + ' - ' + d['tasks'][(jobcode, task)]['TaskDes']
+        person_name = d['employees'][initials]['PersonNAME']
         AddHeader(title, jobcode, job['title'], taskTitle, person_name, out)
         #pdb.set_trace()
         AddPersonToJobsheet(initials, values, out)
@@ -56,9 +56,10 @@ def CreateJobsheet(jobcode, job_times, d, title, outdir):
 ###########################################################################
 
 def main(d):
-    title = 'Timesheet: ' + d.p.mmmmyyyy()
-    outdir = d.p.outDir() + '\\timesheets'
-    for jobKey, job_items in aggregate(d.timeItems, common.mkKeyFunc('JobCode')):
+    p = d['period']
+    title = 'Timesheet: ' + p.mmmmyyyy()
+    outdir = p.outDir() + '\\timesheets'
+    for jobKey, job_items in aggregate(d['timeItems'], common.mkKeyFunc('JobCode')):
         #pdb.set_trace()
         CreateJobsheet(jobKey, job_items, d, title, outdir)
 

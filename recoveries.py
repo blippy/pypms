@@ -29,7 +29,7 @@ def get_dbase_recoveries(d):
     return recoveries
 
 def get_camel_recoveries(d):
-    xl = excel.ImportWorksheet(common.camelxls(d.p), 'InvTweaks')
+    xl = excel.ImportWorksheet(common.camelxls(d['period']), 'InvTweaks')
     recoveries = {}
 
     for line in xl[1:]:
@@ -53,8 +53,9 @@ def main(d):
     tweaks_grand_total = 0.0
     pms_grand_total = 0.0
     for job_code in common.combine_dict_keys([camel_recoveries, db_recoveries]):
-        wip = common.tri(d.jobs[job_code]['WIP'], 'wip' , '')
-        weird = common.tri(d.jobs[job_code]['Weird'], 'weird ', '')
+        job = d['jobs'][job_code] # FIXME - d['jobs'][job_code] is a common idiom which ought to be abstracted
+        wip = common.tri(job['WIP'], 'wip' , '') 
+        weird = common.tri(job['Weird'], 'weird ', '')
         output += 'JOB %s %s %s\n' % (job_code, wip, weird)
         
         #output += '  Per InvTweaks\n'
@@ -77,7 +78,7 @@ def main(d):
     output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
     output += line(pms_grand_total, 'PMS GRAND TOTAL')
     output += line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF')        
-    common.save_report(d.p, 'recoveries.txt', output)
+    common.save_report(d['period'], 'recoveries.txt', output)
     
         
 if  __name__ == "__main__":

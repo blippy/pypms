@@ -24,6 +24,7 @@ import common
 import data, db, excel, unpost
 import invsummary
 import invtweaks
+import period
 from common import AsAscii, AsFloat
         
 
@@ -33,7 +34,7 @@ def InsertFreshMonth(conn, d):
     'Put a selection of zeros in tblInvoice'
     
     # Determine which jobs need to be recorded in tblInvoice
-    invBillingPeriod = d.p.mmmmyyyy()
+    invBillingPeriod = d['period'].mmmmyyyy()
     sql = "SELECT JobCode FROM tblTasks WHERE JobActive=Yes"
     sql = "SELECT JobCode FROM tblTasks"
     activeJobs = set([str(rec[0]) for rec in db.records(['JobCode'], sql)])
@@ -59,10 +60,10 @@ def UpdatePms(conn, d):
     records, so we only have to update, and not insert'''
     
     # Jobs requiring entries
-    invBillingPeriod = d.p.mmmmyyyy()
+    invBillingPeriod = d['period'].mmmmyyyy()
     code_records = db.GetInvoices(d, ['InvJobCode'])
     codes = [str(rec[0]) for rec in code_records]
-    invoices = d.auto_invoices
+    invoices = d['auto_invoices']
     
     manual_invoices = invsummary.accumulate(d)
     tweaks = invtweaks.accumulate(d)
@@ -83,7 +84,7 @@ def UpdatePms(conn, d):
             invoice = invoices[code]
             invoice_time += invoice['work']
             party3 += invoice['expenses']
-            if d.jobs[code]['WIP']:
+            if d['jobs'][code]['WIP']:
                 ubi += invoice['work']
                 wip += invoice['expenses']
             else:        
@@ -119,8 +120,9 @@ def UpdatePms(conn, d):
 def add_purchase_orders(conn, d):
 
     # Retrieve the relevant info from the database
-    from_date = d.p.first()
-    to_date = d.p.last()
+    p = d['period']
+    from_date = p.first()
+    to_date = p.last()
     # lifted from PMS query qselPOCosts
     fmt = """SELECT tblPurchaseItems.POJobCode AS [code], Sum([POValue]*[POQty]) AS [cost]
         FROM tblPurchaseOrders INNER JOIN tblPurchaseItems ON 
@@ -128,7 +130,7 @@ def add_purchase_orders(conn, d):
         WHERE (((tblPurchaseOrders.PODate) Between #%s# And #%s#))
         GROUP BY tblPurchaseItems.POJobCode"""
     fmt = "SELECT * FROM qryPO WHERE BillingPeriod='%s'"
-    sql = fmt % (d.p.yyyymm())
+    sql = fmt % (p.yyyymm())
     #sql = fmt % (from_date, to_date)
     #print sql
     costs = {}
@@ -140,7 +142,7 @@ def add_purchase_orders(conn, d):
     for job_code in costs:
         cost = costs[job_code]
         fmt = "UPDATE tblInvoice SET InvPODatabaseCosts=%.2f WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (cost, job_code, d.p.mmmmyyyy())
+        sql = fmt % (cost, job_code, p.mmmmyyyy())
         conn.Execute(sql)
 
     
@@ -150,7 +152,7 @@ def add_purchase_orders(conn, d):
 def main(d):
     conn = db.DbOpen()
     invsummary.import_manual_invoices(d)
-    unpost.zap_entries(d.p)
+    unpost.zap_entries(d['period'])
     InsertFreshMonth(conn, d)
     UpdatePms(conn, d)
     add_purchase_orders(conn, d)

@@ -81,7 +81,7 @@ def GetEmployees(p):
     return employees
 
 def GetInvoices(d, field_list):
-    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  d.p.mmmmyyyy() + "'"
+    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  d['period'].mmmmyyyy() + "'"
     return records(field_list, sql)
 
     
@@ -137,12 +137,10 @@ def fetch(d):
     d['tasks'] = GetTasks(p)
     d['timeItems'] = GetTimeitems(p)
     d['charges'] = GetCharges(p)
-    return
-    # FIXME this info will have to be loaded at some future date
-    expenses.main(p)
-    self.auto_invoices = {}
-    self.manual_invoices = {}
-    self.invoice_tweaks = {}    
+    d['auto_invoices'] = None
+    d['manual_invoices'] = None
+    d['invoice_tweaks'] = None
+    d['expenses'] = None
     
 if  __name__ == "__main__": 
     test()

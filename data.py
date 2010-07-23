@@ -46,25 +46,15 @@ def XXXsave(pkl):
 def run_current(main_func):
     'A standard run routine calling using the current yaml'
     # FIXME - use this function in many places, e.g. maininv.py
-    d = Data()
-    d.restore()
+    d = open()
     main_func(d)
-    d.store()
    
 ###########################################################################
 
-def main():
+def main(d):
     'Just used for testing purposes'
-    
-    usePrevMonth = False # set or unset according to taste
-    p = period.Period()
-    if usePrevMonth: p.decMonth()
-    else: p.inputPeriod()
-    
-    d = Data()
-    d.load()
-    d.store()
+    print "Didn't do anything"        
     
 if  __name__ == "__main__":
-    main()
+    run_current(main)
     print 'Finished'
