@@ -2,6 +2,8 @@
 Write something useful here
 '''
 
+import common
+from common import dget
 import db
 import data
 import expenses
@@ -45,7 +47,13 @@ def exps():
 def perp(): 
     'Set the action period to previous invoicing period.'
     global cache
+    
+    #print cache
+    prev_period = dget(cache, 'period', None)
     p = period.Period(usePrev = True)
+    if p!= prev_period:
+        print 'New period detected. Trashing current cache.'
+        for k in cache.keys(): del cache[k]
     cache['period'] = p
     print 'Action period set to', p.mmmmyyyy()
 

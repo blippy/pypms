@@ -1,5 +1,7 @@
 import calendar
-import datetime, os, sys, traceback
+import datetime, os
+import pdb
+import sys, traceback
 
 import common
 
@@ -9,6 +11,15 @@ class Period:
     def __init__(self, usePrev = False):        
         self.setToCurrent()        
         if usePrev: self.decMonth()
+        
+    def __eq__(self, other):
+        #pdb.set_trace()
+        #print "entering equality test"
+        if not other: return False # maybe None was passed in as other
+        return self.yyyymm() == other.yyyymm()
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def setToCurrent(self):
         t = now()
