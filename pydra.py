@@ -1,14 +1,17 @@
 '''
-Write something useful here
+PMS automation facility written in Python.
 '''
 
-import common
+import copy
+import pdb
+
 from common import dget
 import db
 import data
 import expenses
 import period
 import push
+import rtfsprint
 import statements
 import timesheets
 
@@ -19,11 +22,18 @@ cache = None
 ###########################################################################
 
 
+def backup():
+    'Make a backup of of the cache, storing it in the relevant period.'
+    global cache
+    per = copy.copy(cache['period'])
+    #pdb.set_trace()
+    cache.close()
+    data.backup(per)
+    cache = data.open()
+    
 def bye():
     'Save cache and exit'
     global cache
-    #data.save(cache)
-    #cache.close()
     print "Quitting"
     quit()
     
@@ -32,7 +42,6 @@ def dbg():
     global cache
     db.fetch(cache)
     
-#def load(): cache = data.open()
 
 def expg():
     'Fetch expenses from spreadsheet for period.'
@@ -51,20 +60,27 @@ def perp():
     #print cache
     prev_period = dget(cache, 'period', None)
     p = period.Period(usePrev = True)
-    if p!= prev_period:
+    if p != prev_period:
         print 'New period detected. Trashing current cache.'
-        for k in cache.keys(): del cache[k]
+        for k in cache.keys(): 
+            del cache[k]
     cache['period'] = p
     print 'Action period set to', p.mmmmyyyy()
 
+def ptimes():
+    'Print the timesheets'
+    rtfsprint.main()
+    
 def stage1():
     dbg()  
-    expg()
-    exps()
-    works()
     times()
     
 def stage2():
+    expg()
+    exps()
+    works()
+    
+def stage3():
     global cache
     push.main(cache)
 
@@ -78,13 +94,12 @@ def works():
     global cache
     statements.main(cache)
 
-# def save(): data.save(cache)
     
 ###########################################################################
 
 def init():
     global cache
-    #cache = data.load()
+    print 'Pydra Arthritic Aardvark 2010-07-31'
     cache = data.open()
     perp()
 

@@ -1,5 +1,6 @@
 import codecs
-import datetime, json, logging, pprint, os, unicodedata
+import datetime, logging, pprint, os
+import unicodedata
 
 
 ###########################################################################
@@ -26,9 +27,12 @@ def camelxls(p):
     'Return the filename for the Camel Excel input file'
     return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
 
+def perioddir(p):
+    return outroot + "\\" + p.yyyymm()
+    
 def reportdir(p):
     'Return the report directory'
-    dir = outroot + "\\" + p.yyyymm() + "\\reports"
+    dir =  perioddir(p) + "\\reports"
     makedirs(dir)
     return dir
 

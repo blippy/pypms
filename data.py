@@ -1,28 +1,9 @@
 import pdb
-#import pickle
 import pprint
 import shelve
+import shutil
 
-#import yaml
-
-import db, expenses, period
-
-
-
-
-
-###########################################################################
-
-
-    
-def XXX__init__(self, p = None):
-    if not p: p = period.Period(usePrev = True)
-    self.p = p # period
-    self.restore()
-
-    
-
-
+import common
 
 ###########################################################################
 
@@ -32,16 +13,10 @@ __storage_filename = 'M:\\Finance\\pypms\\out\\current.shl'
 def open():
     print 'Loading cache'
     dbase = shelve.open(__storage_filename, writeback = True)
-    #with open(__storage_filename, 'rb') as f:
-    #    pkl = pickle.load(f)
     return dbase
-    
-def XXXsave(pkl):
-    print 'Saving cache'
-    with open(__storage_filename, 'wb') as f:
-        pickle.dump(pkl, f, pickle.HIGHEST_PROTOCOL)
-        
 
+def backup(per):
+    shutil.copy(__storage_filename, common.perioddir(per) + "\\current.shl")
 
 def run_current(main_func):
     'A standard run routine calling using the current yaml'

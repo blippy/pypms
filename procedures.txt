@@ -1,7 +1,7 @@
 PROCEDURES
 
 =========================================================================================
-NEW METHOD FROM 22-Jul-2010
+NEW MONTH-END METHOD FROM 22-Jul-2010
 
 --- BACKUP THE DATABSE BEFORE PROCEEDING ---
 
@@ -9,61 +9,32 @@ run pydra.bat
 
 # perp() - set the action period to previous invoicing period
 
-stage1() - does the following:   
+stage1() - purely time-related activities:
   dbg() - Fetch data for the action period into the cache  
-  expg() - Fetch expenses from spreadsheet for period.
-  exps() - Create expenses spreadsheet.
-  works() - create the invoice statements
   times() - create timesheets
 
 stage2() - does the following:
-  ...
+  expg() - Fetch expenses from spreadsheet for period.
+  exps() - Create expenses spreadsheet.
+  works() - create the invoice work statements
 
-bye() - saves the cache and exits pydra
+Adjust camel.xls!InvTweaks
 
-=========================================================================================
-Month-end procedures:
+stage3() - does the following:
+  invsummary - creates invoices.xls, monthrec.txt
+  invtweaks
+  recoveries
+  wip - creates wip.xls
+  post - !DANGER! - it removes current invoice information for month
 
-Start pypms.bat
-
-run pypms.py
-Outputs: reports\expenses.xls, current.yml
-
-
-In camel, adjust InvTweak for the tblInvoice diffs you want to make
-run invtweaks.py - adjusts the yml file for the tweaks that it finds
-Inputs: camel.xls!InvTweaks
-
-run push.py, which runs the following:
-
-- run invsummary.py - produces the invoice summary
-Examine reports\monthrec.txt. Ensure that there are no diffs.
-Examine reports\invoices.xls. Ensure it matches with monthrec.txt and PMS
-
-- run post.py - posts manual and automated invoices to PMS - !DANGER! it removes any invoice
-information that's already in PMS for the month you choose
-
-- run recoveries.py - spots recoveries in PMS
-
-- run wip.py 
-Outputs: reports\wip.xls - a wip summary
-Compare it to what we think it should be
-
-print the files in folder statements - these are the invoices
-run rtfsprint.py - prints the timesheets
-
-run health.py, and give results to Jon. The figures do not have to be 100%.
-Outputs: reports\health.txt
+other utility functions:
+  backup() - make a backup of the current cache for its period
+  health() - Jon's health report. Email him a copy.
+  ptimes() - print the timesheets
+  unpost.py() - to eliminate a month from tblInvoice (be careful - it will zap a month)
 
 Send to Craig: invoice summary, reports: expenses.xls, invoices.xls, recoveries.xls
-
-run mobil.py (in progress) - YOU WONT BE ABLE TO USE THIS YET
-Outputs: reports\mobil.txt
-
-Utility extras:
-* unpost - to eliminate a month from tblInvoice (be careful - it will zap a month)
-* health - report that Jon needs for his stats
-
+  
 =========================================================================================
 TROUBLESHOOTING
 
