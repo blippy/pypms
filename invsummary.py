@@ -173,7 +173,7 @@ def main(d):
     'Extract the manual invoices from the spreadsheets'
     import_manual_invoices(d)
     create_invoice_summary(d)
-    create_reconciliation(d)
+    # create_reconciliation(d) # needs post done first
         
 if  __name__ == "__main__":
     data.run_current(main)

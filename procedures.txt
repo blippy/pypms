@@ -21,12 +21,15 @@ stage2() - does the following:
 Adjust camel.xls!InvTweaks
 
 stage3() - does the following:
+  FIX THE ORDERING HERE
   invsummary - creates invoices.xls, monthrec.txt
   invtweaks
   recoveries
   wip - creates wip.xls
   post - !DANGER! - it removes current invoice information for month
 
+quit() - exit out of the whole thing
+  
 other utility functions:
   backup() - make a backup of the current cache for its period
   health() - Jon's health report. Email him a copy.
