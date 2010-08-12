@@ -1,4 +1,4 @@
-import code, cProfile, datetime, msvcrt, os, pdb, pprint, pstats, sys, traceback
+import code,  datetime, msvcrt, os, pdb, pprint, sys, traceback
 
 import common
 import data
@@ -50,14 +50,7 @@ def XXXmain():
     print "Finished"
     #msvcrt.getch()
 
-def profileit():
-    "Use this if you want to perform a profile analysis of the code"
-    fname = '../profresults.dat'
-    cProfile.run('pypms.protectedProcess(True)', fname)
-    p = pstats.Stats(fname)
-    p.sort_stats('cumulative')
-    p.print_stats()
-    #p.dump_stats('../profile.txt')
+
     
 
 

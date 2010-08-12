@@ -11,12 +11,12 @@ def main(d):
     total_all_hours = 0.0
     total_staff_hours = 0.0
     leave_and_sickness = 0.0
-    for time_item in d.timeItems:
+    for time_item in d['timeItems']:
         time_val = time_item['TimeVal']
         total_all_hours += time_val
         
         employee_initials = time_item['Person']
-        employee = d.employees[employee_initials]
+        employee = d['employees'][employee_initials]
         if employee['IsStaff']:
             total_staff_hours += time_val
             jobcode = time_item['JobCode']
@@ -28,7 +28,7 @@ def main(d):
     output += line('Staff hours less leave and sickness', total_staff_hours - leave_and_sickness)
     output += line('Total hours', total_all_hours)
     print output
-    dir = common.reportdir(d.p)
+    dir = common.reportdir(d['period'])
     filename = dir +'\\health.txt'    
     common.spit(filename, output)
     print 'A copy of the results are in ' + filename
