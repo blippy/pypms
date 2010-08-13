@@ -2,8 +2,13 @@
 PMS automation facility written in Python.
 '''
 
+from Tkinter import *
+
 import copy
+import msvcrt
+import os
 import pdb
+import pydoc
 
 from common import dget
 import db
@@ -52,7 +57,67 @@ def exps():
     'Create expenses spreadsheet.'
     global cache
     expenses.create_report(cache)
+    
+def expv():
+    'View Expenses'
+    # FIXME NOW
+    records = []
+    for el in cache['expenses']:
+        line = [str(el[key]) for key in ['JobCode', 'Name', 'Amount']]
+        line = ' '.join(line)
+        records.append(line)
+        
+    page = 0
+    while True:
+        os.system('CLS')
+        for line in records[page*20:page*20+20]:
+            print line
+        print
+        print 'q-Quit  SPC,n-Next  p-Prev'
+        ch = msvcrt.getch().lower()
+        if ch == 'q': break
+        if ch == 'n' or ch == ' ': page = min( int(len(line)/20), page + 1)
+        if ch == 'p': page = max(0, page - 1)
+        
+    #pydoc.ttypager(txt)
+        
+def gui():
+    'Tricky - probably remove'
+    root = Tk()
+    #root.withdraw()
+    def finito(): print 'Exiting GUI' ; root.quit() ; root.withdraw()
+    root.protocol("WM_DELETE_WINDOW", finito)
 
+    frameMain = Frame(root,borderwidth=2,relief=SUNKEN)
+    frameMain.pack(side=LEFT,padx=5,pady=5)
+    #Label(root,text='I am a frame').pack(side=LEFT)
+    #m1 = PanedWindow(root, orient=VERTICAL)
+    
+    #m1.pack()
+    cboYear = Combobox(frameMain)
+    cboYear.pack(side=LEFT)
+    #lbox = Listbox(root)
+    #lbox.pack(side=RIGHT)
+
+    def hello(): print "hello"
+    # create a toplevel menu
+    menubar = Menu(root)
+    data_menu = Menu(menubar, tearoff = 0)
+    menubar.add_cascade(label='Data', menu = data_menu)
+    data_menu.add_command(label="Expenses",  command=hello)
+    
+    misc_menu = Menu(menubar, tearoff = 0)
+    menubar.add_cascade(label='Misc', menu = misc_menu)
+    misc_menu.add_command(label="Quit", command=finito)
+    
+
+    # display the menu
+    root.config(menu=menubar)
+
+    root.title('Hydra')
+    root.mainloop()
+    #root.withdraw()
+    
 def perp(): 
     'Set the action period to previous invoicing period.'
     global cache
