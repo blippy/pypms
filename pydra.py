@@ -60,7 +60,6 @@ def exps():
     
 def expv():
     'View Expenses'
-    # FIXME NOW
     records = []
     for el in cache['expenses']:
         line = [str(el[key]) for key in ['JobCode', 'Name', 'Amount']]
@@ -82,7 +81,6 @@ def expv():
     #pydoc.ttypager(txt)
         
 def gui():
-    'Tricky - probably remove'
     root = Tk()
     #root.withdraw()
     def finito(): print 'Exiting GUI' ; root.quit() ; root.withdraw()
@@ -94,17 +92,26 @@ def gui():
     #m1 = PanedWindow(root, orient=VERTICAL)
     
     #m1.pack()
-    cboYear = Combobox(frameMain)
-    cboYear.pack(side=LEFT)
-    #lbox = Listbox(root)
-    #lbox.pack(side=RIGHT)
-
+    year = StringVar()
+    year.set("2010")
+    def print_it(x): print x
+    OptionMenu(root, year, "2010","2011", command=print_it).pack(side=LEFT)
+    month = StringVar()
+    
+    monthTuple = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    optMonth = OptionMenu(root, month, *monthTuple, command=print_it)
+    currMonth = monthTuple[cache['period'].m -1]
+    month.set(currMonth)
+    optMonth.pack(side=LEFT)
+    
+    
     def hello(): print "hello"
     # create a toplevel menu
     menubar = Menu(root)
     data_menu = Menu(menubar, tearoff = 0)
     menubar.add_cascade(label='Data', menu = data_menu)
     data_menu.add_command(label="Expenses",  command=hello)
+    data_menu.add_command(label="Hello",  command=hello)
     
     misc_menu = Menu(menubar, tearoff = 0)
     menubar.add_cascade(label='Misc', menu = misc_menu)
@@ -148,6 +155,11 @@ def stage2():
 def stage3():
     global cache
     push.main(cache)
+    
+def allstages():
+    stage1()
+    stage2()
+    stage3()
 
 def times():
     'Create timesheets.'
