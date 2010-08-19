@@ -34,6 +34,7 @@ other utility functions:
   allstages() - perform stages 1-3
   backup() - make a backup of the current cache for its period
   health() - Jon's health report. Email him a copy.
+  mobil() - generate mobil workstatements - UNDER DEVELOPMENT
   ptimes() - print the timesheets
   unpost.py() - to eliminate a month from tblInvoice (be careful - it will zap a month)
 

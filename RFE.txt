@@ -1,7 +1,5 @@
 health should be incorporated as one of the stages
 
-pydra should do stages 12&3 together
-
 in camel 2010-06 ManInvoices. We put the centrica job in as 2731 but it sb 2731,02. However, pypms did pick it up.
 
 mobil workstatements
