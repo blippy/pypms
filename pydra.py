@@ -176,7 +176,6 @@ def works():
 
 def init():
     global cache
-    print 'Pydra Arthritic Aardvark 2010-07-31'
     cache = data.open()
     perp()
 
