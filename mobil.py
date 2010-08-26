@@ -46,11 +46,20 @@ class config:
         return self.jobs[job_code]
         
  
+
+
 ###########################################################################
+
+def total_text(amount):
+    fmt = '\n{0:10} {1:12} {2:>9} {3:>9} {4:>9.2f}\n\n'
+    return fmt.format('', 'TOTAL', '', '', amount)
 
 def create_job_details(job_code, conf, cache, rates):
     'Create a report section for each mobil job'
-    output = ''
+    output = ''    
+    fmt1 = '{0:10} {1:12} {2:9.2f} {3:9.2f} {4:9.2f}\n'
+    fmt2 = '\n{0:10} {1:12} {2:>9} {3:>9} {4:>9} {5}\n'
+    
     
     # print out the header information
     headers = [ ('PO', 'po') , ('SREL Job no', 'job'), ('Mobil contact', 'contact'), ('Project Title', 'title'), ('Description of work', 'desc'), ('Units', 'units')]
@@ -58,7 +67,13 @@ def create_job_details(job_code, conf, cache, rates):
     job = conf.jobs[job_code]
     for desc, field in headers:        
         output += '{0:<20}: {1}\n'.format(desc, job[field])
+    output += fmt2.format('Serv Mast', 'Personnel', 'Rate', 'Qty', ' Total', 'Timesheet Numbers')
+    
     #print conf_details
+    
+    
+    num_items = 0
+    total = 0.0
     
     # aggregate to the person level
     invItems = [x for x in cache['timeItems'] if x['JobCode'] == job_code]
@@ -68,9 +83,29 @@ def create_job_details(job_code, conf, cache, rates):
         person = cache['employees'][initials]['PersonNAME']
         rate = rates[(job_code, initials)]
         amount = round(time_spent * rate, 2)
-        output += '{0} {1} {2} {3} {4}\n'.format(smn, person, time_spent, rate, amount)
-    # FIXME NOW
-    return output
+        output += fmt1.format(smn, person, time_spent, rate, amount)
+        total += amount
+        num_items += 1
+        
+    # expenses
+    expense_total = 0.0
+    for expense in cache['expenses']:
+        if expense['JobCode'] != job_code: continue
+        expense_total += expense['Amount']
+    exp_factor = cache['jobs'][job_code]['exp_factor']
+    expenses_out = expense_total * exp_factor
+    total += expenses_out
+    if expense_total != 0:
+        output += fmt1.format('3480447', 'Expenses', expense_total, exp_factor, expenses_out)
+        num_items += 1
+        
+    # total
+    output += total_text(total)
+    output += '\n' + '-' * 53 + '\n\n'
+        
+    if num_items == 0: output = '' # just ignore everything when there's nothing interesting
+
+    return total, output
 
 
 ###########################################################################
@@ -79,8 +114,7 @@ def main(cache):
     conf = config()
     conf.load()                        
     #print conf.jobs
-    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK\n\n'
-    output_text += 'Service Master No	Personnel	Rate	No of Hrs	No of Days	Total	Timesheet Numbers\n'
+    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(cache['period'].mmmmyyyy())
 
     
     # obtain rates for jobs
@@ -92,13 +126,17 @@ def main(cache):
         rates[(job_code, initials)] = rate
     
     
+    total = 0.0
     job_codes = conf.jobs.keys()
     job_codes.sort()
     for job_code in job_codes:
-        output_text += create_job_details(job_code, conf, cache, rates)
+        amount, text = create_job_details(job_code, conf, cache, rates)
+        output_text += text
+        total += amount
+    
+    output_text += total_text(total)
     
     common.save_report(cache['period'], "mobil.txt", output_text)
-    # FIXME Outputs: reports\mobil.txt
 
 if  __name__ == "__main__":
     data.run_current(main)

@@ -14,6 +14,7 @@ from common import dget
 import db
 import data
 import expenses
+import mobil
 import period
 import push
 import rtfsprint
@@ -124,6 +125,12 @@ def gui():
     root.title('Hydra')
     root.mainloop()
     #root.withdraw()
+   
+
+def mobils():
+    'Create the Mobil work statement'
+    global cache
+    mobil.main(cache)
     
 def perp(): 
     'Set the action period to previous invoicing period.'
