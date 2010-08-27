@@ -135,6 +135,7 @@ def main(cache):
         total += amount
     
     output_text += total_text(total)
+    output_text += '\n\nName: ' + '_' * 30 + ' Signature: ' + '_' * 30 + ' Date: ' + '_' * 15
     
     common.save_report(cache['period'], "mobil.txt", output_text)
 
