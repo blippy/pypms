@@ -1,9 +1,3 @@
-health should be incorporated as one of the stages
-
-in camel 2010-06 ManInvoices. We put the centrica job in as 2731 but it sb 2731,02. However, pypms did pick it up.
-
-mobil workstatements
-
 write a gizmo equivalent
 
 email chargeability report
@@ -11,7 +5,5 @@ email chargeability report
 post health stats to Jon
 
 jobs gui
-
-make pypms available to Jon
 
 log errors and also bail out

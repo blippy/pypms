@@ -11,6 +11,23 @@ class DataIntegrityError(Exception):
 
     def __str__(self):
         return repr(self.value)
+    
+    
+# FIXME prolly need to use this more
+def assert_job(d, job_code, source_info):
+    "Require that a job exists in the database"
+    if not d['jobs'].has_key(job_code):
+            fmt = """
+            ERR: Missing entry in 'jobs' table cache.
+            Either source is wrong, you haven't entered the job in the jobs table, 
+            or you need to refresh pydra's cache
+            Job   : '{0}'
+            Source: '{1}'
+            """
+            msg = fmt.format(job_code, source_info)
+            logerror(msg)
+            raise DataIntegrityError("ERR: missing job")
+    
 
 ###########################################################################
 # file and directory handling utilties    
@@ -64,7 +81,11 @@ logging.basicConfig(level=logging.ERROR,
                     filemode='a')
 def logdebug(txt): logging.debug(txt)
 def loginfo(txt): logging.info(txt)
-def logerror(txt): logging.error(txt)
+
+def logerror(txt):
+    print txt
+    logging.error(txt)
+    
 def logwarn(txt): logging.warn(txt)
     
 

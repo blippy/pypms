@@ -12,16 +12,22 @@ import period
 
 def read_expenses(d):
     p = d['period']
-    rows = excel.ImportWorksheet(common.camelxls(p), 'Expenses')
+    input_filename = common.camelxls(p)
+    rows = excel.ImportWorksheet(input_filename, 'Expenses')
     expenses = []
     fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
+    row_num = 0
     for row in rows[1:]:
+        row_num += 1
         expense = {}
         for colNum, fieldName, fieldType in fieldspec:
             text = row[colNum-1]
             try: expense[fieldName] = fieldType(text)
             except ValueError: pass
-        if expense['JobCode']: expenses.append(expense) # only add an expense if it's "genuine" - i.e. it has a job number
+        job_code = expense['JobCode']
+        if job_code == '': continue
+        common.assert_job(d, job_code, "Workbook '{0}', sheet '{1}', row {2}".format(input_filename, 'Expenses', row_num))
+        expenses.append(expense)
     d['expenses'] = expenses
 
 def create_report(d):

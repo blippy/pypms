@@ -1,17 +1,13 @@
 PROCEDURES
 
-=========================================================================================
-NEW MONTH-END METHOD FROM 26-Aug-2010
-
---- BACKUP THE DATABSE BEFORE PROCEEDING ---
+--- BACKUP THE DATABASE BEFORE PROCEEDING ---
 
 run pydra.bat
-
-# perp() - set the action period to previous invoicing period
 
 stage1() - purely time-related activities:
   dbg() - Fetch data for the action period into the cache  
   times() - create timesheets
+  health.main() - Jon's Health and Safety stats
 
 stage2() - does the following:
   expg() - Fetch expenses from spreadsheet for period.
@@ -21,15 +17,13 @@ stage2() - does the following:
 Adjust camel.xls!InvTweaks
 
 stage3() - does the following:
-  FIX THE ORDERING HERE
   invsummary - creates invoices.xls, monthrec.txt
   invtweaks
+  post - !DANGER! - it removes current invoice information for month
   recoveries
   wip - creates wip.xls
-  post - !DANGER! - it removes current invoice information for month
+  invsummary - creates reconciliation report
   
-health() - Jon's health report. Email him a copy.
-
 mobils() - generate the Mobil workstatement
 
 quit() - exit out of the whole thing
@@ -43,10 +37,3 @@ other utility functions:
 Send to Craig: invoice summary, reports: expenses.xls, invoices.xls, recoveries.xls
   
 =========================================================================================
-TROUBLESHOOTING
-
-ERR101: No job code NNN
-Occurs when running invsummary.
-Maybe it has found an expense/invoice for a job that isn't in PMS.
-Check that the job code is correct, and that you have set up a job with at least one active task for that job.
-You will need to rerun post.py before attempting to rerun invsummary again.

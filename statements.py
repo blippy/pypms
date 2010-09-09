@@ -169,9 +169,13 @@ def main(d):
     invItems = []        
     def AddItem(item, typeText, typeValue):
         x['iType'] = typeValue
+        
+        # FIXME - use common.assert_job instead of this:
         if not d['jobs'].has_key(x['JobCode']):
-            msg = 'Found %s with Jobcode %s, but no entry in jobs table' % (typeText, x['JobCode'])
+            fmt = "Found {0} with Jobcode '{1}', but no entry in jobs table"
+            msg = fmt.format(typeText, x['JobCode'])
             raise common.DataIntegrityError(msg)
+        
         invItems.append(x)
     for x in d['timeItems']: AddItem(x, "time item", typeWork)        
     for x in d['expenses']: AddItem(x, "expense", typeExpense)

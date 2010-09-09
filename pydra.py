@@ -14,6 +14,7 @@ from common import dget
 import db
 import data
 import expenses
+import health
 import mobil
 import period
 import push
@@ -151,8 +152,10 @@ def ptimes():
     rtfsprint.main()
     
 def stage1():
+    global cache
     dbg()  
     times()
+    health.main(cache)
     
 def stage2():
     expg()

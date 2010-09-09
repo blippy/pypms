@@ -1,0 +1,10 @@
+TROUBLESHOOTING
+
+================================================================================
+ERR101: No job code NNN
+Occurs when running invsummary.
+Maybe it has found an expense/invoice for a job that isn't in PMS.
+Check that the job code is correct, and that you have set up a job with at least one active task for that job.
+You will need to rerun post.py before attempting to rerun invsummary again.
+
+================================================================================

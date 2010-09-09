@@ -18,7 +18,8 @@ def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
 
     #pdb.set_trace()
-    invoiceLines = excel.ImportWorksheet(common.camelxls(d['period']), 'ManualInvoices')
+    input_filename = common.camelxls(d['period'])
+    invoiceLines = excel.ImportWorksheet(input_filename, 'ManualInvoices')
     
     def nth(row, index):
         try: result = row[index]
@@ -26,11 +27,18 @@ def import_manual_invoices(d):
         return result
     
     manual_invoices = []
+    row_num = 0
     for row in invoiceLines:
-        irn, client, job, net, desc = [nth(row, idx) for idx in range(0,5)]
-        if not d['jobs'].has_key(job): continue
+        row_num += 1
+        irn, client, job, net = [nth(row, idx) for idx in range(0,4)]
+        desc =nth(row, 6)
+        #pdb.set_trace()
+        if job =='Job' or job == '' or job == "TOTAL:": continue
+        if not d['jobs'].has_key(job):
+            fmt = "ERR: No database job '{0}' camel workbook '{1}' sheet manualInvoices row {2}"
+            msg = fmt.format(job, input_filename, row_num)
+            raise common.DataIntegrityError(msg)
         net = common.AsFloat(net)        
-        #if not manual_invoices.has_key(job): manual_invoices[job] = []
         manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
     d['manual_invoices'] = manual_invoices
     
