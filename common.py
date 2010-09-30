@@ -1,5 +1,7 @@
 import codecs
-import datetime, logging, pprint, os
+import datetime
+import decimal
+import logging, pprint, os
 import unicodedata
 
 
@@ -161,11 +163,21 @@ def AsAscii(text):
     else:
         return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
 
+def AsInt(text):
+    'Convert text into an integer'
+    if text is None: return 0
+    return int(text)
+
+    
 def AsFloat(text):
     'Convert text into a float'
-    text = text.replace(',', '')
-    if text == '': text = '0.0'
-    return float(text)
+    if text is None: return 0.0
+    if text == '': return 0.0
+    if type(text) == decimal.Decimal:
+        return float(text)
+    else:
+        text = text.replace(',', '')    
+        return float(text)
 
 ###########################################################################
 # functions difficult to classify

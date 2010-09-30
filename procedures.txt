@@ -28,12 +28,16 @@ mobils() - generate the Mobil workstatement
 
 quit() - exit out of the whole thing
   
+Send to Craig: invoice summary, reports: expenses.xls, invoices.xls, recoveries.xls
+
+Run budget.py to produce a PO report
+
 other utility functions:
   allstages() - perform stages 1-3
   backup() - make a backup of the current cache for its period  
   ptimes() - print the timesheets
   unpost.py() - to eliminate a month from tblInvoice (be careful - it will zap a month)
 
-Send to Craig: invoice summary, reports: expenses.xls, invoices.xls, recoveries.xls
+
   
 =========================================================================================

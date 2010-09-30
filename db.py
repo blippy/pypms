@@ -6,7 +6,7 @@ from itertools import izip
 import win32com.client
 
 import common
-from common import AsAscii
+from common import AsAscii, AsFloat, AsInt
 
 
 def DbOpen():
@@ -71,7 +71,12 @@ def RecordsList(sql, fieldspec):
             recs[fieldname] = fieldtype(fieldvalue)
         result.append(recs)
     return result
-  
+ 
+def StdDate(d):
+    if d is None: return None
+    d1 = datetime.date(d.year, d.month, d.day)
+    return d1.strftime('%Y-%m-%d')
+
 def GetEmployees(p):
     sql = 'SELECT * FROM tblEmployeeDetails'
     fieldspec = [('Person', str), ('PersonNAME', str), ('IsStaff', bool)]
@@ -87,9 +92,10 @@ def GetInvoices(d, field_list):
     
 def GetJobs():
     sql = 'SELECT * FROM jobs'
-    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), ('references', AsAscii), ('briefclient', str), 
+    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), ('references', AsAscii), ('briefclient', AsInt), 
         ('active', bool), ('vatable', bool), ('exp_factor', float), ('WIP', bool), ('Weird', bool), 
-        ('Autoprint', bool), ('TsApprover', AsAscii)]      
+        ('Autoprint', bool), ('TsApprover', AsAscii), 
+        ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
     recs = RecordsList(sql, fieldspec)
     jobs = {}
     for r in recs: jobs[r['job']] = r
@@ -112,9 +118,7 @@ def GetTimeitems(p):
     fmt += 'AND Month([DateVal]) = %d and Year([DateVal]) = %d '
     fmt += 'ORDER BY JobCode, Task, Person, DateVal'
     sql = fmt % (p.m , p.y)
-    def StdDate(d):
-        d1 = datetime.date(d.year, d.month, d.day)
-        return d1.strftime('%Y-%m-%d')
+
     
     fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', float), ('Task', str), ('WorkDone', unicode)]
     recs = RecordsList(sql, fieldspec)
@@ -130,6 +134,14 @@ def GetCharges(p):
     for r in recs: charges[ (r['JobCode'], r['TaskNo'], r['Person'] )] = r['PersonCharge']
     return charges
 
+def GetClients():
+    sql = 'SELECT * FROM tblClients;'
+    fieldspec = [('ID', int), ('brief', str)]
+    recs = RecordsList(sql, fieldspec)
+    clients = {}
+    for r in recs: clients[r['ID']] = r['brief']
+    return clients
+
 def fetch(d):
     p = d['period']
     d['employees'] = GetEmployees(p)
@@ -137,6 +149,7 @@ def fetch(d):
     d['tasks'] = GetTasks(p)
     d['timeItems'] = GetTimeitems(p)
     d['charges'] = GetCharges(p)
+    d['clients'] = GetClients()
     d['auto_invoices'] = None
     d['manual_invoices'] = None
     d['invoice_tweaks'] = None
