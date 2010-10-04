@@ -1,10 +1,12 @@
+health.py - have a facility for suppressing textual output
+
 Incorporate budget.py with pydra
+
+implement anything missing in stage4()
 
 write a gizmo equivalent
 
 email chargeability report
-
-post health stats to Jon
 
 jobs gui
 

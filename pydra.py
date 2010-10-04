@@ -166,10 +166,18 @@ def stage3():
     global cache
     push.main(cache)
     
+def stage4():
+    'Create sundry reports'
+    budgets()
+    healths()
+    mobils()
+    
 def allstages():
+    'Run stages 1-4'
     stage1()
     stage2()
     stage3()
+    stage4()
 
 def times():
     'Create timesheets.'
