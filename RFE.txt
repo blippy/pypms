@@ -2,6 +2,8 @@ health.py - have a facility for suppressing textual output
 
 Incorporate budget.py with pydra
 
+create an online budget report
+
 implement anything missing in stage4()
 
 write a gizmo equivalent
