@@ -111,7 +111,7 @@ def CreateJobStatment(jobKey, invItems, d):
         if taskKey == '' : 
             s.heading = 'Expenses not categorised to a specific task'
             s.ordering = 'ZZZ'
-        else: 
+        else:
             s.heading = 'Task %s: %s' % (taskKey, d['tasks'][(jobKey, taskKey)]['TaskDes'])
             s.ordering = s.heading
             

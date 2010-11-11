@@ -4,12 +4,14 @@ PMS automation facility written in Python.
 
 from Tkinter import *
 
+import atexit
 import copy
 import msvcrt
 import os
 import pdb
 import pydoc
 
+import budget
 from common import dget
 import db
 import data
@@ -23,8 +25,16 @@ import statements
 import timesheets
 
 
+###########################################################################
+# important module instantiation routines
+
 cache = None
 
+def quit_pydra():
+    cache.close()
+    print "Parting is such sweet sorrow"
+
+atexit.register(quit_pydra)    
 
 ###########################################################################
 
@@ -155,7 +165,7 @@ def stage1():
     global cache
     dbg()  
     times()
-    health.main(cache)
+
     
 def stage2():
     expg()
@@ -168,8 +178,9 @@ def stage3():
     
 def stage4():
     'Create sundry reports'
-    budgets()
-    healths()
+    global cache
+    budget.main(cache)
+    health.main(cache)
     mobils()
     
 def allstages():
@@ -178,6 +189,7 @@ def allstages():
     stage2()
     stage3()
     stage4()
+    cache.sync() # write the cache back out to disk
 
 def times():
     'Create timesheets.'

@@ -26,7 +26,14 @@ def read_expenses(d):
             except ValueError: pass
         job_code = expense['JobCode']
         if job_code == '': continue
-        common.assert_job(d, job_code, "Workbook '{0}', sheet '{1}', row {2}".format(input_filename, 'Expenses', row_num))
+    
+        # peform error checking
+        err_msg = "Workbook '{0}', sheet '{1}', row {2}".format(input_filename, 'Expenses', row_num+1)
+        common.assert_job(d, job_code, err_msg)
+        if expense['Task']:
+            common.assert_task(d, job_code, expense['Task'], err_msg)
+        
+        # everything seems OK, so add it
         expenses.append(expense)
     d['expenses'] = expenses
 

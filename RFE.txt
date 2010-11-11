@@ -1,10 +1,8 @@
-health.py - have a facility for suppressing textual output
+Install pyspread
 
-Incorporate budget.py with pydra
+Cope with corrupt marshalled file
 
 create an online budget report
-
-implement anything missing in stage4()
 
 write a gizmo equivalent
 

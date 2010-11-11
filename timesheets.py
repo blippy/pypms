@@ -39,6 +39,7 @@ def AddPersonToJobsheet(personKey, personGroup, out):
 
 def CreateJobsheet(jobcode, job_times, d, title, outdir):
     out = rtf.Rtf()
+    common.assert_job(d, jobcode, "In tblTimeItems, but not jobs")
     job = d['jobs'][jobcode]         
     sheets = aggregate(job_times, lambda x: (x['Task'], x['Person']))
     last_key = sheets[-1][0]

@@ -43,16 +43,6 @@ def read_worksheet(fileName, wsName):
     numApproxRows = ws.UsedRange.Rows.Count # not necessarily truly accurate, but good enough
     numApproxCols = ws.UsedRange.Columns.Count # ditto
     
-    #book = xlrd.open_workbook(fileName)
-    #sh = book.sheet_by_name(wsName)
-    #print sh.nrows
-    #cell = sh.cell(2,0)
-    #raw_data = [['']*sh.ncols for _ in range(sh.nrows)]
-    #print raw_data
-    #print cell
-    #pdb.set_trace()
-    
-    #print numApproxRows, numApproxCols
     numActualRows = 0
     numActualCols = 0
     sloppy = []
@@ -81,10 +71,6 @@ def prune_results(sloppy, numActualRows, numActualCols):
 
 
 def ImportWorksheet(fileName, wsName):
-    
-    #import xlrd
-    #wb = xlrd.open_workbook
-    #fmt = cell
     sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName)
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned

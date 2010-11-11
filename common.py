@@ -29,7 +29,22 @@ def assert_job(d, job_code, source_info):
             msg = fmt.format(job_code, source_info)
             logerror(msg)
             raise DataIntegrityError("ERR: missing job")
-    
+  
+def assert_task(d, job_code, task_code, source_info):
+    "Require that a task exist in the database"
+    if not d['tasks'].has_key((job_code, task_code)):
+        fmt = """
+        ERR: Missing task entry in 'tasks' table cache.
+        Either source is wrong, you haven't entered the task in the tblTasks table, 
+        or you need to refresh pydra's cache
+        Job   : '{0}'
+        Task  : '{1}'
+        Source: '{2}'
+        """
+        msg = fmt.format(job_code, task_code, source_info)
+        logerror(msg)
+        raise DataIntegrityError("ERR: missing task")
+        
 
 ###########################################################################
 # file and directory handling utilties    
@@ -113,12 +128,14 @@ def aggregate(seq, keyfunc):
     
     return lis
     
-def summate(seq, keyfunc):
+def always(*kargs): return True
+
+def summate(seq, keyfunc, test = always):
     # FIXME - make more use of this function
     total = 0.0
     for el in seq:
         v = keyfunc(el)
-        total +=v
+        if test(el): total +=v
     return total
     
     

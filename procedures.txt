@@ -5,7 +5,6 @@ run pydra.bat
 stage1() - purely time-related activities:
   dbg() - Fetch data for the action period into the cache  
   times() - create timesheets
-  health.main() - Jon's Health and Safety stats
 
 stage2() - does the following:
   expg() - Fetch expenses from spreadsheet for period.
@@ -24,7 +23,7 @@ stage3() - does the following:
   
 stage4() - sundry report creation:
   budgets() - generate budgets
-  healths() - generate Jon's health report
+  health.main() - generate Jon's health and safety report
   mobils() - generate the Mobil workstatement
 
 ptimes() - print the timesheets
@@ -48,4 +47,4 @@ other utility functions:
 
 
   
-=========================================================================================
+======================================================================================
