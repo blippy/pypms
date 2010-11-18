@@ -17,6 +17,7 @@ import db
 import data
 import expenses
 import health
+import html
 import mobil
 import period
 import push
@@ -181,6 +182,7 @@ def stage4():
     global cache
     budget.main(cache)
     health.main(cache)
+    html.main()
     mobils()
     
 def allstages():

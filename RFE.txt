@@ -1,9 +1,3 @@
-Install pyspread
-
-Cope with corrupt marshalled file
-
-create an online budget report
-
 write a gizmo equivalent
 
 email chargeability report

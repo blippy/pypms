@@ -1,3 +1,5 @@
+import anydbm
+import os
 import pdb
 import pprint
 import shelve
@@ -12,7 +14,12 @@ __storage_filename = 'M:\\Finance\\pypms\\out\\current.shl'
 
 def open():
     print 'Loading cache'
-    dbase = shelve.open(__storage_filename, writeback = True)
+    try:
+        dbase = shelve.open(__storage_filename, writeback = True)
+    except anydbm.error:
+        print "Something is wrong with the shelve. Creating a new one"
+        os.remove(__storage_filename)
+        dbase = shelve.open(__storage_filename, flag = 'n', writeback = True)
     return dbase
 
 def backup(per):
