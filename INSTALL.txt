@@ -5,3 +5,6 @@ Install the following software:
 - pywin32-214.win32-py2.6.exe
 - PyYAML-3.09.win32.py2.6.exe
 
+* N-DRIVE INSTALLATION
+
+Run: make ndrive
