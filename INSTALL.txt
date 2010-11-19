@@ -7,4 +7,4 @@ Install the following software:
 
 * N-DRIVE INSTALLATION
 
-Run: make ndrive
+Run: ndrive

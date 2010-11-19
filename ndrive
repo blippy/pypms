@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#update the software on the n drive
+cd /cygdrive/n/Project/smithware/pypms/pypms
+git pull
+
