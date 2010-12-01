@@ -14,7 +14,7 @@ import pydoc
 import budget
 from common import dget
 import db
-import data
+#import data
 import expenses
 import health
 import html
@@ -29,10 +29,10 @@ import timesheets
 ###########################################################################
 # important module instantiation routines
 
-cache = None
+cache = {}
 
 def quit_pydra():
-    cache.close()
+    #cache.close()
     print "Parting is such sweet sorrow"
 
 atexit.register(quit_pydra)    
@@ -40,14 +40,16 @@ atexit.register(quit_pydra)
 ###########################################################################
 
 
-def backup():
+def XXXbackup():
     'Make a backup of of the cache, storing it in the relevant period.'
-    global cache
-    per = copy.copy(cache['period'])
+    # FIXME remove this module
+    #global cache
+    #per = copy.copy(cache['period'])
     #pdb.set_trace()
-    cache.close()
-    data.backup(per)
-    cache = data.open()
+    #cache.close()
+    #data.backup(per)
+    #cache = data.open()
+    pass
     
 def bye():
     'Save cache and exit'
@@ -208,7 +210,7 @@ def works():
 
 def init():
     global cache
-    cache = data.open()
+    #cache = data.open()
     perp()
 
 

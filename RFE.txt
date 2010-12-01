@@ -1,3 +1,5 @@
+eliminate use of cache
+
 write a gizmo equivalent
 
 email chargeability report

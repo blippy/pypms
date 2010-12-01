@@ -9,10 +9,11 @@ import common
 
 ###########################################################################
 
+# FIXME deprecate this module
 
 __storage_filename = 'M:\\Finance\\pypms\\out\\current.shl'
 
-def open():
+def XXXopen():
     print 'Loading cache'
     try:
         dbase = shelve.open(__storage_filename, writeback = True)
@@ -22,10 +23,10 @@ def open():
         dbase = shelve.open(__storage_filename, flag = 'n', writeback = True)
     return dbase
 
-def backup(per):
+def XXXbackup(per):
     shutil.copy(__storage_filename, common.perioddir(per) + "\\current.shl")
 
-def run_current(main_func):
+def XXXrun_current(main_func):
     'A standard run routine calling using the current yaml'
     # FIXME - use this function in many places, e.g. maininv.py
     d = open()
