@@ -192,6 +192,8 @@ def AsFloat(text):
     if text == '': return 0.0
     if type(text) == decimal.Decimal:
         return float(text)
+    elif type(text) == float:
+        return text
     else:
         text = text.replace(',', '')    
         return float(text)

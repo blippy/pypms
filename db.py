@@ -93,7 +93,7 @@ def GetInvoices(d, field_list):
 def GetJobs():
     sql = 'SELECT * FROM jobs'
     fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), ('references', AsAscii), ('briefclient', AsInt), 
-        ('active', bool), ('vatable', bool), ('exp_factor', float), ('WIP', bool), ('Weird', bool), 
+        ('active', bool), ('vatable', bool), ('exp_factor', AsFloat), ('WIP', bool), ('Weird', bool), 
         ('Autoprint', bool), ('TsApprover', AsAscii), 
         ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
     recs = RecordsList(sql, fieldspec)
@@ -120,7 +120,7 @@ def GetTimeitems(p):
     sql = fmt % (p.m , p.y)
 
     
-    fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', float), ('Task', str), ('WorkDone', unicode)]
+    fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', AsFloat), ('Task', str), ('WorkDone', unicode)]
     recs = RecordsList(sql, fieldspec)
     return recs
 
@@ -128,7 +128,7 @@ def GetTimeitems(p):
 
 def GetCharges(p):
     sql = 'SELECT JobCode, TaskNo, Person, PersonCharge FROM tblCharges;'
-    fieldspec = [('JobCode', str), ('TaskNo', str), ('Person', str), ('PersonCharge', float)]
+    fieldspec = [('JobCode', str), ('TaskNo', str), ('Person', str), ('PersonCharge', AsFloat)]
     recs = RecordsList(sql, fieldspec)
     charges = {}
     for r in recs: charges[ (r['JobCode'], r['TaskNo'], r['Person'] )] = r['PersonCharge']
