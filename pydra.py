@@ -193,7 +193,7 @@ def allstages():
     stage2()
     stage3()
     stage4()
-    cache.sync() # write the cache back out to disk
+    #cache.sync() # write the cache back out to disk
 
 def times():
     'Create timesheets.'

@@ -1,3 +1,5 @@
+process finance.fail
+
 eliminate use of cache
 
 write a gizmo equivalent
