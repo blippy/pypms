@@ -7,6 +7,8 @@ import win32com.client
 
 import common
 from common import AsAscii, AsFloat, AsInt
+import expenses
+import period
 
 
 def DbOpen():
@@ -79,7 +81,7 @@ def StdDate(d):
 
 def GetEmployees(p):
     sql = 'SELECT * FROM tblEmployeeDetails'
-    fieldspec = [('Person', str), ('PersonNAME', str), ('IsStaff', bool)]
+    fieldspec = [('Person', AsAscii), ('PersonNAME', AsAscii), ('IsStaff', bool), ('MobilSmn', AsAscii)]
     recs = RecordsList(sql, fieldspec)
     employees = {}    
     for r in recs: employees[r['Person']] = r
@@ -91,11 +93,13 @@ def GetInvoices(d, field_list):
 
     
 def GetJobs():
-    sql = 'SELECT * FROM jobs'
-    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), ('references', AsAscii), ('briefclient', AsInt), 
+    sql = 'SELECT * FROM jobs ORDER BY job'
+    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), 
+        ('references', AsAscii), ('briefclient', AsInt),
         ('active', bool), ('vatable', bool), ('exp_factor', AsFloat), ('WIP', bool), ('Weird', bool), 
         ('Autoprint', bool), ('TsApprover', AsAscii), 
-        ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
+        ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), 
+        ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
     recs = RecordsList(sql, fieldspec)
     jobs = {}
     for r in recs: jobs[r['job']] = r
@@ -142,8 +146,12 @@ def GetClients():
     for r in recs: clients[r['ID']] = r['brief']
     return clients
 
-def fetch(d):
-    p = d['period']
+def fetch():
+    d = {}
+    p = period.Period(usePrev = True)
+    
+    # table data
+    d['period'] = p
     d['employees'] = GetEmployees(p)
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks(p)
@@ -152,8 +160,10 @@ def fetch(d):
     d['clients'] = GetClients()
     d['auto_invoices'] = None
     d['manual_invoices'] = None
-    d['invoice_tweaks'] = None
-    d['expenses'] = None
+    d['invoice_tweaks'] = None    
+    expenses.read_expenses(d)
+    #d['expenses'] = None
+    return d
     
 if  __name__ == "__main__": 
     test()

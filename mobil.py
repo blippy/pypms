@@ -2,50 +2,11 @@
 
 import pdb
 
-import data
+import db
+#import data
 import common
 from common import aggregate
 
-###########################################################################
-
-
-class config:
-    def __init__(self):
-        fileName = 'M:\Finance\camel\mobil.txt'
-        self.fin = file(fileName)
-        self.lines = self.fin.readlines()
-        self.fin.close()
-    
-    def __readLine(self):
-        line = self.lines[0].strip()
-        self.lines = self.lines[1:]
-        return line        
-    
-    def __more(self): return len(self.lines) > 0
-
-    def load(self):
-        'Load in the configuration information'
-        self.jobs = {}
-        self.smns = {}
-        while self.__more():
-            line = self.__readLine()
-            #print '*' , line , '*'
-            if line == 'job':
-                job = {}
-                for field in ['job', 'contact', 'title', 'desc', 'po' , 'units']:
-                    job[field] = self.__readLine()
-                self.jobs[job['job']] = job
-            if line == 'smn':
-                smn = {}
-                for field in ['initials', 'smn']:
-                    smn[field] = self.__readLine()
-                self.smns[smn['initials']] = smn
-                
-    def get(self, job_code):
-        #pdb.set_trace()
-        return self.jobs[job_code]
-        
- 
 
 
 ###########################################################################
@@ -54,7 +15,7 @@ def total_text(amount):
     fmt = '\n{0:10} {1:12} {2:>9} {3:>9} {4:>9.2f}\n\n'
     return fmt.format('', 'TOTAL', '', '', amount)
 
-def create_job_details(job_code, conf, cache, rates):
+def create_job_details(job_code, cache, rates):
     'Create a report section for each mobil job'
     output = ''    
     fmt1 = '{0:10} {1:12} {2:9.2f} {3:9.2f} {4:9.2f}\n'
@@ -62,15 +23,9 @@ def create_job_details(job_code, conf, cache, rates):
     
     
     # print out the header information
-    headers = [ ('PO', 'po') , ('SREL Job no', 'job'), ('Mobil contact', 'contact'), ('Project Title', 'title'), ('Description of work', 'desc'), ('Units', 'units')]
-    #fmt1 = '%15s: %s\n'
-    job = conf.jobs[job_code]
-    for desc, field in headers:        
-        output += '{0:<20}: {1}\n'.format(desc, job[field])
+    output += 'SREL Job no: {0}\n'.format(job_code)
+    output += cache['jobs'][job_code]['references'] + '\n'
     output += fmt2.format('Serv Mast', 'Personnel', 'Rate', 'Qty', ' Total', 'Timesheet Numbers')
-    
-    #print conf_details
-    
     
     num_items = 0
     total = 0.0
@@ -79,8 +34,10 @@ def create_job_details(job_code, conf, cache, rates):
     invItems = [x for x in cache['timeItems'] if x['JobCode'] == job_code]
     for initials, values in aggregate(invItems, common.mkKeyFunc('Person')):
         time_spent= common.summate(values, lambda x: x['TimeVal'])
-        smn = conf.smns[initials]['smn']
-        person = cache['employees'][initials]['PersonNAME']
+        e = cache['employees'][initials]
+        smn = e['MobilSmn']
+        person = e['PersonNAME']
+        #print rates
         rate = rates[(job_code, initials)]
         amount = round(time_spent * rate, 2)
         output += fmt1.format(smn, person, time_spent, rate, amount)
@@ -110,16 +67,16 @@ def create_job_details(job_code, conf, cache, rates):
 
 ###########################################################################
 
-def main(cache):
-    conf = config()
-    conf.load()                        
+def main(d):
+    #conf = config()
+    #conf.load()                        
     #print conf.jobs
-    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(cache['period'].mmmmyyyy())
+    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(d['period'].mmmmyyyy())
 
     
     # obtain rates for jobs
     rates = {}
-    charges = cache['charges']
+    charges = d['charges']
     for key in charges.keys():
         job_code, task, initials = key
         rate = common.dget(charges, key)
@@ -127,18 +84,19 @@ def main(cache):
     
     
     total = 0.0
-    job_codes = conf.jobs.keys()
-    job_codes.sort()
-    for job_code in job_codes:
-        amount, text = create_job_details(job_code, conf, cache, rates)
+    jobs = d['jobs']
+    for job_code in sorted(jobs.keys()):
+        if jobs[job_code]['briefclient'] != 1: continue # 1 == mobil
+        amount, text = create_job_details(job_code, d, rates)
         output_text += text
         total += amount
     
     output_text += total_text(total)
     output_text += '\n\nName: ' + '_' * 30 + ' Signature: ' + '_' * 30 + ' Date: ' + '_' * 15
     
-    common.save_report(cache['period'], "mobil.txt", output_text)
+    common.save_report(d['period'], "mobil.txt", output_text)
 
 if  __name__ == "__main__":
-    data.run_current(main)
+    d = db.fetch()
+    main(d)
     print 'Finished'

@@ -60,10 +60,10 @@ def bye():
 def dbg():
     'Fetch data for the action period into the cache.'
     global cache
-    db.fetch(cache)
+    cache = db.fetch()
     
 
-def expg():
+def XXXexpg():
     'Fetch expenses from spreadsheet for period.'
     global cache
     expenses.read_expenses(cache)
@@ -148,6 +148,8 @@ def mobils():
     
 def perp(): 
     'Set the action period to previous invoicing period.'
+    return True
+    # TODO rest of function unneeded
     global cache
     
     #print cache
@@ -171,7 +173,7 @@ def stage1():
 
     
 def stage2():
-    expg()
+    #expg()
     exps()
     works()
     
