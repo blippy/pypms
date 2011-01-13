@@ -6,7 +6,6 @@ import itertools
 import pdb
 
 import common
-import data
 import db
 import excel
 
@@ -184,5 +183,4 @@ def main(d):
     # create_reconciliation(d) # needs post done first
         
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

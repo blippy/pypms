@@ -1,4 +1,3 @@
-import data
 import invsummary
 import invtweaks
 import post
@@ -17,5 +16,4 @@ def main(d):
     invsummary.create_reconciliation(d)
 
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

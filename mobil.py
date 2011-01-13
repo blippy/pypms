@@ -3,7 +3,6 @@
 import pdb
 
 import db
-#import data
 import common
 from common import aggregate
 
@@ -97,6 +96,7 @@ def main(d):
     common.save_report(d['period'], "mobil.txt", output_text)
 
 if  __name__ == "__main__":
+    # TODO - this functionality should probably be used in many more modules
     d = db.fetch()
     main(d)
     print 'Finished'

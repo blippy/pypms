@@ -21,7 +21,7 @@ import datetime
 import win32com.client
 
 import common
-import data, db, excel, unpost
+import db, excel, unpost
 import invsummary
 import invtweaks
 import period
@@ -159,5 +159,4 @@ def main(d):
     conn.Close()
     
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

@@ -3,7 +3,7 @@
 import datetime, pdb
 #from itertools import groupby
 
-import common, data, rtf
+import common, rtf
 from common import aggregate
 
 ###########################################################################
@@ -65,5 +65,4 @@ def main(d):
         CreateJobsheet(jobKey, job_items, d, title, outdir)
 
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

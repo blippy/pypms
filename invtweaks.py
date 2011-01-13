@@ -4,7 +4,6 @@ import itertools
 
 #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
 import common
-import data
 import db
 import excel
 
@@ -42,5 +41,4 @@ def main(d):
     #print accumulate(d)
     
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

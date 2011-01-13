@@ -3,7 +3,6 @@
 
 import common
 from common import summate, mkKeyFunc
-import data
 import period
     
 ###########################################################################
@@ -57,5 +56,4 @@ def main(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

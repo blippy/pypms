@@ -2,7 +2,6 @@ import pdb
 
 import common
 from common import dget
-import data
 import db
 
 def get_budget_line(d, job_code, cum_utilised):
@@ -41,5 +40,4 @@ def main(d):
     common.save_report(p, "budget.txt", text)
 
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

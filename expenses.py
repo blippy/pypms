@@ -3,7 +3,6 @@
 import win32com.client.dynamic
 
 import common
-import data
 import excel
 import period
 #from common import AsAscii
@@ -68,5 +67,4 @@ def main(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"

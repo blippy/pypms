@@ -5,7 +5,7 @@ import pdb
 #from itertools import groupby, ifilter
 from operator import itemgetter, attrgetter
 
-import common, data, rtf
+import common, rtf
 from common import aggregate
 
 
@@ -187,5 +187,4 @@ def main(d):
         CreateJobStatment(jobKey, jobGroup, d)
     
 if  __name__ == "__main__":
-    data.run_current(main)
-    print 'Finished'
+    print "Didn't do anything"
