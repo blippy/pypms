@@ -1,8 +1,12 @@
 import codecs
 import datetime
 import decimal
-import logging, pprint, os
+import logging
+import pprint
+import os
 import unicodedata
+
+import period
 
 
 ###########################################################################
@@ -53,7 +57,8 @@ def makedirs(path):
     path = os.path.abspath(path)
     if not os.path.exists(path): os.makedirs(path)
 
-outroot = 'M:\\Finance\\pypms\\out'
+#outroot = 'M:\\Finance\\pypms\\out'
+outroot = 'M:\\Finance\\pypms'
 makedirs(outroot)
 
 
@@ -61,10 +66,11 @@ def camelxls(p):
     'Return the filename for the Camel Excel input file'
     return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
 
-def perioddir(p):
+def perioddir(p = None):
+    if p is None: p = period.Period(usePrev = True)
     return outroot + "\\" + p.yyyymm()
     
-def reportdir(p):
+def reportdir(p = None):
     'Return the report directory'
     dir =  perioddir(p) + "\\reports"
     makedirs(dir)

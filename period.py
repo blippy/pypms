@@ -3,7 +3,7 @@ import datetime, os
 import pdb
 import sys, traceback
 
-import common
+#import common
 
 def now(): return datetime.datetime.now()
 
@@ -78,11 +78,11 @@ class Period:
         
 
 
-    def outDir(self):
-        full = "%s\\%s\\" % (common.outroot, self.yyyymm())
-        full = os.path.abspath(full)
-        common.makedirs(full)
-        return full
+#    def outDir(self):
+#        full = "%s\\%s\\" % (common.outroot, self.yyyymm())
+#        full = os.path.abspath(full)
+#        common.makedirs(full)
+#        return full
 
     def within(self, d):
         return d.year == self.y and d.month == self.m

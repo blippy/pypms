@@ -2,7 +2,8 @@ import datetime, glob
 
 import win32api, win32com.client
 
-import db, common, period
+import common
+import db
 
 
 def main():
@@ -11,7 +12,8 @@ def main():
     jobs = db.records(['job'], 'SELECT job FROM jobs WHERE Autoprint=Yes ORDER BY job')
     jobs = [x[0] for x in jobs] # flatten the jobs list
     for job in jobs:
-        pattern = '%s\\timesheets\\%s*.rtf' % (p.outDir(), job )
+        # pattern = '%s\\timesheets\\%s*.rtf' % (p.outDir(), job )
+        pattern = '{0}\\timesheets\\{1}*.rtf'.format(common.preioddir(p), job)
         files = glob.glob(pattern)
         files.sort()
         for fname in files:

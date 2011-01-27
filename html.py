@@ -3,6 +3,8 @@
 import glob
 import os
 
+import common
+
 template = '''
 <html>
 <head> <title>Monthly reports</title> </head>
@@ -19,7 +21,7 @@ CONTENTS
 
 def main():
     global template
-    root = "m:\\Finance\\pypms\\out"
+    root = common.outroot #"m:\\Finance\\pypms\\out"
     nodes = os.listdir(root)
     dirs = [node for node in nodes if os.path.isdir(root+ "\\" + node)]
     dirs.sort()
@@ -34,7 +36,7 @@ def main():
             contents += href
         contents += "</p>\n\n"
     html = template.replace('CONTENTS', contents)
-    file("m:\\Finance\\pypms\\out\\texts.htm", 'w').write(html)
+    file(root + "\\texts.htm", 'w').write(html)
 
 if __name__ == "__main__":
     main()

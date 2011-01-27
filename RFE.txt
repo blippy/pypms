@@ -1,7 +1,5 @@
 Fill in the MobilSmn in tblEmployeeDetails and references for Mobil so that the mobil work statement comes out correctly.
 
-process finance.fail
-
 eliminate use of cache
 
 write a gizmo equivalent

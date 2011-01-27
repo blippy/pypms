@@ -7,6 +7,7 @@ from operator import itemgetter, attrgetter
 
 import common, rtf
 from common import aggregate
+import period
 
 
 ###########################################################################
@@ -150,7 +151,11 @@ def CreateJobStatment(jobKey, invItems, d):
 
      
     out.annotation(job, '')
-    out.save(d['period'].outDir() + '\\statements', jobKey + '.rtf')
+    #out.save(d['period'].outDir() + '\\statements', jobKey + '.rtf')
+    outdir = common.perioddir(d['period']) + '\\statements'
+    #outfile = '%s\\statements\\%s.rtf'.format(common.perioddir(d['period']), jobKey)
+    outfile = jobKey + '.rtf'
+    out.save(outdir, outfile)
     
     # remember what we have produced for the invoice summaries
     if job['Weird'] or job['WIP']: 
@@ -158,6 +163,8 @@ def CreateJobStatment(jobKey, invItems, d):
     else:
         billed = net
     invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': billed}
+    #print jobKey
+    #print d['auto_invoices']
     d['auto_invoices'][jobKey] = invoice
 
 
