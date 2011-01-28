@@ -33,7 +33,9 @@ def create_job_details(job_code, cache, rates):
     invItems = [x for x in cache['timeItems'] if x['JobCode'] == job_code]
     for initials, values in aggregate(invItems, common.mkKeyFunc('Person')):
         time_spent= common.summate(values, lambda x: x['TimeVal'])
-        e = cache['employees'][initials]
+        try: e = cache['employees'][initials]
+        except KeyError: continue
+    
         smn = e['MobilSmn']
         person = e['PersonNAME']
         #print rates

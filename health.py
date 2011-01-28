@@ -27,7 +27,9 @@ def main(d):
 
     print >>output, fmt.format('INI', 'NAME', 'LEAV/SICK', 'STAFF', 'ALL')
     for employee_initials, worker_times in common.aggregate(time_items, common.mkKeyFunc('Person')):
-        employee = d['employees'][employee_initials]
+        try: employee = d['employees'][employee_initials]
+        except KeyError: continue
+    
         full_name = employee['PersonNAME']
         time_val = mkKeyFunc('TimeVal')
 

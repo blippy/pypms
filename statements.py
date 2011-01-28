@@ -7,6 +7,7 @@ from operator import itemgetter, attrgetter
 
 import common, rtf
 from common import aggregate
+import db
 import period
 
 
@@ -113,7 +114,7 @@ def CreateJobStatment(jobKey, invItems, d):
             s.heading = 'Expenses not categorised to a specific task'
             s.ordering = 'ZZZ'
         else:
-            s.heading = 'Task %s: %s' % (taskKey, d['tasks'][(jobKey, taskKey)]['TaskDes'])
+            s.heading = 'Task {0}: {1}'.format(taskKey, db.task_desc(d, jobKey, taskKey))
             s.ordering = s.heading
             
         for item in taskGroup: 
@@ -121,7 +122,7 @@ def CreateJobStatment(jobKey, invItems, d):
             if item['iType'] == typeWork: 
                 person = item['Person']
                 price = d['charges'][(jobKey, taskKey, person)]
-                personName = d['employees'][person]['PersonNAME']
+                personName = db.initials_to_name(d, person)
                 s.AddWork(item, price, personName)
             else: s.AddExpense(item, exp_factor)
         sections.append(s)

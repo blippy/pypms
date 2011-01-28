@@ -5,6 +5,7 @@ import datetime, pdb
 
 import common, rtf
 from common import aggregate
+import db
 
 ###########################################################################
 
@@ -45,8 +46,8 @@ def CreateJobsheet(jobcode, job_times, d, title, outdir):
     last_key = sheets[-1][0]
     for key, values in sheets:
         task, initials = key
-        taskTitle = task + ' - ' + d['tasks'][(jobcode, task)]['TaskDes']
-        person_name = d['employees'][initials]['PersonNAME']
+        taskTitle = task + ' - ' + db.task_desc(d, jobcode, task)
+        person_name = db.initials_to_name(d, initials)
         AddHeader(title, jobcode, job['title'], taskTitle, person_name, out)
         #pdb.set_trace()
         AddPersonToJobsheet(initials, values, out)

@@ -1,6 +1,4 @@
-Fill in the MobilSmn in tblEmployeeDetails and references for Mobil so that the mobil work statement comes out correctly.
-
-eliminate use of cache
+allow the gui to process any month
 
 write a gizmo equivalent
 

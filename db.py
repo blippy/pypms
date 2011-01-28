@@ -11,6 +11,8 @@ import expenses
 import period
 
 
+###########################################################################
+
 def DbOpen():
     'Return an open connection to the database'
     conn = win32com.client.Dispatch(r'ADODB.Connection')
@@ -45,14 +47,6 @@ def records(fieldnames, sql):
     return values
  
 
-def XXXSingleColumn(sql):
-    'Assume that the SQL statement just returns a single field. Obtain the values for that field'
-    values = []
-    def func(rs): 
-        rec = [rs.Fields(0).Value for fieldname in fieldnames]
-        values.append(rec)
-    ForEachRecord(sql, func)
-    return values
     
     
     
@@ -164,7 +158,23 @@ def fetch():
     expenses.read_expenses(d)
     #d['expenses'] = None
     return d
-    
+
+###########################################################################
+
+def initials_to_name(data, initials):
+    'Convert a persons initials to their full name'
+    try: name = data['employees'][initials]['PersonNAME']
+    except: name = initials + " name???" # TODO add a warning log
+    return name
+
+def task_desc(data, jobcode, taskcode):
+    'Obtain a task description from a job and task code'
+    try: desc = data['tasks'][(jobcode, taskcode)]['TaskDes']
+    except: desc = '{0}-{1} desc??'.format(jobcode, taskcode) # TODO add a warning log
+    return desc
+
+###########################################################################
+
 if  __name__ == "__main__": 
     test()
     print 'Finished'
