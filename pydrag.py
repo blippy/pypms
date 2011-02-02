@@ -109,7 +109,7 @@ class MainFrame(wx.Frame):
 
     def click_invoice_summary(self, event): # wxGlade: MainFrame.<event_handler>
         p = period.Period(usePrev = True)
-        fname = 'M:\Finance\Invoices\Inv summaries {0}\Inv Summary {0}-{1}.xls'.format(p.y, p.m)
+        fname = '"M:\Finance\Invoices\Inv summaries {0}\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
         open_file(fname)
 
 # end of class MainFrame
