@@ -36,6 +36,7 @@ class MainFrame(wx.Frame):
         self.btnGizmo = wx.Button(self.notebook_1_pane_2, -1, "Gizmo")
         self.btnInvoiceSummary = wx.Button(self.notebook_1_pane_2, -1, "Invoice Summary")
         self.btnOpenReportsFolder = wx.Button(self.notebook_1_pane_2, -1, "Open Reports Folder")
+        self.btnHtml = wx.Button(self.notebook_1_pane_2, -1, "Html")
         self.notebook_1_pane_3 = wx.Panel(self.notebook_1, -1)
         self.btnPrintWorkstatements = wx.Button(self.notebook_1_pane_3, -1, "Workstatements")
         self.btnPrintTimesheets = wx.Button(self.notebook_1_pane_3, -1, "Timesheets")
@@ -48,6 +49,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.click_gizmo, self.btnGizmo)
         self.Bind(wx.EVT_BUTTON, self.click_invoice_summary, self.btnInvoiceSummary)
         self.Bind(wx.EVT_BUTTON, self.click_open_reports_folder, self.btnOpenReportsFolder)
+        self.Bind(wx.EVT_BUTTON, self.click_html, self.btnHtml)
         self.Bind(wx.EVT_BUTTON, self.click_print_workstatements, self.btnPrintWorkstatements)
         self.Bind(wx.EVT_BUTTON, self.click_print_timesheets, self.btnPrintTimesheets)
         # end wxGlade
@@ -70,6 +72,7 @@ class MainFrame(wx.Frame):
         sizer_4.Add(self.btnGizmo, 0, 0, 0)
         sizer_4.Add(self.btnInvoiceSummary, 0, 0, 0)
         sizer_4.Add(self.btnOpenReportsFolder, 0, 0, 0)
+        sizer_4.Add(self.btnHtml, 0, 0, 0)
         self.notebook_1_pane_2.SetSizer(sizer_4)
         sizer_2.Add(self.btnPrintWorkstatements, 0, 0, 0)
         sizer_2.Add(self.btnPrintTimesheets, 0, 0, 0)
@@ -105,12 +108,15 @@ class MainFrame(wx.Frame):
         #event.Skip()
 
     def click_gizmo(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file('M:\Finance\gizmo\gizmo04.xls')
+        open_file('M:\\Finance\\gizmo\\gizmo04.xls')
 
     def click_invoice_summary(self, event): # wxGlade: MainFrame.<event_handler>
         p = period.Period(usePrev = True)
-        fname = '"M:\Finance\Invoices\Inv summaries {0}\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
+        fname = '"M:\\Finance\\Invoices\\Inv summaries {0}\\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
         open_file(fname)
+
+    def click_html(self, event): # wxGlade: MainFrame.<event_handler>
+        open_file('M:\\Finance\\pypms\\texts.htm')
 
 # end of class MainFrame
 
