@@ -1,3 +1,2 @@
-python -i -m pydra
-rem python -i -c "import pydra ; from pydra import * ; init()"
-
+rem python -i -m pydra
+python -i -m app

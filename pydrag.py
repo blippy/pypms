@@ -6,6 +6,8 @@
 # begin wxGlade: extracode
 # end wxGlade
 
+# TOD deprecate in favour of a split module system
+
 import os
 
 import win32api
@@ -13,6 +15,7 @@ import wx
 import wx.richtext
 
 import common
+import db
 import period
 import pydra
 import rtfsprint
@@ -23,11 +26,127 @@ def open_file(filename):
 
     
 
+
+
+
+class JobsFrame(wx.Frame):
+    def __init__(self, *args, **kwds):
+        # begin wxGlade: JobsFrame.__init__
+        kwds["style"] = wx.DEFAULT_FRAME_STYLE
+        wx.Frame.__init__(self, *args, **kwds)
+        self.opt_jobs = wx.Choice(self, -1, choices=[])
+        self.text_title = wx.TextCtrl(self, -1, "")
+        self.notebook_2 = wx.Notebook(self, -1, style=0)
+        self.notebook_2_pane_1 = wx.Panel(self.notebook_2, -1)
+        self.label_13 = wx.StaticText(self.notebook_2_pane_1, -1, "Client:")
+        self.choice_2 = wx.Choice(self.notebook_2_pane_1, -1, choices=[])
+        self.label_14 = wx.StaticText(self.notebook_2_pane_1, -1, "X-Factor")
+        self.text_ctrl_4 = wx.TextCtrl(self.notebook_2_pane_1, -1, "")
+        self.notebook_2_pane_2 = wx.Panel(self.notebook_2, -1)
+        self.text_ctrl_11 = wx.TextCtrl(self.notebook_2_pane_2, -1, "", style=wx.TE_MULTILINE|wx.HSCROLL|wx.TE_LINEWRAP)
+        self.notebook_2_pane_3 = wx.Panel(self.notebook_2, -1)
+        self.text_ctrl_12 = wx.TextCtrl(self.notebook_2_pane_3, -1, "dghjgh", style=wx.TE_MULTILINE|wx.TE_READONLY)
+        self.notebook_2_pane_4 = wx.Panel(self.notebook_2, -1)
+        self.chk_active = wx.CheckBox(self.notebook_2_pane_4, -1, "Active")
+        self.chk_autoprint = wx.CheckBox(self.notebook_2_pane_4, -1, "Autoprint")
+        self.chk_vat = wx.CheckBox(self.notebook_2_pane_4, -1, "VAT")
+        self.chk_weird = wx.CheckBox(self.notebook_2_pane_4, -1, "Weird")
+        self.chk_wip = wx.CheckBox(self.notebook_2_pane_4, -1, "WIP")
+        self.text_ctrl_2 = wx.TextCtrl(self.notebook_2, -1, "", style=wx.TE_MULTILINE)
+
+        self.__set_properties()
+        self.__do_layout()
+
+        self.Bind(wx.EVT_CHOICE, self.opt_jobs_change, self.opt_jobs)
+        # end wxGlade
+        
+        # added by mcarter
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        print "Im being initialised"
+        self.jobs = None
+        #self.curr_job = None
+        
+    def Show(self):
+        print "jobs show"
+        if self.jobs is None:
+            self.jobs = db.GetJobs()
+            for job_code in sorted(self.jobs.keys()):
+                self.opt_jobs.Append(job_code)
+                self.opt_jobs.SetSelection(0)
+            
+            self.fill_frame()
+        super(JobsFrame, self).Show()
+        
+
+    def OnClose(self, event):
+        print "Im being closed"
+        self.Hide()
+
+    def __set_properties(self):
+        # begin wxGlade: JobsFrame.__set_properties
+        self.SetTitle("Jobs")
+        self.SetSize((451, 331))
+        # end wxGlade
+
+    def __do_layout(self):
+        # begin wxGlade: JobsFrame.__do_layout
+        sizer_6 = wx.BoxSizer(wx.VERTICAL)
+        sizer_7 = wx.BoxSizer(wx.VERTICAL)
+        sizer_9 = wx.BoxSizer(wx.VERTICAL)
+        sizer_8 = wx.BoxSizer(wx.VERTICAL)
+        grid_sizer_1 = wx.FlexGridSizer(2, 2, 0, 0)
+        sizer_6.Add(self.opt_jobs, 0, 0, 0)
+        sizer_6.Add(self.text_title, 0, wx.EXPAND, 0)
+        grid_sizer_1.Add(self.label_13, 0, 0, 0)
+        grid_sizer_1.Add(self.choice_2, 0, 0, 0)
+        grid_sizer_1.Add(self.label_14, 0, 0, 0)
+        grid_sizer_1.Add(self.text_ctrl_4, 0, 0, 0)
+        self.notebook_2_pane_1.SetSizer(grid_sizer_1)
+        sizer_8.Add(self.text_ctrl_11, 1, wx.EXPAND, 0)
+        self.notebook_2_pane_2.SetSizer(sizer_8)
+        sizer_9.Add(self.text_ctrl_12, 1, wx.EXPAND, 0)
+        self.notebook_2_pane_3.SetSizer(sizer_9)
+        sizer_7.Add(self.chk_active, 0, 0, 0)
+        sizer_7.Add(self.chk_autoprint, 0, 0, 0)
+        sizer_7.Add(self.chk_vat, 0, 0, 0)
+        sizer_7.Add(self.chk_weird, 0, 0, 0)
+        sizer_7.Add(self.chk_wip, 0, 0, 0)
+        self.notebook_2_pane_4.SetSizer(sizer_7)
+        self.notebook_2.AddPage(self.notebook_2_pane_1, "General")
+        self.notebook_2.AddPage(self.notebook_2_pane_2, "Address")
+        self.notebook_2.AddPage(self.notebook_2_pane_3, "Comments")
+        self.notebook_2.AddPage(self.notebook_2_pane_4, "Options")
+        self.notebook_2.AddPage(self.text_ctrl_2, "References")
+        sizer_6.Add(self.notebook_2, 1, wx.EXPAND, 0)
+        self.SetSizer(sizer_6)
+        self.Layout()
+        # end wxGlade
+
+    def opt_jobs_change(self, event): # wxGlade: JobsFrame.<event_handler>
+        self.fill_frame()
+        
+    def fill_frame(self):
+        job = self.jobs[self.opt_jobs.GetStringSelection()]
+        self.text_title.SetValue(job['title'])
+        print job
+
+# end of class JobsFrame
+
+
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MainFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
+        
+        # Menu Bar
+        self.frmMain_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        self.menu_data_jobs = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Jobs", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_data_jobs)
+        self.frmMain_menubar.Append(wxglade_tmp_menu, "Data")
+        self.SetMenuBar(self.frmMain_menubar)
+        # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
@@ -44,6 +163,7 @@ class MainFrame(wx.Frame):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
         self.Bind(wx.EVT_BUTTON, self.click_expenses, self.btnExpenses)
         self.Bind(wx.EVT_BUTTON, self.click_gizmo, self.btnGizmo)
@@ -53,6 +173,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.click_print_workstatements, self.btnPrintWorkstatements)
         self.Bind(wx.EVT_BUTTON, self.click_print_timesheets, self.btnPrintTimesheets)
         # end wxGlade
+        
+        self.jobs_frame = JobsFrame(self)
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
@@ -117,6 +239,12 @@ class MainFrame(wx.Frame):
 
     def click_html(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\pypms\\texts.htm')
+
+
+
+    def menu_data_jobs_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not self.jobs_frame.IsShown():
+            self.jobs_frame.Show()
 
 # end of class MainFrame
 

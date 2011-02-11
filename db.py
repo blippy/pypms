@@ -91,7 +91,7 @@ def GetJobs():
     fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), 
         ('references', AsAscii), ('briefclient', AsInt),
         ('active', bool), ('vatable', bool), ('exp_factor', AsFloat), ('WIP', bool), ('Weird', bool), 
-        ('Autoprint', bool), ('TsApprover', AsAscii), 
+        ('Autoprint', bool), ('Comments', AsAscii), ('TsApprover', AsAscii), 
         ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), 
         ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
     recs = RecordsList(sql, fieldspec)
