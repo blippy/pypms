@@ -23,10 +23,20 @@ import pydra
 import rtfsprint
 
 import JobsFrame
+import TimegridFrame
 
 def open_file(filename):
     win32api.ShellExecute(0, "open", filename, None, ".", 0)
     
+def long_calc(parent):
+    'Allow bailout of action'
+    caption = 'Danger'
+    question = 'Long or dangerous action. Continue?'
+    dlg = wx.MessageDialog(parent, question, caption, wx.YES_NO | wx.ICON_QUESTION)
+    do_it = dlg.ShowModal() == wx.ID_YES
+    dlg.Destroy()
+    return do_it
+
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: MainFrame.__init__
@@ -38,40 +48,53 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu = wx.Menu()
         self.menu_data_jobs = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Jobs", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_data_jobs)
+        self.menu_data_timegrid = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Time grid", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_data_timegrid)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Data")
+        wxglade_tmp_menu = wx.Menu()
+        self.menu_externals_expenses = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Expenses", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_expenses)
+        self.menu_externals_gizmo = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Gizmo", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_gizmo)
+        self.menu_externals_html = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Html", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_html)
+        self.menu_externals_invoice_summary = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Invoice Summary", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_invoice_summary)
+        self.menu_externals_open_reports_folder = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Open Reports Folder", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_open_reports_folder)
+        self.frmMain_menubar.Append(wxglade_tmp_menu, "Externals")
+        wxglade_tmp_menu = wx.Menu()
+        self.menu_print_timesheets = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Timesheets", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_print_timesheets)
+        self.menu_print_workstatements = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Workstatements", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_print_workstatements)
+        self.frmMain_menubar.Append(wxglade_tmp_menu, "Print")
         self.SetMenuBar(self.frmMain_menubar)
         # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
-        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
-        self.btnExpenses = wx.Button(self.notebook_1_pane_2, -1, "Expenses")
-        self.btnGizmo = wx.Button(self.notebook_1_pane_2, -1, "Gizmo")
-        self.btnInvoiceSummary = wx.Button(self.notebook_1_pane_2, -1, "Invoice Summary")
-        self.btnOpenReportsFolder = wx.Button(self.notebook_1_pane_2, -1, "Open Reports Folder")
-        self.btnHtml = wx.Button(self.notebook_1_pane_2, -1, "Html")
-        self.notebook_1_pane_3 = wx.Panel(self.notebook_1, -1)
-        self.btnPrintWorkstatements = wx.Button(self.notebook_1_pane_3, -1, "Workstatements")
-        self.btnPrintTimesheets = wx.Button(self.notebook_1_pane_3, -1, "Timesheets")
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
+        self.Bind(wx.EVT_MENU, self.menu_data_timegrid_selected, self.menu_data_timegrid)
+        self.Bind(wx.EVT_MENU, self.menu_externals_expenses_selected, self.menu_externals_expenses)
+        self.Bind(wx.EVT_MENU, self.menu_externals_gizmo_selected, self.menu_externals_gizmo)
+        self.Bind(wx.EVT_MENU, self.menu_externals_html_selected, self.menu_externals_html)
+        self.Bind(wx.EVT_MENU, self.menu_externals_invoice_summary_selected, self.menu_externals_invoice_summary)
+        self.Bind(wx.EVT_MENU, self.menu_externals_open_reports_folder_selected, self.menu_externals_open_reports_folder)
+        self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
+        self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
-        self.Bind(wx.EVT_BUTTON, self.click_expenses, self.btnExpenses)
-        self.Bind(wx.EVT_BUTTON, self.click_gizmo, self.btnGizmo)
-        self.Bind(wx.EVT_BUTTON, self.click_invoice_summary, self.btnInvoiceSummary)
-        self.Bind(wx.EVT_BUTTON, self.click_open_reports_folder, self.btnOpenReportsFolder)
-        self.Bind(wx.EVT_BUTTON, self.click_html, self.btnHtml)
-        self.Bind(wx.EVT_BUTTON, self.click_print_workstatements, self.btnPrintWorkstatements)
-        self.Bind(wx.EVT_BUTTON, self.click_print_timesheets, self.btnPrintTimesheets)
         # end wxGlade
  
 
         # added by mcarter
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.jobs_frame = JobsFrame.JobsFrame(self)
+        self.timegrid_frame = TimegridFrame.TimegridFrame(self)
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
@@ -82,23 +105,10 @@ class MainFrame(wx.Frame):
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
-        sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_4 = wx.BoxSizer(wx.VERTICAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
-        sizer_4.Add(self.btnExpenses, 0, 0, 0)
-        sizer_4.Add(self.btnGizmo, 0, 0, 0)
-        sizer_4.Add(self.btnInvoiceSummary, 0, 0, 0)
-        sizer_4.Add(self.btnOpenReportsFolder, 0, 0, 0)
-        sizer_4.Add(self.btnHtml, 0, 0, 0)
-        self.notebook_1_pane_2.SetSizer(sizer_4)
-        sizer_2.Add(self.btnPrintWorkstatements, 0, 0, 0)
-        sizer_2.Add(self.btnPrintTimesheets, 0, 0, 0)
-        self.notebook_1_pane_3.SetSizer(sizer_2)
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
-        self.notebook_1.AddPage(self.notebook_1_pane_2, "Externals")
-        self.notebook_1.AddPage(self.notebook_1_pane_3, "Printing")
         sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
         self.Layout()
@@ -114,35 +124,50 @@ class MainFrame(wx.Frame):
     def menu_data_jobs_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not self.jobs_frame.IsShown():
             self.jobs_frame.Show()
-
+    
+    def menu_data_timegrid_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not self.timegrid_frame.IsShown():
+            self.timegrid_frame.Show()
+        
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
+        if not long_calc(self): return
         pydra.allstages()
         wx.MessageBox('Finished', 'Info')
 
-    def click_expenses(self, event): # wxGlade: MainFrame.<event_handler>
+
+
+    def menu_externals_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file(common.camelxls())
 
-    def click_gizmo(self, event): # wxGlade: MainFrame.<event_handler>
+    def menu_externals_gizmo_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\gizmo\\gizmo04.xls')
 
-    def click_invoice_summary(self, event): # wxGlade: MainFrame.<event_handler>
+    def menu_externals_html_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        open_file('M:\\Finance\\pypms\\texts.htm')
+
+    def menu_externals_invoice_summary_selected(self, event): # wxGlade: MainFrame.<event_handler>
         p = period.Period(usePrev = True)
         fname = '"M:\\Finance\\Invoices\\Inv summaries {0}\\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
         open_file(fname)
 
-    def click_open_reports_folder(self, event): # wxGlade: MainFrame.<event_handler>
+    def menu_externals_open_reports_folder_selected(self, event): # wxGlade: MainFrame.<event_handler>
         cmd = 'explorer ' + common.reportdir()
         os.system(cmd)
 
-    def click_html(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file('M:\\Finance\\pypms\\texts.htm')
 
-    def click_print_workstatements(self, event): # wxGlade: MainFrame.<event_handler>
-        rtfsprint.work_statements()
 
-    def click_print_timesheets(self, event): # wxGlade: MainFrame.<event_handler>
+    def menu_print_timesheets_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not long_calc(self): return
         rtfsprint.timesheets()
         wx.MessageBox('Finished', 'Info')
+
+    def menu_print_workstatements_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not long_calc(self): return
+        rtfsprint.work_statements()
+
+
+        
+
 
 # end of class MainFrame
 
