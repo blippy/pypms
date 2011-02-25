@@ -74,6 +74,10 @@ class MainFrame(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
+        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
+        self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
+        self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
+        self.btn_inc_period = wx.Button(self.notebook_1_pane_2, -1, "+")
 
         self.__set_properties()
         self.__do_layout()
@@ -88,6 +92,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
+        self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
+        self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
         # end wxGlade
  
 
@@ -101,14 +107,23 @@ class MainFrame(wx.Frame):
         self.SetTitle("Pydra GUI")
         self.SetSize((294, 218))
         # end wxGlade
+        self.label_period.SetLabel(period.g_period.yyyymm())
 
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        sizer_5 = wx.BoxSizer(wx.VERTICAL)
+        sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
+        sizer_10.Add(self.label_period, 0, 0, 0)
+        sizer_10.Add(self.btn_dec_period, 0, 0, 0)
+        sizer_10.Add(self.btn_inc_period, 0, 0, 0)
+        sizer_5.Add(sizer_10, 1, wx.EXPAND, 0)
+        self.notebook_1_pane_2.SetSizer(sizer_5)
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
+        self.notebook_1.AddPage(self.notebook_1_pane_2, "Settings")
         sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
         self.Layout()
@@ -168,6 +183,15 @@ class MainFrame(wx.Frame):
 
         
 
+    def change_period(self, num_months):
+        period.global_inc(num_months)
+        self.label_period.SetLabel(period.g_period.yyyymm())
+        
+    def btn_dec_period_clicked(self, event): # wxGlade: MainFrame.<event_handler>
+        self.change_period(-1)
+
+    def btn_inc_period_clicked(self, event): # wxGlade: MainFrame.<event_handler>
+        self.change_period(1)
 
 # end of class MainFrame
 
