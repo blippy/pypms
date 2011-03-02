@@ -8,6 +8,7 @@ import pdb
 import common
 import db
 import excel
+from common import princ
 
 
     
@@ -183,4 +184,4 @@ def main(d):
     # create_reconciliation(d) # needs post done first
         
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

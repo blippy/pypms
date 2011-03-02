@@ -4,7 +4,7 @@ import pdb
 
 import db
 import common
-from common import aggregate
+from common import aggregate, princ
 
 
 
@@ -21,7 +21,7 @@ def create_job_details(job_code, cache, rates):
     fmt2 = '\n{0:10} {1:12} {2:>9} {3:>9} {4:>9} {5}\n'
     
     
-    # print out the header information
+    # write out the header information
     output += 'SREL Job no: {0}\n'.format(job_code)
     output += cache['jobs'][job_code]['references'] + '\n'
     output += fmt2.format('Serv Mast', 'Personnel', 'Rate', 'Qty', ' Total', 'Timesheet Numbers')
@@ -38,7 +38,6 @@ def create_job_details(job_code, cache, rates):
     
         smn = e['MobilSmn']
         person = e['PersonNAME']
-        #print rates
         rate = rates[(job_code, initials)]
         amount = round(time_spent * rate, 2)
         output += fmt1.format(smn, person, time_spent, rate, amount)
@@ -69,9 +68,6 @@ def create_job_details(job_code, cache, rates):
 ###########################################################################
 
 def main(d):
-    #conf = config()
-    #conf.load()                        
-    #print conf.jobs
     output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(d['period'].mmmmyyyy())
 
     
@@ -101,4 +97,4 @@ if  __name__ == "__main__":
     # TODO - this functionality should probably be used in many more modules
     d = db.fetch()
     main(d)
-    print 'Finished'
+    princ('Finished')

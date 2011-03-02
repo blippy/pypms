@@ -6,7 +6,7 @@ import pdb
 from operator import itemgetter, attrgetter
 
 import common, rtf
-from common import aggregate
+from common import aggregate, princ
 import db
 import period
 
@@ -51,7 +51,6 @@ class Section:
         self.expenseEntries = []
         
     def AddWork(self, item, price, personName):
-        #print personName
         if not self.workEntries.has_key(personName): self.workEntries[personName] = { 'desc' : personName , 'qty' : 0, 'price' : price }
         self.workEntries[personName]['qty'] += item['TimeVal']
         
@@ -164,8 +163,6 @@ def CreateJobStatment(jobKey, invItems, d):
     else:
         billed = net
     invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': billed}
-    #print jobKey
-    #print d['auto_invoices']
     d['auto_invoices'][jobKey] = invoice
 
 
@@ -195,4 +192,4 @@ def main(d):
         CreateJobStatment(jobKey, jobGroup, d)
     
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

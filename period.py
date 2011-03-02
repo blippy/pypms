@@ -11,7 +11,7 @@ import sys, traceback
 
 from _winreg import *
 
-#import common
+from common import princ
 
 def now(): return datetime.datetime.now()
 
@@ -31,8 +31,6 @@ class Period:
         if usePrev: self.decMonth()
         
     def __eq__(self, other):
-        #pdb.set_trace()
-        #print "entering equality test"
         if not other: return False # maybe None was passed in as other
         return self.yyyymm() == other.yyyymm()
     
@@ -49,8 +47,8 @@ class Period:
         self.m = t.month
         
     def describe(self):
-        print 'YEAR: ', self.y
-        print 'MONTH:', self.m
+        princ('YEAR:  ' + self.y)
+        princ('MONTH: ' + self.m)
         
 
     def ask(self, text, default):
@@ -67,7 +65,7 @@ class Period:
                 if value < low or value > high: raise ValueError
                 break
             except ValueError:
-                print "Invalid input. Try again"
+                princ("Invalid input. Try again")
         return value
 
     def askYear(self):
@@ -100,15 +98,8 @@ class Period:
                 self.m = self.askMonth()
                 break
             else: 
-                print "Invalid input. Try again"    
+                princ("Invalid input. Try again" )   
         
-
-
-#    def outDir(self):
-#        full = "%s\\%s\\" % (common.outroot, self.yyyymm())
-#        full = os.path.abspath(full)
-#        common.makedirs(full)
-#        return full
 
     def within(self, d):
         return d.year == self.y and d.month == self.m
@@ -172,9 +163,9 @@ def global_inc(num_months):
 
 
 if __name__ == "__main__":
-    print "Global period is:", g_period.yyyymm()
+    princ("Global period is:" + g_period.yyyymm())
     p = Period()
     p.describe()
     p.inc(-12)
     p.describe()
-    print 'Finished'
+    princ('Finished')

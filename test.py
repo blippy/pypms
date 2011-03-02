@@ -6,6 +6,8 @@ import pdb
 
 import win32com.client
 
+from common import princ
+
 class Struct:
     pass
 
@@ -22,16 +24,13 @@ def testmain():
     #Person,PersonNAME, PersonCompany, Active, Complete, IsStaff = recs
     fieldspec = [('Person', str), ('PersonNAME', str), ('IsStaff', bool)]
     for rec in itertools.izip( recs[0], recs[1], recs[2]):
-        print "***" , rec
+        princ("***" + rec)
     t = Struct()
     
-    print recs
-    print recs[1][2]
-    #pdb.set_trace()
+    princ(recs)
+    princ(recs[1][2])
     rs.Close()
     conn.Close()
 
 testmain()
-print 'Finished'
-#t = timeit.Timer('main()')
-#t.repeat(3, 10)
+princ('Finished')

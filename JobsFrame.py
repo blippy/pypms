@@ -10,6 +10,7 @@ import wx
 
 # end wxGlade
 
+from common import princ
 import db
 
 class JobsFrame(wx.Frame):
@@ -98,7 +99,6 @@ class JobsFrame(wx.Frame):
         # end wxGlade
 
     def Show(self):
-        print "jobs show"
         if self.jobs is None:
             self.jobs = db.GetJobs()
             for job_code in sorted(self.jobs.keys()):
@@ -120,7 +120,6 @@ class JobsFrame(wx.Frame):
         
 
     def OnClose(self, event):
-        print "Im being closed"
         self.Hide()
         
     def opt_jobs_change(self, event): # wxGlade: JobsFrame.<event_handler>
@@ -135,7 +134,6 @@ class JobsFrame(wx.Frame):
         briefclient = self.clients[client_id]
         self.opt_client.SetStringSelection(briefclient)
         exp_factor = str(job['exp_factor'])
-        print exp_factor
         self.text_exp_factor.SetValue(exp_factor)
         
 
@@ -150,7 +148,6 @@ class JobsFrame(wx.Frame):
         self.chk_wip.SetValue(job['WIP'])
         
         self.text_references.SetValue(job['references'])
-        print job    
 
 # end of class JobsFrame
 

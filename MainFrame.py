@@ -78,6 +78,7 @@ class MainFrame(wx.Frame):
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
         self.btn_inc_period = wx.Button(self.notebook_1_pane_2, -1, "+")
+        self.text_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
 
         self.__set_properties()
         self.__do_layout()
@@ -101,11 +102,17 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
+        
+        def princ_func(text):
+            self.text_output.AppendText(str(text) + '\n')
+        
+        common._princ_func = princ_func
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
         self.SetTitle("Pydra GUI")
-        self.SetSize((294, 218))
+        self.SetSize((568, 507))
+        self.text_output.SetFont(wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, "Consolas"))
         # end wxGlade
         self.label_period.SetLabel(period.g_period.yyyymm())
 
@@ -125,6 +132,7 @@ class MainFrame(wx.Frame):
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
         self.notebook_1.AddPage(self.notebook_1_pane_2, "Settings")
         sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
+        sizer_1.Add(self.text_output, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
         self.Layout()
         # end wxGlade
@@ -133,7 +141,7 @@ class MainFrame(wx.Frame):
         if self.jobs_frame.IsShown():
             wx.MessageBox("Close jobs form first", "Error")
         else:
-            print "Going down"
+            princ("Going down")
             self.Destroy()
         
     def menu_data_jobs_selected(self, event): # wxGlade: MainFrame.<event_handler>
@@ -147,6 +155,7 @@ class MainFrame(wx.Frame):
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
         pydra.allstages()
+        princ('Finished')
         wx.MessageBox('Finished', 'Info')
 
 
@@ -175,6 +184,7 @@ class MainFrame(wx.Frame):
         if not long_calc(self): return
         rtfsprint.timesheets()
         wx.MessageBox('Finished', 'Info')
+
 
     def menu_print_workstatements_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return

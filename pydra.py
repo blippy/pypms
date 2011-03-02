@@ -12,7 +12,7 @@ import pdb
 import pydoc
 
 import budget
-from common import dget
+from common import dget, princ
 import db
 import expenses
 import health
@@ -31,7 +31,7 @@ import timesheets
 cache = {}
 
 def quit_pydra():
-    print "Parting is such sweet sorrow"
+    princ("Parting is such sweet sorrow")
 
 atexit.register(quit_pydra)    
 
@@ -42,7 +42,7 @@ atexit.register(quit_pydra)
 def bye():
     'Save cache and exit'
     global cache
-    print "Quitting"
+    princ("Quitting")
     quit()
     
 def dbg():
@@ -69,9 +69,9 @@ def expv():
     while True:
         os.system('CLS')
         for line in records[page*20:page*20+20]:
-            print line
-        print
-        print 'q-Quit  SPC,n-Next  p-Prev'
+            princ(line)
+        princ('')
+        princ('q-Quit  SPC,n-Next  p-Prev')
         ch = msvcrt.getch().lower()
         if ch == 'q': break
         if ch == 'n' or ch == ' ': page = min( int(len(line)/20), page + 1)
@@ -139,4 +139,4 @@ def works():
 ###########################################################################
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

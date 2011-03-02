@@ -25,7 +25,7 @@ import db, excel, unpost
 import invsummary
 import invtweaks
 import period
-from common import AsAscii, AsFloat
+from common import AsAscii, AsFloat, princ
         
 
 ############################################################################
@@ -48,10 +48,8 @@ def InsertFreshMonth(conn, d):
         fmt += " VALUES "
         fmt += "('%s', '%s', 0, 0, 0, 0, 0, 0, 0, '%s', 'PyPms', 0, 0, 0) " #WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
         sql = fmt % (invDate, invBillingPeriod, jobcode)
-        #print sql
         conn.execute(sql)
 
-    #print jobsToCreate
 
 ###########################################################################
 
@@ -131,14 +129,11 @@ def add_purchase_orders(conn, d):
         GROUP BY tblPurchaseItems.POJobCode"""
     fmt = "SELECT * FROM qryPO WHERE BillingPeriod='%s'"
     sql = fmt % (p.yyyymm())
-    #sql = fmt % (from_date, to_date)
-    #print sql
     costs = {}
     for rec in db.records(['Code', 'Cost'], sql):
         costs[str(rec[0])] = rec[1]
     
     # Add PO costs to database
-    #print costs
     for job_code in costs:
         cost = costs[job_code]
         fmt = "UPDATE tblInvoice SET InvPODatabaseCosts=%.2f WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
@@ -159,4 +154,4 @@ def main(d):
     conn.Close()
     
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

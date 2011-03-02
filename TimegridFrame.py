@@ -98,7 +98,6 @@ class TimegridFrame(wx.Frame):
         data_rows = {}
         for initials in employees.keys():
             data_rows[initials] = DataRow(initials, employees[initials]['PersonNAME'], dim)
-        #print employees
 
         # accumulate time items by person and date
         timeItems = db.GetTimeitems(p)
@@ -106,12 +105,10 @@ class TimegridFrame(wx.Frame):
             initials = timeItem['Person']
             dstamp = timeItem['DateVal']
             day = int(dstamp[-2:])
-            #print day
             qty = timeItem['TimeVal']
             if not data_rows.has_key(initials):
                 data_rows[initials] = DataRow(initials, '???', dim)
             data_rows[initials].times[day-1] += qty
-        #print timeItems
 
         
         # output the results in a grid

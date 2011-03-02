@@ -5,7 +5,7 @@ import win32com.client.dynamic
 import common
 import excel
 import period
-#from common import AsAscii
+from common import princ
 
 
 
@@ -67,4 +67,4 @@ def main(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

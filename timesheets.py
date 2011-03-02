@@ -4,7 +4,7 @@ import datetime, pdb
 #from itertools import groupby
 
 import common, rtf
-from common import aggregate
+from common import aggregate, princ
 import db
 
 ###########################################################################
@@ -66,4 +66,4 @@ def main(d):
         CreateJobsheet(jobKey, job_items, d, title, outdir)
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

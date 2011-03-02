@@ -4,7 +4,7 @@
 import operator
 
 import common
-from common import dget
+from common import dget, princ
 import db
 import excel
 
@@ -81,4 +81,4 @@ def main(d):
     
         
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

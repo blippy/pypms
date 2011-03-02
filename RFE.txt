@@ -1,4 +1,7 @@
-Replace output on console to a separate window
+!! Replace output on console to a separate window - use princ statement pervasively
+... make sure helath.py works as expected, because I've fiddled with the print command
+
+NEXT MONTH (i.e. Apr 2011): Start from pydrag.pyw
 
 write a gizmo equivalent
 

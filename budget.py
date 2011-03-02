@@ -1,6 +1,7 @@
 import pdb
 
 import common
+from common import princ
 from common import dget
 import db
 
@@ -40,4 +41,4 @@ def main(d):
     common.save_report(p, "budget.txt", text)
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

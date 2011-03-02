@@ -6,6 +6,7 @@ import itertools
 import common
 import db
 import excel
+from common import princ
 
 ###########################################################################
 
@@ -38,7 +39,6 @@ def accumulate(d):
 
 def main(d):
     read_excel_file(d)
-    #print accumulate(d)
     
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

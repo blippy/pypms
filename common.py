@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import codecs
 import datetime
 import decimal
@@ -5,6 +7,8 @@ import logging
 import pprint
 import os
 import unicodedata
+
+
 
 import period
 
@@ -98,6 +102,11 @@ def save_report(p, filename, text):
 ###########################################################################
 # logging
 
+_princ_func = print
+
+def princ(text):
+    _princ_func(text)
+    
 logging.basicConfig(level=logging.ERROR,
                     format='%(asctime)s %(levelname)s %(message)s',
                     filename= outroot + '\\pypms.log',
@@ -106,10 +115,14 @@ def logdebug(txt): logging.debug(txt)
 def loginfo(txt): logging.info(txt)
 
 def logerror(txt):
-    print txt
+    princ(txt)
     logging.error(txt)
     
 def logwarn(txt): logging.warn(txt)
+
+
+
+    
     
 
 ###########################################################################

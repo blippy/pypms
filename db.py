@@ -6,7 +6,7 @@ from itertools import izip
 import win32com.client
 
 import common
-from common import AsAscii, AsFloat, AsInt
+from common import AsAscii, AsFloat, AsInt, princ
 import expenses
 import period
 
@@ -177,4 +177,4 @@ def task_desc(data, jobcode, taskcode):
 
 if  __name__ == "__main__": 
     test()
-    print 'Finished'
+    princ('Finished')

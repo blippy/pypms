@@ -4,31 +4,11 @@ import os
 import pdb
 
 import win32com.client.dynamic
-#import xlrd
 import common
+from common import princ
 
  
-def XXXxlopen():
-    return win32com.client.dynamic.Dispatch("Excel.Application")
-
-def XXXxlclose(xlapp):
-    xlapp.Quit()
-    del xlapp    
  
-###########################################################################
-
-#xlFormulas, , xlByRows, xlPrevious
-def XXXnum_rows(ws):
-    #global xlFormulas, , xlByRows, xlPrevious
-    #rng = ws.Range("A1")
-    #const = win32com.client.constants
-    #find = ws.Cells.Find("*", "A1",   xlFormulas, , SearchOrder = const.xlByRows, SearchDirectory = const.xlPrevious)
-    xlByRows = 1
-    xlPrevious = 2
-    cells = ws.Cells
-    find = cells.Find("*", "A1", SearchOrder = xlByRows, SearchDirection = xlPrevious)
-    num = find.Row
-    return num
         
 ###########################################################################
 
@@ -115,5 +95,5 @@ if  __name__ == "__main__":
         ws.Cells(1,1).Value = 'Basic test works'
     fname = 'c:\\test.xls'
     create_workbook(fname, xlfunc)
-    print 'Simple spreadsheet created at', fname
-    print 'Finished'
+    princ('Simple spreadsheet created at ' + fname)
+    princ('Finished')

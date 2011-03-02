@@ -7,7 +7,7 @@ import win32api, win32com.client
 import common
 import db
 import period
-
+from common import princ
 
 def print_file(filename):
     cmd = '"C:\Program Files\Windows NT\Accessories\wordpad.exe" /p ' + filename
@@ -39,4 +39,4 @@ def timesheets():
 if  __name__ == "__main__":
     #timesheets()
     work_statements()
-    print "Finished xls"
+    princ("Finished xls")

@@ -2,6 +2,7 @@
 
 import db
 import period
+from common import princ
 
 def zap_entries(per):
     'Remove all recorded invoices for the period PER'
@@ -11,12 +12,12 @@ def zap_entries(per):
     
 def main():
     'Main point of entry - only for use on the command line, though.'
-    print "DANGER WILL ROBINSON! DANGER! DANGER!"
-    print "You are about to delete invoices from the database"
+    princ("DANGER WILL ROBINSON! DANGER! DANGER!")
+    princ("You are about to delete invoices from the database")
     per = period.Period()
     per.inputPeriod()
     zap_entries(per)
-    print 'Finished'
+    princ('Finished')
     
     
 if  __name__ == "__main__":

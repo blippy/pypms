@@ -5,6 +5,7 @@ import pstats
 import excel
 import pydra
 import pypms
+from common import princ
 
 __raw_profile_file = '../profresults.dat'
 
@@ -31,4 +32,4 @@ def main():
     
 if  __name__ == "__main__":
     main()
-    print 'Finished'
+    princ('Finished')

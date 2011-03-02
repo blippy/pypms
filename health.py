@@ -2,7 +2,7 @@
 # \\Cbegbrabssrv01\quality\Intertek\HSE Records\Monthly Returns
 
 import common
-from common import summate, mkKeyFunc
+from common import summate, mkKeyFunc, princ
 import period
     
 ###########################################################################
@@ -58,4 +58,4 @@ def main(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")

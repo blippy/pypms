@@ -4,7 +4,7 @@
 import pdb
 
 import common
-from common import aggregate, AsAscii, summate
+from common import aggregate, AsAscii, summate, princ
 import db
 import excel
 
@@ -59,4 +59,4 @@ def main(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    print "Didn't do anything"
+    princ("Didn't do anything")
