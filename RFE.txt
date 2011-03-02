@@ -1,4 +1,4 @@
-allow the gui to process any month
+Replace output on console to a separate window
 
 write a gizmo equivalent
 

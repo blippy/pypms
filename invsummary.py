@@ -73,7 +73,7 @@ def create_invoice_summary_func(d, wb):
         ws.Cells(rown, 4).NumberFormat = "0.00"
         
         vatable = d['jobs'][job_code]['vatable']
-        if vatable: rate = 0.175
+        if vatable: rate = 0.20
         else: rate = 0.0
         formula = '=round(RC[-1]*%f, 2)' % (rate)
         ws.Cells(rown, 5).Formula = formula
