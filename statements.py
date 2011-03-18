@@ -152,8 +152,7 @@ def CreateJobStatment(jobKey, invItems, d):
      
     out.annotation(job, '')
     #out.save(d['period'].outDir() + '\\statements', jobKey + '.rtf')
-    outdir = common.perioddir(d['period']) + '\\statements'
-    #outfile = '%s\\statements\\%s.rtf'.format(common.perioddir(d['period']), jobKey)
+    outdir = period.perioddir(d['period']) + '\\statements'
     outfile = jobKey + '.rtf'
     out.save(outdir, outfile)
     

@@ -5,6 +5,8 @@ import pdb
 import db
 import common
 from common import aggregate, princ
+import period
+
 
 
 
@@ -91,7 +93,7 @@ def main(d):
     output_text += total_text(total)
     output_text += '\n\nName: ' + '_' * 30 + ' Signature: ' + '_' * 30 + ' Date: ' + '_' * 15
     
-    common.save_report(d['period'], "mobil.txt", output_text)
+    period.save_report(d['period'], "mobil.txt", output_text)
 
 if  __name__ == "__main__":
     # TODO - this functionality should probably be used in many more modules

@@ -30,21 +30,12 @@ import timesheets
 
 cache = {}
 
-def quit_pydra():
-    princ("Parting is such sweet sorrow")
 
-atexit.register(quit_pydra)    
 
 ###########################################################################
 
 
-    
-def bye():
-    'Save cache and exit'
-    global cache
-    princ("Quitting")
-    quit()
-    
+
 def dbg():
     'Fetch data for the action period into the cache.'
     global cache

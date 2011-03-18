@@ -10,13 +10,18 @@ import wx
 
 # end wxGlade
 
+# notes on windows redirects:
+# http://www.velocityreviews.com/forums/t515815-wxpython-redirect-the-stdout-to-a-textctrl.html    
+
 import os
+import sys
 
 import win32api
 #import wx
 #import wx.richtext
 
 import common
+from common import princ
 #import db
 import period
 import pydra
@@ -36,6 +41,34 @@ def long_calc(parent):
     do_it = dlg.ShowModal() == wx.ID_YES
     dlg.Destroy()
     return do_it
+
+class RedirectText:
+    def __init__(self,aWxTextCtrl):
+        self.out=aWxTextCtrl
+        
+    def write(self,string):
+        self.out.WriteText(string)
+
+#-------------------------- Create Icon --------------------------
+def GetMondrianData():
+    return \
+'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00 \x00\x00\x00 \x08\x06\x00\
+\x00\x00szz\xf4\x00\x00\x00\x04sBIT\x08\x08\x08\x08|\x08d\x88\x00\x00\x00qID\
+ATX\x85\xed\xd6;\n\x800\x10E\xd1{\xc5\x8d\xb9r\x97\x16\x0b\xad$\x8a\x82:\x16\
+o\xda\x84pB2\x1f\x81Fa\x8c\x9c\x08\x04Z{\xcf\xa72\xbcv\xfa\xc5\x08 \x80r\x80\
+\xfc\xa2\x0e\x1c\xe4\xba\xfaX\x1d\xd0\xde]S\x07\x02\xd8>\xe1wa-`\x9fQ\xe9\
+\x86\x01\x04\x10\x00\\(Dk\x1b-\x04\xdc\x1d\x07\x14\x98;\x0bS\x7f\x7f\xf9\x13\
+\x04\x10@\xf9X\xbe\x00\xc9 \x14K\xc1<={\x00\x00\x00\x00IEND\xaeB`\x82' 
+def GetMondrianBitmap():
+    return wx.BitmapFromImage(GetMondrianImage())
+def GetMondrianImage():
+    import cStringIO
+    stream = cStringIO.StringIO(GetMondrianData())
+    return wx.ImageFromStream(stream)
+def GetMondrianIcon():
+    icon = wx.EmptyIcon()
+    icon.CopyFromBitmap(GetMondrianBitmap())
+    return icon  
 
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwds):
@@ -103,10 +136,38 @@ class MainFrame(wx.Frame):
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
         
-        def princ_func(text):
-            self.text_output.AppendText(str(text) + '\n')
+        # redirect stdout and sterr to window
+        redir = RedirectText(self.text_output)
+        sys.stdout = redir
+        sys.stderr = redir
         
-        common._princ_func = princ_func
+        #def princ_func(text):
+        #    self.text_output.AppendText(str(text) + '\n')        
+        #common._princ_func = princ_func
+ 
+        # iconification and taskbar
+        # http://wxpython-users.1045709.n5.nabble.com/minimize-to-try-question-td2359957.html
+        self.icon = GetMondrianIcon()
+        self.SetIcon(self.icon) 
+        self.tbicon = wx.TaskBarIcon()                
+        self.Bind(wx.EVT_ICONIZE, self.OnIconify)
+        self.tbicon.Bind(wx.EVT_TASKBAR_LEFT_DCLICK, self.OnTaskBarActivate) 
+        self.Show() 
+ 
+    def OnTaskBarActivate(self, evt):
+        print 'OnTaskBarActivate...'
+        if self.IsIconized():
+            self.Iconize(False)
+            self.Show()
+            self.Raise()
+            self.tbicon.RemoveIcon()
+ 
+    def OnIconify(self, evt):  
+        print 'OnIconify...'
+        if evt.Iconized():
+            self.Iconize(True)
+            self.Hide()
+            self.tbicon.SetIcon(self.icon) 
 
     def __set_properties(self):
         # begin wxGlade: MainFrame.__set_properties
@@ -161,7 +222,7 @@ class MainFrame(wx.Frame):
 
 
     def menu_externals_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file(common.camelxls())
+        open_file(period.camelxls())
 
     def menu_externals_gizmo_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\gizmo\\gizmo04.xls')
@@ -175,7 +236,8 @@ class MainFrame(wx.Frame):
         open_file(fname)
 
     def menu_externals_open_reports_folder_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        cmd = 'explorer ' + common.reportdir()
+        #print 1 / 0
+        cmd = 'explorer ' + period.reportdir()
         os.system(cmd)
 
 

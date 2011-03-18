@@ -11,7 +11,7 @@ from common import princ
 ###########################################################################
 
 def read_excel_file(d):
-    xl = excel.ImportWorksheet(common.camelxls(d['period']), 'InvTweaks')
+    xl = excel.ImportWorksheet(period.camelxls(d['period']), 'InvTweaks')
     field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
     f = common.AsFloat
     field_types = [str, f, f, f, f, f, f, f, f, str]

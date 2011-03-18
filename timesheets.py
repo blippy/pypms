@@ -60,7 +60,7 @@ def CreateJobsheet(jobcode, job_times, d, title, outdir):
 def main(d):
     p = d['period']
     title = 'Timesheet: ' + p.mmmmyyyy()
-    outdir = common.perioddir(p) + '\\timesheets'
+    outdir = period.perioddir(p) + '\\timesheets'
     for jobKey, job_items in aggregate(d['timeItems'], common.mkKeyFunc('JobCode')):
         #pdb.set_trace()
         CreateJobsheet(jobKey, job_items, d, title, outdir)

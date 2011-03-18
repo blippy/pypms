@@ -1,3 +1,2 @@
-rem pydra gui version
-python  -m app
+python pydrag.pyw
 

@@ -4,6 +4,7 @@ import common
 from common import princ
 from common import dget
 import db
+import period
 
 def get_budget_line(d, job_code, cum_utilised):
     fmt = '{0:<7s} {1:<10.10s} {2:<10.10s} {3:<20.20s} {4:10.2f} {5:10.10s} {6:10.10s} {7:11.2f}\n'
@@ -38,7 +39,7 @@ def main(d):
         if not d['jobs'][job_code]['active']: continue
         cum_utilised = dget(utilisations, job_code, 0.0)
         text += get_budget_line(d, job_code, cum_utilised)
-    common.save_report(p, "budget.txt", text)
+    period.save_report(p, "budget.txt", text)
 
 if  __name__ == "__main__":
     princ("Didn't do anything")

@@ -7,6 +7,7 @@ import common
 from common import dget, princ
 import db
 import excel
+import period
 
 
 ###########################################################################
@@ -28,7 +29,7 @@ def get_dbase_recoveries(d):
     return recoveries
 
 def get_camel_recoveries(d):
-    xl = excel.ImportWorksheet(common.camelxls(d['period']), 'InvTweaks')
+    xl = excel.ImportWorksheet(period.camelxls(d['period']), 'InvTweaks')
     recoveries = {}
 
     for line in xl[1:]:
@@ -77,7 +78,7 @@ def main(d):
     output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
     output += line(pms_grand_total, 'PMS GRAND TOTAL')
     output += line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF')        
-    common.save_report(d['period'], 'recoveries.txt', output)
+    period.save_report(d['period'], 'recoveries.txt', output)
     
         
 if  __name__ == "__main__":

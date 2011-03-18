@@ -11,7 +11,10 @@ import sys, traceback
 
 from _winreg import *
 
+import common
 from common import princ
+
+###########################################################################
 
 def now(): return datetime.datetime.now()
 
@@ -22,7 +25,7 @@ def is_weekend(y, m, d):
     v = v > 4
     return v
     
-
+###########################################################################
 
 
 class Period:
@@ -129,6 +132,36 @@ class Period:
         result = '%02d/%02d/%04d' % (self.dim(), self.m, self.y)
         return result
         
+
+###########################################################################
+# directories dependent on period
+
+def camelxls(p = None):
+    'Return the filename for the Camel Excel input file'
+    if p is None: p = Period(usePrev = True)
+    return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
+
+def perioddir(p = None):
+    if p is None: p = Period(usePrev = True)
+    return common.outroot + "\\" + p.yyyymm()
+    
+def reportdir(p = None):
+    'Return the report directory'
+    dir =  perioddir(p) + "\\reports"
+    common.makedirs(dir)
+    return dir
+
+# FIXME - use this more extensively
+def reportfile(p, fname):
+    'Return a full filename for a report'
+    return reportdir(p) + '\\' + fname
+
+# FIXME - use this more
+def save_report(p, filename, text):
+    fullname = reportfile(p, filename)
+    spit(fullname, text)
+    
+###########################################################################
 
 def init_global_period():
     p = Period()

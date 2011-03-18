@@ -18,7 +18,7 @@ def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
 
     #pdb.set_trace()
-    input_filename = common.camelxls(d['period'])
+    input_filename = period.camelxls(d['period'])
     invoiceLines = excel.ImportWorksheet(input_filename, 'ManualInvoices')
     
     def nth(row, index):
@@ -117,7 +117,7 @@ def create_invoice_summary_func(d, wb):
 
 
 def create_invoice_summary(d): 
-    fname = common.reportfile(d['period'], "invoices.xls")
+    fname = period.reportfile(d['period'], "invoices.xls")
     func = functools.partial(create_invoice_summary_func, d)
     excel.create_workbook(fname, func)
 
@@ -174,7 +174,7 @@ def create_reconciliation(d):
         
     output_text += '\n\n'
     output_text += write_line('TOTAL', db_total, excel_total)
-    common.spit(common.reportdir(d['period']) + "\\monthrec.txt", output_text) # FIXME maybe it would be better if common.reportdir() just took in d
+    common.spit(period.reportdir(d['period']) + "\\monthrec.txt", output_text) # FIXME maybe it would be better if period.reportdir() just took in d
 
 ###########################################################################
 def main(d):

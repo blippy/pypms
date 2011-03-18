@@ -16,7 +16,7 @@ def print_file(filename):
 
 def work_statements():
     'Print workstatements'
-    pattern = '{0}\\statements\\*.rtf'.format(common.perioddir())
+    pattern = '{0}\\statements\\*.rtf'.format(period.perioddir())
     files = glob.glob(pattern)
     files.sort()
     for fname in files:
@@ -30,7 +30,7 @@ def timesheets():
     jobs = db.records(['job'], 'SELECT job FROM jobs WHERE Autoprint=Yes ORDER BY job')
     jobs = [x[0] for x in jobs] # flatten the jobs list
     for job in jobs:
-        pattern = '{0}\\timesheets\\{1}*.rtf'.format(common.perioddir(), job)
+        pattern = '{0}\\timesheets\\{1}*.rtf'.format(period.perioddir(), job)
         files = glob.glob(pattern)
         files.sort()
         for fname in files: print_file(fname)

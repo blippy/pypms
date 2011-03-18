@@ -11,7 +11,7 @@ from common import princ
 
 def read_expenses(d):
     p = d['period']
-    input_filename = common.camelxls(p)
+    input_filename = period.camelxls(p)
     rows = excel.ImportWorksheet(input_filename, 'Expenses')
     expenses = []
     fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]

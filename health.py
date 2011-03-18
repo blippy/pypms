@@ -7,7 +7,7 @@ import period
     
 ###########################################################################
 
-class S:
+class XXXS:
     def __init__(self):
         pass
 
@@ -21,7 +21,7 @@ def main(d):
     las_test = lambda(x): employee['IsStaff'] and (x['JobCode'] == '010400' or x['JobCode'] == '010500')
     fmt = '{0:4} {1:15} {2:>10} {3:>10} {4:>10}'
     
-    dir = common.reportdir(d['period'])
+    dir = period.reportdir(d['period'])
     filename = dir +'\\health.txt' 
     output = file(filename, "w")
 

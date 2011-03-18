@@ -10,7 +10,6 @@ import unicodedata
 
 
 
-import period
 
 
 ###########################################################################
@@ -65,26 +64,6 @@ outroot = 'M:\\Finance\\pypms'
 makedirs(outroot)
 
 
-def camelxls(p = None):
-    'Return the filename for the Camel Excel input file'
-    if p is None: p = period.Period(usePrev = True)
-    return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
-
-def perioddir(p = None):
-    if p is None: p = period.Period(usePrev = True)
-    return outroot + "\\" + p.yyyymm()
-    
-def reportdir(p = None):
-    'Return the report directory'
-    dir =  perioddir(p) + "\\reports"
-    makedirs(dir)
-    return dir
-
-# FIXME - use this more extensively
-def reportfile(p, fname):
-    'Return a full filename for a report'
-    return reportdir(p) + '\\' + fname
-
 # FIXME - ensure all file saving goes though this function
 # FIXME - should create intermediate directories if necessary
 def spit(fname, text):
@@ -94,18 +73,16 @@ def spit(fname, text):
     with codecs.open(fname, "w", "Latin-1") as f: f.write(text)
 
 
-# FIXME - use this more
-def save_report(p, filename, text):
-    fullname = reportfile(p, filename)
-    spit(fullname, text)
+
 
 ###########################################################################
 # logging
 
-_princ_func = print
+#_princ_func = print
 
+# TODO eliminate this function
 def princ(text):
-    _princ_func(text)
+    print(text)
     
 logging.basicConfig(level=logging.ERROR,
                     format='%(asctime)s %(levelname)s %(message)s',
