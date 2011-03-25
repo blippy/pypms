@@ -27,6 +27,8 @@ import period
 import pydra
 import rtfsprint
 
+
+import ExpensesFrame
 import JobsFrame
 import TimegridFrame
 
@@ -79,6 +81,8 @@ class MainFrame(wx.Frame):
         # Menu Bar
         self.frmMain_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
+        self.menu_data_expenses = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Expenses", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_data_expenses)
         self.menu_data_jobs = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Jobs", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_data_jobs)
         self.menu_data_timegrid = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Time grid", "", wx.ITEM_NORMAL)
@@ -107,6 +111,7 @@ class MainFrame(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
+        self.cbox_use_prev_month = wx.CheckBox(self.notebook_1_pane_1, -1, "Use previous month")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
@@ -116,6 +121,7 @@ class MainFrame(wx.Frame):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_MENU, self.menu_data_expenses_selected, self.menu_data_expenses)
         self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
         self.Bind(wx.EVT_MENU, self.menu_data_timegrid_selected, self.menu_data_timegrid)
         self.Bind(wx.EVT_MENU, self.menu_externals_expenses_selected, self.menu_externals_expenses)
@@ -126,6 +132,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
+        self.Bind(wx.EVT_CHECKBOX, self.cbox_use_prev_month_changed, self.cbox_use_prev_month)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
         self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
         # end wxGlade
@@ -133,6 +140,7 @@ class MainFrame(wx.Frame):
 
         # added by mcarter
         self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.expenses_frame = ExpensesFrame.ExpensesFrame(self)
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
         
@@ -155,7 +163,6 @@ class MainFrame(wx.Frame):
         self.Show() 
  
     def OnTaskBarActivate(self, evt):
-        print 'OnTaskBarActivate...'
         if self.IsIconized():
             self.Iconize(False)
             self.Show()
@@ -163,7 +170,6 @@ class MainFrame(wx.Frame):
             self.tbicon.RemoveIcon()
  
     def OnIconify(self, evt):  
-        print 'OnIconify...'
         if evt.Iconized():
             self.Iconize(True)
             self.Hide()
@@ -176,6 +182,9 @@ class MainFrame(wx.Frame):
         self.text_output.SetFont(wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, "Consolas"))
         # end wxGlade
         self.label_period.SetLabel(period.g_period.yyyymm())
+        
+        use_prev_month = common.get_defaulted_binary_reg_key('UsePrevMonth', True)
+        self.cbox_use_prev_month.SetValue(use_prev_month)
 
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
@@ -184,6 +193,7 @@ class MainFrame(wx.Frame):
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
+        sizer_3.Add(self.cbox_use_prev_month, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
         sizer_10.Add(self.label_period, 0, 0, 0)
         sizer_10.Add(self.btn_dec_period, 0, 0, 0)
@@ -199,8 +209,8 @@ class MainFrame(wx.Frame):
         # end wxGlade
 
     def OnClose(self, event):        
-        if self.jobs_frame.IsShown():
-            wx.MessageBox("Close jobs form first", "Error")
+        if self.jobs_frame.IsShown() or self.expenses_frame.IsShown():
+            wx.MessageBox("Close other open forms first", "Error")
         else:
             princ("Going down")
             self.Destroy()
@@ -215,14 +225,22 @@ class MainFrame(wx.Frame):
         
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
-        pydra.allstages()
+        
+        if self.cbox_use_prev_month.IsChecked():
+            p = period.Period(usePrev = True)
+        else:
+            p = period.g_period
+            
+        p.describe()
+        
+        pydra.allstages(p)
         princ('Finished')
         wx.MessageBox('Finished', 'Info')
 
 
 
     def menu_externals_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file(period.camelxls())
+        open_file(period.camelxls(period.g_period))
 
     def menu_externals_gizmo_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\gizmo\\gizmo04.xls')
@@ -231,13 +249,12 @@ class MainFrame(wx.Frame):
         open_file('M:\\Finance\\pypms\\texts.htm')
 
     def menu_externals_invoice_summary_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        p = period.Period(usePrev = True)
+        p = period.g_period
         fname = '"M:\\Finance\\Invoices\\Inv summaries {0}\\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
         open_file(fname)
 
     def menu_externals_open_reports_folder_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        #print 1 / 0
-        cmd = 'explorer ' + period.reportdir()
+        cmd = 'explorer ' + period.reportdir(period.g_period)
         os.system(cmd)
 
 
@@ -264,6 +281,14 @@ class MainFrame(wx.Frame):
 
     def btn_inc_period_clicked(self, event): # wxGlade: MainFrame.<event_handler>
         self.change_period(1)
+
+    def cbox_use_prev_month_changed(self, event): # wxGlade: MainFrame.<event_handler>
+        checked = self.cbox_use_prev_month.IsChecked()
+        common.set_binary_reg_value('UsePrevMonth', checked)
+
+    def menu_data_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not self.expenses_frame.IsShown():
+            self.expenses_frame.Show()
 
 # end of class MainFrame
 

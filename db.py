@@ -140,9 +140,9 @@ def GetClients():
     for r in recs: clients[r['ID']] = r['brief']
     return clients
 
-def fetch():
+def fetch(p):
     d = {}
-    p = period.Period(usePrev = True)
+    #p = period.Period(usePrev = True)
     
     # table data
     d['period'] = p
@@ -155,8 +155,7 @@ def fetch():
     d['auto_invoices'] = None
     d['manual_invoices'] = None
     d['invoice_tweaks'] = None    
-    expenses.read_expenses(d)
-    #d['expenses'] = None
+    d['expenses'] = expenses.read_expenses(p)
     return d
 
 ###########################################################################

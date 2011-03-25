@@ -9,7 +9,7 @@ from common import princ
 
 
 
-def read_expenses(d):
+def XXXread_expenses(d):
     p = d['period']
     input_filename = period.camelxls(p)
     rows = excel.ImportWorksheet(input_filename, 'Expenses')
@@ -35,6 +35,33 @@ def read_expenses(d):
         # everything seems OK, so add it
         expenses.append(expense)
     d['expenses'] = expenses
+    
+def read_expenses(p):
+    input_filename = period.camelxls(p)
+    rows = excel.ImportWorksheet(input_filename, 'Expenses')
+    expenses = []
+    fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
+    row_num = 0
+    for row in rows[1:]:
+        row_num += 1
+        expense = {}
+        for colNum, fieldName, fieldType in fieldspec:
+            text = row[colNum-1]
+            try: expense[fieldName] = fieldType(text)
+            except ValueError: pass
+        job_code = expense['JobCode']
+        if job_code == '': continue
+    
+        # peform error checking
+        # TODO should possibly reinstate this somehow
+        #err_msg = "Workbook '{0}', sheet '{1}', row {2}".format(input_filename, 'Expenses', row_num+1)
+        #common.assert_job(d, job_code, err_msg)
+        #if expense['Task']:
+        #    common.assert_task(d, job_code, expense['Task'], err_msg)
+        
+        # everything seems OK, so add it
+        expenses.append(expense)
+    return expenses
 
 def create_report(d):
     total = 0.0

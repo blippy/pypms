@@ -9,7 +9,7 @@ import os
 import pdb
 import sys, traceback
 
-from _winreg import *
+#from _winreg import *
 
 import common
 from common import princ
@@ -50,8 +50,7 @@ class Period:
         self.m = t.month
         
     def describe(self):
-        princ('YEAR:  ' + self.y)
-        princ('MONTH: ' + self.m)
+        princ('YEAR: {0}, MONTH: {1}'.format(self.y, self.m))
         
 
     def ask(self, text, default):
@@ -138,11 +137,16 @@ class Period:
 
 def camelxls(p = None):
     'Return the filename for the Camel Excel input file'
+    
+    assert(p) # let's demand a period TODO
     if p is None: p = Period(usePrev = True)
+    
     return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
 
 def perioddir(p = None):
+    assert(p) # let's demain a period TODO
     if p is None: p = Period(usePrev = True)
+    
     return common.outroot + "\\" + p.yyyymm()
     
 def reportdir(p = None):
@@ -159,16 +163,14 @@ def reportfile(p, fname):
 # FIXME - use this more
 def save_report(p, filename, text):
     fullname = reportfile(p, filename)
-    spit(fullname, text)
+    common.spit(fullname, text)
     
 ###########################################################################
 
 def init_global_period():
     p = Period()
     try:
-        key = OpenKey(HKEY_CURRENT_USER, 'Software\\Pydra', 0, KEY_ALL_ACCESS)
-        v = QueryValueEx(key, "Period")
-        CloseKey(key)
+        v = common.get_reg_key("Period")
         ym = str(v[0])
         y = ym[:4]
         m = ym[5:]
@@ -183,13 +185,7 @@ def global_inc(num_months):
     'Increase the global period by NUM_MONTHS'
     global g_period
     g_period.inc(num_months)
-    keyVal = 'Software\\Pydra'
-    try:
-        key = OpenKey(HKEY_CURRENT_USER, keyVal, 0, KEY_ALL_ACCESS)
-    except:
-        key = CreateKey(HKEY_CURRENT_USER, keyVal)
-    SetValueEx(key, "Period", 0, REG_SZ, g_period.yyyymm())
-    CloseKey(key)
+    common.set_reg_value("Period", g_period.yyyymm())
 
     
 

@@ -25,8 +25,6 @@ def work_statements():
         print_file(fname)
     
 def timesheets():
-    #p = period.Period(usePrev = True)
-    #p.decMonth()
     jobs = db.records(['job'], 'SELECT job FROM jobs WHERE Autoprint=Yes ORDER BY job')
     jobs = [x[0] for x in jobs] # flatten the jobs list
     for job in jobs:

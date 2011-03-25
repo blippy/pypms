@@ -1,7 +1,8 @@
-!! Replace output on console to a separate window - use princ statement pervasively
-... make sure helath.py works as expected, because I've fiddled with the print command
-
 NEXT MONTH (i.e. Apr 2011): Start from pydrag.pyw
+
+Currently working on expenses form
+
+show the cursor waiting when the app is chugging away
 
 write a gizmo equivalent
 

@@ -36,11 +36,6 @@ cache = {}
 
 
 
-def dbg():
-    'Fetch data for the action period into the cache.'
-    global cache
-    cache = db.fetch()
-    
 
     
 def exps():
@@ -71,56 +66,38 @@ def expv():
     #pydoc.ttypager(txt)
         
 
-def mobils():
-    'Create the Mobil work statement'
-    global cache
-    mobil.main(cache)
-    
+
 
 def ptimes():
     'Print the timesheets'
     rtfsprint.main()
     
-def stage1():
-    global cache
-    dbg()  
-    times()
 
     
-def stage2():
-    #expg()
+def allstages(p):
+    'Run stages 1-4'
+    global cache
+    cache = db.fetch(p)
+    
+    # stage 1
+    timesheets.main(cache)
+    
+    # stage 2
     exps()
-    works()
+    statements.main(cache)
     
-def stage3():
-    global cache
+    # stage 3
     push.main(cache)
-    
-def stage4():
-    'Create sundry reports'
-    global cache
+
+    # stage 4 - sundry reports
     budget.main(cache)
     health.main(cache)
     html.main()
-    mobils()
-    
-def allstages():
-    'Run stages 1-4'
-    stage1()
-    stage2()
-    stage3()
-    stage4()
-    #cache.sync() # write the cache back out to disk
+    mobil.main(cache)
 
-def times():
-    'Create timesheets.'
-    global cache
-    timesheets.main(cache)
     
-def works():
-    'Create the invoice statements.'
-    global cache
-    statements.main(cache)
+
+    
 
     
 ###########################################################################

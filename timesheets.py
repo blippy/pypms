@@ -6,6 +6,7 @@ import datetime, pdb
 import common, rtf
 from common import aggregate, princ
 import db
+import period
 
 ###########################################################################
 
