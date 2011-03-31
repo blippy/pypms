@@ -1,4 +1,10 @@
-NEXT MONTH (i.e. Apr 2011): Start from pydrag.pyw
+To speed up excel importation, allow caps on the number of rows and columns imported
+
+Get rid of the 'previous month' and put the month that is about to be processed in the warning dialog
+
+Create an unposting facility
+
+consider using sqalchemy
 
 Currently working on expenses form
 
