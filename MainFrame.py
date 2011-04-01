@@ -261,13 +261,13 @@ class MainFrame(wx.Frame):
 
     def menu_print_timesheets_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
-        rtfsprint.timesheets()
+        rtfsprint.timesheets(period.g_period)
         wx.MessageBox('Finished', 'Info')
 
 
     def menu_print_workstatements_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
-        rtfsprint.work_statements()
+        rtfsprint.work_statements(period.g_period)
 
 
         

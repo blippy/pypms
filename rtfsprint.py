@@ -14,9 +14,9 @@ def print_file(filename):
     os.system(cmd)
     #win32api.ShellExecute(0, "print", fname, None, ".", 0)
 
-def work_statements():
+def work_statements(p):
     'Print workstatements'
-    pattern = '{0}\\statements\\*.rtf'.format(period.perioddir())
+    pattern = '{0}\\statements\\*.rtf'.format(period.perioddir(p))
     files = glob.glob(pattern)
     files.sort()
     for fname in files:
@@ -24,11 +24,11 @@ def work_statements():
         if f0 in ['0','5']: continue # special files that don't need to be printed
         print_file(fname)
     
-def timesheets():
+def timesheets(p):
     jobs = db.records(['job'], 'SELECT job FROM jobs WHERE Autoprint=Yes ORDER BY job')
     jobs = [x[0] for x in jobs] # flatten the jobs list
     for job in jobs:
-        pattern = '{0}\\timesheets\\{1}*.rtf'.format(period.perioddir(), job)
+        pattern = '{0}\\timesheets\\{1}*.rtf'.format(period.perioddir(p), job)
         files = glob.glob(pattern)
         files.sort()
         for fname in files: print_file(fname)
