@@ -35,10 +35,9 @@ import TimegridFrame
 def open_file(filename):
     win32api.ShellExecute(0, "open", filename, None, ".", 0)
     
-def long_calc(parent):
+def long_calc(parent, question = 'Long or dangerous action. Continue?'):
     'Allow bailout of action'
     caption = 'Danger'
-    question = 'Long or dangerous action. Continue?'
     dlg = wx.MessageDialog(parent, question, caption, wx.YES_NO | wx.ICON_QUESTION)
     do_it = dlg.ShowModal() == wx.ID_YES
     dlg.Destroy()
@@ -111,7 +110,6 @@ class MainFrame(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
-        self.cbox_use_prev_month = wx.CheckBox(self.notebook_1_pane_1, -1, "Use previous month")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
@@ -132,7 +130,6 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
-        self.Bind(wx.EVT_CHECKBOX, self.cbox_use_prev_month_changed, self.cbox_use_prev_month)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
         self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
         # end wxGlade
@@ -183,8 +180,8 @@ class MainFrame(wx.Frame):
         # end wxGlade
         self.label_period.SetLabel(period.g_period.yyyymm())
         
-        use_prev_month = common.get_defaulted_binary_reg_key('UsePrevMonth', True)
-        self.cbox_use_prev_month.SetValue(use_prev_month)
+        #use_prev_month = common.get_defaulted_binary_reg_key('UsePrevMonth', True)
+        #self.cbox_use_prev_month.SetValue(use_prev_month)
 
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
@@ -193,7 +190,6 @@ class MainFrame(wx.Frame):
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
-        sizer_3.Add(self.cbox_use_prev_month, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
         sizer_10.Add(self.label_period, 0, 0, 0)
         sizer_10.Add(self.btn_dec_period, 0, 0, 0)
@@ -224,15 +220,10 @@ class MainFrame(wx.Frame):
             self.timegrid_frame.Show()
         
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
-        if not long_calc(self): return
-        
-        if self.cbox_use_prev_month.IsChecked():
-            p = period.Period(usePrev = True)
-        else:
-            p = period.g_period
-            
-        p.describe()
-        
+        p = period.g_period
+        question = 'Process period {0}?'.format(p.yyyymm())
+        if not long_calc(self, question): return        
+        p.describe()        
         pydra.allstages(p)
         princ('Finished')
         wx.MessageBox('Finished', 'Info')

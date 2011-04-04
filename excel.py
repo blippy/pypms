@@ -17,12 +17,15 @@ def gcell(ws, r, c):
     'Return the contents of a cell as text'
     return ws.Cells(r, c).Text
 
-def read_worksheet(fileName, wsName):
+def read_worksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
+    '''max_rows - the maximum number of rows you are prepared to import (default = 70000)
+    max_cols - ditto for columns (default = 300)
+    '''
     xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
     wb = xlapp.Workbooks.Open(fileName)
     ws = wb.Worksheets(wsName)
-    numApproxRows = ws.UsedRange.Rows.Count # not necessarily truly accurate, but good enough
-    numApproxCols = ws.UsedRange.Columns.Count # ditto
+    numApproxRows = min(max_rows, ws.UsedRange.Rows.Count) # not necessarily truly accurate, but good enough
+    numApproxCols = min(max_cols, ws.UsedRange.Columns.Count) # ditto
     
     numActualRows = 0
     numActualCols = 0
@@ -51,8 +54,8 @@ def prune_results(sloppy, numActualRows, numActualCols):
     return pruned
 
 
-def ImportWorksheet(fileName, wsName):
-    sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName)
+def ImportWorksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
+    sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName, max_rows = 70000, max_cols = 300)
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned
 
