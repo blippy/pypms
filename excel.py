@@ -74,7 +74,7 @@ def create_workbook(file_name, func):
 
 
 
-def create_report(p, desc, list_of_rows, numeric_fields):
+def create_report(desc, list_of_rows, numeric_fields):
     
     def excel_func(wb):        
         ws = wb.Worksheets('Sheet1')
@@ -89,7 +89,7 @@ def create_report(p, desc, list_of_rows, numeric_fields):
             for col_number in numeric_fields:
                 ws.Cells(row_num, col_number).NumberFormat = "0.00"
 
-    file_name = period.reportdir(p) + '\\' + desc.lower() + '.xls'
+    file_name = period.reportdir(period.g_period) + '\\' + desc.lower() + '.xls'
     create_workbook(file_name, excel_func)
     
     

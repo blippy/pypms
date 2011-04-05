@@ -13,6 +13,7 @@ import sys, traceback
 
 import common
 from common import princ
+import registry
 
 ###########################################################################
 
@@ -170,7 +171,7 @@ def save_report(p, filename, text):
 def init_global_period():
     p = Period()
     try:
-        v = common.get_reg_key("Period")
+        v = registry.get_reg_key("Period")
         ym = str(v[0])
         y = ym[:4]
         m = ym[5:]

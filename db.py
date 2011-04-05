@@ -1,4 +1,5 @@
 # information stored in the database
+# TODO hopefully everything below will be obsoleted eventually
 
 import datetime, pdb
 from itertools import izip
@@ -11,8 +12,12 @@ import expenses
 import period
 
 
+
+ 
 ###########################################################################
 
+
+        
 def DbOpen():
     'Return an open connection to the database'
     conn = win32com.client.Dispatch(r'ADODB.Connection')
@@ -140,12 +145,12 @@ def GetClients():
     for r in recs: clients[r['ID']] = r['brief']
     return clients
 
-def fetch(p):
+def fetch():
     d = {}
-    #p = period.Period(usePrev = True)
+    p = period.g_period
     
     # table data
-    d['period'] = p
+    d['period'] = p # eliminate this
     d['employees'] = GetEmployees(p)
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks(p)
@@ -154,8 +159,8 @@ def fetch(p):
     d['clients'] = GetClients()
     d['auto_invoices'] = None
     d['manual_invoices'] = None
-    d['invoice_tweaks'] = None    
-    d['expenses'] = expenses.read_expenses(p)
+    #d['invoice_tweaks'] = None    
+    #d['expenses'] = expenses.read_expenses(p)
     return d
 
 ###########################################################################

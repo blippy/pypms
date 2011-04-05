@@ -22,12 +22,14 @@ class ExpensesFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.label_period = wx.StaticText(self, -1, "label_1")
         self.button_import_expenses_spreadsheet = wx.Button(self, -1, "SS")
+        self.button_edit = wx.Button(self, -1, "Edit")
         self.list_expenses = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self.button_import_expenses_spreadsheet_clicked, self.button_import_expenses_spreadsheet)
+        self.Bind(wx.EVT_BUTTON, self.button_edit_clicked, self.button_edit)
         # end wxGlade
 
         # added by mcarter
@@ -63,6 +65,7 @@ class ExpensesFrame(wx.Frame):
         sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_12.Add(self.label_period, 0, 0, 0)
         sizer_12.Add(self.button_import_expenses_spreadsheet, 0, 0, 0)
+        sizer_12.Add(self.button_edit, 0, 0, 0)
         sizer_11.Add(sizer_12, 0, wx.EXPAND, 0)
         sizer_11.Add(self.list_expenses, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_11)
@@ -80,7 +83,11 @@ class ExpensesFrame(wx.Frame):
             amount = str(e['Amount'])
             seq = (per, jobcode, task, desc, amount)
             self.list_expenses.Append(seq)
-        princ(str(exps))
+        #princ(str(exps))
+
+    def button_edit_clicked(self, event): # wxGlade: ExpensesFrame.<event_handler>
+        print "Event handler `button_edit_clicked' not implemented"
+        event.Skip()
 
 # end of class ExpensesFrame
 

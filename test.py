@@ -13,19 +13,13 @@ from common import princ
 class Struct:
     pass
 
-def testmain():
-    'Return an open connection to the database'
-    conStr = r'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;'    
-    con = adodbapi.connect(conStr)
-    cursor = con.cursor()
-    sql = "SELECT Person, PersonNAME, IsStaff FROM tblEmployeeDetails"
-    cursor.execute(sql)
-    ds = cursor.fetchall()
-    for row in ds:
-        print type(row), row
-    con.close()
 
 
+def test():
+    c = TableCache()
+    c.populate()
+    print c.rows
 
-testmain()
-princ('Finished')
+if  __name__ == "__main__": 
+    test()
+    princ('Finished')

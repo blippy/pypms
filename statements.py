@@ -6,8 +6,9 @@ import pdb
 from operator import itemgetter, attrgetter
 
 import common, rtf
-from common import aggregate, princ
+from common import aggregate, princ, print_timing
 import db
+import expenses
 import period
 
 
@@ -167,7 +168,8 @@ def CreateJobStatment(jobKey, invItems, d):
 
 ###########################################################################
 
-def main(d):
+@print_timing
+def create_statements(d):
     
     # create invoice items
     invItems = []        
@@ -182,7 +184,7 @@ def main(d):
         
         invItems.append(x)
     for x in d['timeItems']: AddItem(x, "time item", typeWork)        
-    for x in d['expenses']: AddItem(x, "expense", typeExpense)
+    for x in expenses.cache.expenses: AddItem(x, "expense", typeExpense)
     def invSorter(a, b): return cmp(a['JobCode'], b['JobCode']) or cmp(a['Task'], b['Task']) or (a['iType'] < b['iType'])        
     invItems.sort(invSorter)
         

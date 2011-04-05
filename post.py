@@ -17,13 +17,15 @@ This query takes 3 paramemters, in the following order:
 
 import csv
 import datetime
+import itertools 
 
 import win32com.client
 
 import common
+from common import print_timing
 import db, excel, unpost
 import invsummary
-import invtweaks
+#import invtweaks
 import period
 from common import AsAscii, AsFloat, princ
         
@@ -53,6 +55,33 @@ def InsertFreshMonth(conn, d):
 
 ###########################################################################
 
+def accumulate_tweaks(d):
+    '''Accumulate invoice tweaks to job level'''
+
+    xl = excel.ImportWorksheet(period.camelxls(d['period']), 'InvTweaks')
+    field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
+    f = common.AsFloat
+    field_types = [str, f, f, f, f, f, f, f, f, str]
+    tweaks = []
+
+    for line in xl[1:]:
+        tweak = {}
+        for field, value, converter in itertools.izip(field_names, line, field_types):
+            tweak[field] = converter(value)
+        tweaks.append(tweak)
+
+    
+    jobs = {}
+    for entry in tweaks:
+        code = entry['Job']
+        if not jobs.has_key(code): jobs[code] = {}
+        job = jobs[code]
+        for key in ['Inv3rdParty', 'InvAccrual', 'InvBIA', 'InvInvoice', 'InvTime', 'InvUBI', 'InvWIP']:
+            common.dplus(job, key, common.dget(entry, key))
+    return jobs
+
+###########################################################################
+
 def UpdatePms(conn, d):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
@@ -64,7 +93,7 @@ def UpdatePms(conn, d):
     invoices = d['auto_invoices']
     
     manual_invoices = invsummary.accumulate(d)
-    tweaks = invtweaks.accumulate(d)
+    tweaks = accumulate_tweaks(d)
     
     for code in codes:
         
@@ -144,7 +173,8 @@ def add_purchase_orders(conn, d):
 
 ###########################################################################
 
-def main(d):
+@print_timing
+def post_main(d):
     conn = db.DbOpen()
     invsummary.import_manual_invoices(d)
     unpost.zap_entries(d['period'])

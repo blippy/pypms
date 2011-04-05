@@ -20,12 +20,23 @@ import win32api
 #import wx
 #import wx.richtext
 
+import budget
 import common
-from common import princ
-#import db
+from common import princ, print_timing
+import db
+import expenses
+import health
+import html
+import invsummary
+import mobil
 import period
-import pydra
+import post
+import recoveries
+import registry
 import rtfsprint
+import statements
+import timesheets
+import wip
 
 
 import ExpensesFrame
@@ -110,6 +121,7 @@ class MainFrame(wx.Frame):
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
+        self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
@@ -140,6 +152,7 @@ class MainFrame(wx.Frame):
         self.expenses_frame = ExpensesFrame.ExpensesFrame(self)
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
+        registry.RegistryBoundCheckbox(self, self.cbox_expenses, 'import_expenses', True)
         
         # redirect stdout and sterr to window
         redir = RedirectText(self.text_output)
@@ -190,6 +203,7 @@ class MainFrame(wx.Frame):
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
+        sizer_3.Add(self.cbox_expenses, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
         sizer_10.Add(self.label_period, 0, 0, 0)
         sizer_10.Add(self.btn_dec_period, 0, 0, 0)
@@ -222,10 +236,31 @@ class MainFrame(wx.Frame):
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         p = period.g_period
         question = 'Process period {0}?'.format(p.yyyymm())
-        if not long_calc(self, question): return        
-        p.describe()        
-        pydra.allstages(p)
-        princ('Finished')
+        if not long_calc(self, question): return
+    
+        @print_timing
+        def really_process():            
+            p.describe()
+            cache = db.fetch()
+            timesheets.main(cache)
+            if self.cbox_expenses.IsChecked():
+                expenses.cache.import_expenses()
+                expenses.cache.create_expense_report()    
+            statements.create_statements(cache)
+            invsummary.import_manual_invoices(cache)
+            invsummary.create_invoice_summary(cache)
+            post.post_main(cache)
+            recoveries.main(cache)
+            wip.create_wip_report(cache)
+            invsummary.create_reconciliation(cache)
+            budget.main(cache)
+            health.main(cache)
+            html.main()
+            mobil.create_mobil_statement(cache)
+            princ('Finished')
+            
+            
+        really_process()
         wx.MessageBox('Finished', 'Info')
 
 
@@ -280,6 +315,8 @@ class MainFrame(wx.Frame):
     def menu_data_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not self.expenses_frame.IsShown():
             self.expenses_frame.Show()
+
+
 
 # end of class MainFrame
 

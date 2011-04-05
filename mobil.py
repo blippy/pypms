@@ -4,7 +4,8 @@ import pdb
 
 import db
 import common
-from common import aggregate, princ
+from common import aggregate, princ, print_timing
+import expenses
 import period
 
 
@@ -48,7 +49,7 @@ def create_job_details(job_code, cache, rates):
         
     # expenses
     expense_total = 0.0
-    for expense in cache['expenses']:
+    for expense in expenses.cache.expenses:
         if expense['JobCode'] != job_code: continue
         expense_total += expense['Amount']
     exp_factor = cache['jobs'][job_code]['exp_factor']
@@ -69,7 +70,8 @@ def create_job_details(job_code, cache, rates):
 
 ###########################################################################
 
-def main(d):
+@print_timing
+def create_mobil_statement(d):
     output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(d['period'].mmmmyyyy())
 
     
@@ -95,8 +97,5 @@ def main(d):
     
     period.save_report(d['period'], "mobil.txt", output_text)
 
-if  __name__ == "__main__":
-    # TODO - this functionality should probably be used in many more modules
-    d = db.fetch()
-    main(d)
-    princ('Finished')
+if  __name__ == "__main__":    
+    princ("Didn't do anything")
