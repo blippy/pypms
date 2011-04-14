@@ -96,7 +96,7 @@ def CreateJobStatment(jobKey, invItems, d):
     #if job['Weird']: return # we should even create weird invoices - we their time and expenses anyway
     
     # out = Output(d.p) # deprecated method
-    title = "Work Statement: %s" % (d['period'].mmmmyyyy())
+    title = "Work Statement: %s" % (period.mmmmyyyy())
     out = rtf.Rtf()
     out.addTitle(title)
     AddTopInfo(out, job)
@@ -153,7 +153,7 @@ def CreateJobStatment(jobKey, invItems, d):
      
     out.annotation(job, '')
     #out.save(d['period'].outDir() + '\\statements', jobKey + '.rtf')
-    outdir = period.perioddir(d['period']) + '\\statements'
+    outdir = period.perioddir() + '\\statements'
     outfile = jobKey + '.rtf'
     out.save(outdir, outfile)
     

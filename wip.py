@@ -4,9 +4,10 @@
 import pdb
 
 import common
-from common import aggregate, AsAscii, summate, princ
+from common import aggregate, AsAscii, summate, princ, print_timing
 import db
 import excel
+import period
 
 
 ###########################################################################
@@ -20,12 +21,13 @@ def sums(invoices):
     return ubi_ytd, wip_ytd, ubi_ytd + wip_ytd
 
 ###########################################################################
-def create_wip_report(d):
-    
+
+@print_timing
+def create_wip_lines():
     fieldspec = [('InvJobCode', AsAscii), ('InvBillingPeriod', AsAscii), 
         ('InvUBI', float), ('InvWIP', float)]
     wips = db.RecordsList("SELECT * FROM tblInvoice", fieldspec)
-    billing_period = d['period'].mmmmyyyy()
+    billing_period = period.mmmmyyyy()
     monthlies = filter(lambda x: x['InvBillingPeriod'] == billing_period, wips)
     
     
@@ -52,7 +54,37 @@ def create_wip_report(d):
     line = ['TOTAL', ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
     output.append(line)
     
-    excel.create_report("Wip", output, [2, 3 ,4, 5, 6, 7])
+    return output
+###########################################################################
+def create_text_report(lines):
+    
+    #TODO HIGH encapsulate the functionality of this function into an object
+    
+    def fmt_text(v):
+        if type(v) is float:
+            v = '{0:9.2f}'.format(v)
+        else:
+            v = '{0:9}'.format(v)
+        return v
+    
+    output = []
+    for row in lines:
+        cols = map(fmt_text, row)
+        line = ' '.join(cols)
+        output.append(line)
+        
+    period.save_report('wip.txt', output)
+    
+
+###########################################################################
+@print_timing
+def create_wip_report(output_text = True):
+    output = create_wip_lines()
+    if output_text:
+        create_text_report(output)
+    else:
+        # TODO Consider zapping Excel putput option if considered unecessary
+        excel.create_report("Wip", output, [2, 3 ,4, 5, 6, 7])
 
         
 ###########################################################################

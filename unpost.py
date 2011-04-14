@@ -4,10 +4,10 @@ import db
 import period
 from common import princ
 
-def zap_entries(per):
+def zap_entries():
     'Remove all recorded invoices for the period PER'
     fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'"
-    sql = fmt % (per.mmmmyyyy())
+    sql = fmt % (period.mmmmyyyy())
     db.ExecuteSql(sql)
     
 def main():

@@ -8,19 +8,20 @@ import pdb
 import common
 import db
 import excel
-from common import princ
+from common import princ, print_timing
 import period
 
 
     
 ###########################################################################
 
+@print_timing
 def import_manual_invoices(d):
     'Import invoices entered manually in spreadsheet'
 
     #pdb.set_trace()
-    input_filename = period.camelxls(d['period'])
-    invoiceLines = excel.ImportWorksheet(input_filename, 'ManualInvoices')
+    #input_filename = period.camelxls()
+    invoiceLines = excel.ImportCamelWorksheet('ManualInvoices')
     
     def nth(row, index):
         try: result = row[index]
@@ -117,13 +118,15 @@ def create_invoice_summary_func(d, wb):
         ws.Cells(rown, col).NumberFormat = "0.00"
 
 
+@print_timing
 def create_invoice_summary(d): 
-    fname = period.reportfile(d['period'], "invoices.xls")
+    fname = period.reportfile("invoices.xls")
     func = functools.partial(create_invoice_summary_func, d)
     excel.create_workbook(fname, func)
 
 ###########################################################################
 
+@print_timing
 def create_reconciliation(d):
     
     invoices = {}
@@ -175,8 +178,9 @@ def create_reconciliation(d):
         
     output_text += '\n\n'
     output_text += write_line('TOTAL', db_total, excel_total)
-    common.spit(period.reportdir(d['period']) + "\\monthrec.txt", output_text) # FIXME maybe it would be better if period.reportdir() just took in d
-
+    period.save_report("monthrec.txt", output_text)
+    
+    
 ###########################################################################
 def main(d):
     'Extract the manual invoices from the spreadsheets'

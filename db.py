@@ -7,7 +7,7 @@ from itertools import izip
 import win32com.client
 
 import common
-from common import AsAscii, AsFloat, AsInt, princ
+from common import AsAscii, AsFloat, AsInt, princ, print_timing
 import expenses
 import period
 
@@ -87,7 +87,7 @@ def GetEmployees(p):
     return employees
 
 def GetInvoices(d, field_list):
-    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  d['period'].mmmmyyyy() + "'"
+    sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  period.mmmmyyyy() + "'"
     return records(field_list, sql)
 
     
@@ -145,12 +145,13 @@ def GetClients():
     for r in recs: clients[r['ID']] = r['brief']
     return clients
 
+@print_timing
 def fetch():
     d = {}
     p = period.g_period
     
     # table data
-    d['period'] = p # eliminate this
+    #d['period'] = p # TODO HIGH: eliminate this, as we should now be seitching over to g_period
     d['employees'] = GetEmployees(p)
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks(p)

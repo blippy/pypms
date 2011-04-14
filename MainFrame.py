@@ -122,6 +122,7 @@ class MainFrame(wx.Frame):
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
         self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
+        self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
@@ -153,6 +154,7 @@ class MainFrame(wx.Frame):
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
         registry.RegistryBoundCheckbox(self, self.cbox_expenses, 'import_expenses', True)
+        registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
         
         # redirect stdout and sterr to window
         redir = RedirectText(self.text_output)
@@ -204,6 +206,7 @@ class MainFrame(wx.Frame):
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_3.Add(self.btnAllStages, 0, 0, 0)
         sizer_3.Add(self.cbox_expenses, 0, 0, 0)
+        sizer_3.Add(self.cbox_text_wip, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
         sizer_10.Add(self.label_period, 0, 0, 0)
         sizer_10.Add(self.btn_dec_period, 0, 0, 0)
@@ -242,7 +245,7 @@ class MainFrame(wx.Frame):
         def really_process():            
             p.describe()
             cache = db.fetch()
-            timesheets.main(cache)
+            timesheets.create_timesheets(cache)
             if self.cbox_expenses.IsChecked():
                 expenses.cache.import_expenses()
                 expenses.cache.create_expense_report()    
@@ -250,12 +253,12 @@ class MainFrame(wx.Frame):
             invsummary.import_manual_invoices(cache)
             invsummary.create_invoice_summary(cache)
             post.post_main(cache)
-            recoveries.main(cache)
-            wip.create_wip_report(cache)
+            recoveries.create_recovery_report(cache)
+            wip.create_wip_report(self.cbox_text_wip.IsChecked())
             invsummary.create_reconciliation(cache)
-            budget.main(cache)
-            health.main(cache)
-            html.main()
+            budget.create_budget(cache)
+            health.create_health_report(cache)
+            html.create_html()
             mobil.create_mobil_statement(cache)
             princ('Finished')
             

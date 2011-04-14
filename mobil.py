@@ -72,7 +72,7 @@ def create_job_details(job_code, cache, rates):
 
 @print_timing
 def create_mobil_statement(d):
-    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(d['period'].mmmmyyyy())
+    output_text = 'SMITH REA ENERGY LIMITED - STATEMENT OF WORK - {0}\n\n'.format(period.mmmmyyyy())
 
     
     # obtain rates for jobs
@@ -95,7 +95,7 @@ def create_mobil_statement(d):
     output_text += total_text(total)
     output_text += '\n\nName: ' + '_' * 30 + ' Signature: ' + '_' * 30 + ' Date: ' + '_' * 15
     
-    period.save_report(d['period'], "mobil.txt", output_text)
+    period.save_report("mobil.txt", output_text)
 
 if  __name__ == "__main__":    
     princ("Didn't do anything")

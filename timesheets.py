@@ -4,7 +4,7 @@ import datetime, pdb
 #from itertools import groupby
 
 import common, rtf
-from common import aggregate, princ
+from common import aggregate, princ, print_timing
 import db
 import period
 
@@ -58,10 +58,10 @@ def CreateJobsheet(jobcode, job_times, d, title, outdir):
 
 ###########################################################################
 
-def main(d):
-    p = d['period']
-    title = 'Timesheet: ' + p.mmmmyyyy()
-    outdir = period.perioddir(p) + '\\timesheets'
+@print_timing
+def create_timesheets(d):
+    title = 'Timesheet: ' + period.mmmmyyyy()
+    outdir = period.perioddir() + '\\timesheets'
     for jobKey, job_items in aggregate(d['timeItems'], common.mkKeyFunc('JobCode')):
         #pdb.set_trace()
         CreateJobsheet(jobKey, job_items, d, title, outdir)

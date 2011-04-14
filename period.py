@@ -29,6 +29,8 @@ def is_weekend(y, m, d):
 ###########################################################################
 
 
+# TODO this class should probably be removed
+
 class Period:
     def __init__(self, usePrev = False):        
         self.setToCurrent()        
@@ -136,34 +138,27 @@ class Period:
 ###########################################################################
 # directories dependent on period
 
-def camelxls(p = None):
-    'Return the filename for the Camel Excel input file'
-    
-    assert(p) # let's demand a period TODO
-    if p is None: p = Period(usePrev = True)
-    
-    return 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (p.y, p.yyyymm())
 
-def perioddir(p = None):
-    assert(p) # let's demain a period TODO
-    if p is None: p = Period(usePrev = True)
+
+def perioddir():
+    return common.outroot + "\\" + g_period.yyyymm()
     
-    return common.outroot + "\\" + p.yyyymm()
-    
-def reportdir(p = None):
+def reportdir():
     'Return the report directory'
-    dir =  perioddir(p) + "\\reports"
+    dir =  perioddir() + "\\reports"
     common.makedirs(dir)
     return dir
 
 # FIXME - use this more extensively
-def reportfile(p, fname):
+def reportfile(fname):
     'Return a full filename for a report'
-    return reportdir(p) + '\\' + fname
+    return reportdir() + '\\' + fname
 
 # FIXME - use this more
-def save_report(p, filename, text):
-    fullname = reportfile(p, filename)
+def save_report(filename, text):
+    fullname = reportfile(filename)
+    if type(text) is list:
+        text = '\r\n'.join(text)
     common.spit(fullname, text)
     
 ###########################################################################
@@ -189,7 +184,9 @@ def global_inc(num_months):
     common.set_reg_value("Period", g_period.yyyymm())
 
     
-
+def mmmmyyyy():
+    global g_period
+    return g_period.mmmmyyyy()
 
 
 if __name__ == "__main__":

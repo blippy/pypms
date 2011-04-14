@@ -4,6 +4,7 @@ import glob
 import os
 
 import common
+from common import print_timing
 
 template = '''
 <html>
@@ -18,8 +19,8 @@ CONTENTS
 '''
 
 
-
-def main():
+@print_timing
+def create_html():
     global template
     root = common.outroot #"m:\\Finance\\pypms\\out"
     nodes = os.listdir(root)
@@ -39,5 +40,5 @@ def main():
     file(root + "\\texts.htm", 'w').write(html)
 
 if __name__ == "__main__":
-    main()
+    create_html()
     print 'Finished'

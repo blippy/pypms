@@ -59,7 +59,12 @@ def ImportWorksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned
 
-
+def ImportCamelWorksheet(wsName, max_rows = 70000, max_cols = 300):
+    #def camelxls():
+    #'Return the filename for the Camel Excel input file'
+    fname = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (period.g_period.y, period.g_period.yyyymm())
+    return ImportWorksheet(fname, wsName, max_rows = 70000, max_cols = 300)
+    
 ###########################################################################
 
 def create_workbook(file_name, func):
@@ -89,7 +94,7 @@ def create_report(desc, list_of_rows, numeric_fields):
             for col_number in numeric_fields:
                 ws.Cells(row_num, col_number).NumberFormat = "0.00"
 
-    file_name = period.reportdir(period.g_period) + '\\' + desc.lower() + '.xls'
+    file_name = period.reportfile(desc.lower() + '.xls')
     create_workbook(file_name, excel_func)
     
     

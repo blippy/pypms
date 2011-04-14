@@ -21,8 +21,8 @@ class ExpenseCache(TableCache):
     @print_timing
     def import_expenses(self):
         princ("Importing expenses")
-        input_filename = period.camelxls(period.g_period)
-        rows = excel.ImportWorksheet(input_filename, 'Expenses', 200, 10) # set likely maximum rows an cols in sheet
+        #input_filename = period.camelxls()
+        rows = excel.ImportCamelWorksheet('Expenses', 200, 10) # set likely maximum rows an cols in sheet
         expenses = []
         fieldspec = [(1, 'JobCode', str), (2, 'Task', str), (4, 'Period', str),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
         row_num = 0

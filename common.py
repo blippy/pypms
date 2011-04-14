@@ -76,6 +76,10 @@ def spit(fname, text):
     with codecs.open(fname, "w", "Latin-1") as f: f.write(text)
 
 
+def XXXspit_lines(fname, lines):
+    'Create a text file FNAME from a list of LINES'
+    text = '\r\n'.join(lines)
+    spit(fname, text)
 
 
 ###########################################################################

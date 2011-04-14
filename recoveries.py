@@ -4,7 +4,7 @@
 import operator
 
 import common
-from common import dget, princ
+from common import dget, princ, print_timing
 import db
 import excel
 import period
@@ -29,7 +29,7 @@ def get_dbase_recoveries(d):
     return recoveries
 
 def get_camel_recoveries(d):
-    xl = excel.ImportWorksheet(period.camelxls(d['period']), 'InvTweaks')
+    xl = excel.ImportCamelWorksheet('InvTweaks')
     recoveries = {}
 
     for line in xl[1:]:
@@ -43,7 +43,9 @@ def get_camel_recoveries(d):
 
 
 ###########################################################################
-def main(d):
+
+@print_timing
+def create_recovery_report(d):
     db_recoveries = get_dbase_recoveries(d)
     camel_recoveries = get_camel_recoveries(d)    
     output = 'RECOVERY RECONILIATION\n\n'
@@ -78,7 +80,7 @@ def main(d):
     output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
     output += line(pms_grand_total, 'PMS GRAND TOTAL')
     output += line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF')        
-    period.save_report(d['period'], 'recoveries.txt', output)
+    period.save_report('recoveries.txt', output)
     
         
 if  __name__ == "__main__":

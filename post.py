@@ -1,6 +1,5 @@
 # post invoices
 
-# works on lappy, but not iMac
 """
 When the user clicks on Post Invoices in PMS, it activates macro 
     mcrInvoice,
@@ -32,11 +31,11 @@ from common import AsAscii, AsFloat, princ
 
 ############################################################################
 
-def InsertFreshMonth(conn, d):
+def InsertFreshMonth(conn):
     'Put a selection of zeros in tblInvoice'
     
     # Determine which jobs need to be recorded in tblInvoice
-    invBillingPeriod = d['period'].mmmmyyyy()
+    invBillingPeriod = period.mmmmyyyy()
     sql = "SELECT JobCode FROM tblTasks WHERE JobActive=Yes"
     sql = "SELECT JobCode FROM tblTasks"
     activeJobs = set([str(rec[0]) for rec in db.records(['JobCode'], sql)])
@@ -58,7 +57,7 @@ def InsertFreshMonth(conn, d):
 def accumulate_tweaks(d):
     '''Accumulate invoice tweaks to job level'''
 
-    xl = excel.ImportWorksheet(period.camelxls(d['period']), 'InvTweaks')
+    xl = excel.ImportCamelWorksheet('InvTweaks')
     field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
     f = common.AsFloat
     field_types = [str, f, f, f, f, f, f, f, f, str]
@@ -82,12 +81,12 @@ def accumulate_tweaks(d):
 
 ###########################################################################
 
-def UpdatePms(conn, d):
+def update_pms(conn, d):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
     
     # Jobs requiring entries
-    invBillingPeriod = d['period'].mmmmyyyy()
+    invBillingPeriod = period.mmmmyyyy()
     code_records = db.GetInvoices(d, ['InvJobCode'])
     codes = [str(rec[0]) for rec in code_records]
     invoices = d['auto_invoices']
@@ -144,10 +143,10 @@ def UpdatePms(conn, d):
 
 ###########################################################################
 
-def add_purchase_orders(conn, d):
+def add_purchase_orders(conn):
 
     # Retrieve the relevant info from the database
-    p = d['period']
+    p = period.g_period
     from_date = p.first()
     to_date = p.last()
     # lifted from PMS query qselPOCosts
@@ -177,10 +176,10 @@ def add_purchase_orders(conn, d):
 def post_main(d):
     conn = db.DbOpen()
     invsummary.import_manual_invoices(d)
-    unpost.zap_entries(d['period'])
-    InsertFreshMonth(conn, d)
-    UpdatePms(conn, d)
-    add_purchase_orders(conn, d)
+    unpost.zap_entries()
+    InsertFreshMonth(conn)
+    update_pms(conn, d)
+    add_purchase_orders(conn)
     conn.Close()
     
 if  __name__ == "__main__":

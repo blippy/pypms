@@ -2,7 +2,7 @@ import pdb
 
 import common
 from common import princ
-from common import dget
+from common import dget, print_timing
 import db
 import period
 
@@ -25,21 +25,21 @@ def get_budget_line(d, job_code, cum_utilised):
 
 ###########################################################################
 
-def main(d):
+@print_timing
+def create_budget(d):
     sql = 'SELECT InvJobCode, Sum(InvUBI+InvWIP+InvInvoice) AS SumUsed FROM tblInvoice GROUP BY InvJobCode'
     fieldspec = [('InvJobCode', str), ('SumUsed', float)]
     recs = db.RecordsList(sql, fieldspec)
     utilisations = {}    
     for r in recs: utilisations[r['InvJobCode']] = r['SumUsed']
     
-    p = d['period']
     fmt = '{0:<7s} {1:<10s} {2:10s} {3:20.20s} {4:>10.10s} {5:<10.10s} {6:<10.10s} {7:>11.11s}\n'
     text = fmt.format('JobNo', 'Title', "Company", "PO", 'Budget', 'Start Date', 'End Date', 'Budget Left')
     for job_code in sorted(d['jobs'].keys()):
         if not d['jobs'][job_code]['active']: continue
         cum_utilised = dget(utilisations, job_code, 0.0)
         text += get_budget_line(d, job_code, cum_utilised)
-    period.save_report(p, "budget.txt", text)
+    period.save_report("budget.txt", text)
 
 if  __name__ == "__main__":
     princ("Didn't do anything")
