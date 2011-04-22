@@ -89,7 +89,7 @@ def XXXspit_lines(fname, lines):
 
 # TODO eliminate this function
 def princ(text):
-    print(text)
+    print(str(text))
     
 logging.basicConfig(level=logging.ERROR,
                     format='%(asctime)s %(levelname)s %(message)s',
@@ -141,7 +141,12 @@ def summate(seq, keyfunc, test = always):
         if test(el): total +=v
     return total
     
-    
+
+def XXXsort_by_key(lst, fieldname):
+    # TODO use this more extensively
+    #return sorted(lst, key= lambda a, b: cmp(a[fieldname], b[fieldname]))
+    return sorted(lst, key = lambda x: x[fieldname])
+
 ###########################################################################
 # dictionay functions
 

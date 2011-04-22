@@ -48,7 +48,7 @@ class ExpenseCache(TableCache):
         self.expenses = expenses
 
     @print_timing
-    def create_expense_report(self):
+    def create_expense_report(self, output_text = True):
         total = 0.0
 
         output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
@@ -68,7 +68,12 @@ class ExpenseCache(TableCache):
 
         output.append([])
         output.append(['TOTAL', total])
-        excel.create_report("expenses", output, [2])
+        
+        if output_text:
+            period.create_text_report("expenses.txt", output)
+        else:
+            # TODO Consider zapping Excel output option if considered unecessary
+            excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
     
 #cache = db.TableCache('tblCamelExpenses')
 cache = ExpenseCache()

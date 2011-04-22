@@ -31,6 +31,7 @@ import invsummary
 import mobil
 import period
 import post
+import reconciliation
 import recoveries
 import registry
 import rtfsprint
@@ -119,14 +120,16 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(self.frmMain_menubar)
         # Menu Bar end
         self.notebook_1 = wx.Notebook(self, -1, style=0)
-        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
-        self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
-        self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
-        self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
         self.btn_inc_period = wx.Button(self.notebook_1_pane_2, -1, "+")
+        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
+        self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
+        self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
+        self.cbox_text_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Expenses as text, not XL")
+        self.cbox_text_invoices = wx.CheckBox(self.notebook_1_pane_1, -1, "Invoice summary as text, not XL")
+        self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
         self.text_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
 
         self.__set_properties()
@@ -142,9 +145,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_externals_open_reports_folder_selected, self.menu_externals_open_reports_folder)
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
-        self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
         self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
+        self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
         # end wxGlade
  
 
@@ -155,6 +158,8 @@ class MainFrame(wx.Frame):
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
         registry.RegistryBoundCheckbox(self, self.cbox_expenses, 'import_expenses', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
+        registry.RegistryBoundCheckbox(self, self.cbox_text_expenses, 'expenses_as_text', True)
+        registry.RegistryBoundCheckbox(self, self.cbox_text_invoices, 'invoices_as_text', True)
         
         # redirect stdout and sterr to window
         redir = RedirectText(self.text_output)
@@ -201,21 +206,23 @@ class MainFrame(wx.Frame):
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_5 = wx.BoxSizer(wx.VERTICAL)
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_3 = wx.BoxSizer(wx.VERTICAL)
-        sizer_3.Add(self.btnAllStages, 0, 0, 0)
-        sizer_3.Add(self.cbox_expenses, 0, 0, 0)
-        sizer_3.Add(self.cbox_text_wip, 0, 0, 0)
-        self.notebook_1_pane_1.SetSizer(sizer_3)
         sizer_10.Add(self.label_period, 0, 0, 0)
         sizer_10.Add(self.btn_dec_period, 0, 0, 0)
         sizer_10.Add(self.btn_inc_period, 0, 0, 0)
         sizer_5.Add(sizer_10, 1, wx.EXPAND, 0)
         self.notebook_1_pane_2.SetSizer(sizer_5)
-        self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
+        sizer_3.Add(self.btnAllStages, 0, 0, 0)
+        sizer_3.Add(self.cbox_expenses, 0, 0, 0)
+        sizer_3.Add(self.cbox_text_expenses, 0, 0, 0)
+        sizer_3.Add(self.cbox_text_invoices, 0, 0, 0)
+        sizer_3.Add(self.cbox_text_wip, 0, 0, 0)
+        self.notebook_1_pane_1.SetSizer(sizer_3)
         self.notebook_1.AddPage(self.notebook_1_pane_2, "Settings")
-        sizer_1.Add(self.notebook_1, 1, wx.EXPAND, 0)
+        self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
+        sizer_1.Add(self.notebook_1, 0, wx.EXPAND, 0)
         sizer_1.Add(self.text_output, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
         self.Layout()
@@ -248,14 +255,20 @@ class MainFrame(wx.Frame):
             timesheets.create_timesheets(cache)
             if self.cbox_expenses.IsChecked():
                 expenses.cache.import_expenses()
-                expenses.cache.create_expense_report()    
+                expenses.cache.create_expense_report(self.cbox_text_expenses.IsChecked())    
             statements.create_statements(cache)
-            invsummary.import_manual_invoices(cache)
-            invsummary.create_invoice_summary(cache)
+            
+            invsummary.import_manual_invoices(cache)            
+            invoices = invsummary.enumerate_invoices(cache)
+            if self.cbox_text_invoices.IsChecked():
+                invsummary.create_text_invoice_summary(invoices)
+            else:
+                invsummary.create_excel_invoice_summary(invoices)
+                
             post.post_main(cache)
             recoveries.create_recovery_report(cache)
             wip.create_wip_report(self.cbox_text_wip.IsChecked())
-            invsummary.create_reconciliation(cache)
+            reconciliation.create_reconciliation(cache)
             budget.create_budget(cache)
             health.create_health_report(cache)
             html.create_html()

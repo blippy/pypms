@@ -55,25 +55,6 @@ def create_wip_lines():
     output.append(line)
     
     return output
-###########################################################################
-def create_text_report(lines):
-    
-    #TODO HIGH encapsulate the functionality of this function into an object
-    
-    def fmt_text(v):
-        if type(v) is float:
-            v = '{0:9.2f}'.format(v)
-        else:
-            v = '{0:9}'.format(v)
-        return v
-    
-    output = []
-    for row in lines:
-        cols = map(fmt_text, row)
-        line = ' '.join(cols)
-        output.append(line)
-        
-    period.save_report('wip.txt', output)
     
 
 ###########################################################################
@@ -81,9 +62,9 @@ def create_text_report(lines):
 def create_wip_report(output_text = True):
     output = create_wip_lines()
     if output_text:
-        create_text_report(output)
+        period.create_text_report("wip.txt", output)
     else:
-        # TODO Consider zapping Excel putput option if considered unecessary
+        # TODO Consider zapping Excel output option if considered unecessary
         excel.create_report("Wip", output, [2, 3 ,4, 5, 6, 7])
 
         

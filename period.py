@@ -163,6 +163,51 @@ def save_report(filename, text):
     
 ###########################################################################
 
+def create_text_report(filename, lines):    
+    
+    
+    def at(lst, idx):
+        try:
+            v = lst[i]
+        except IndexError:
+            v = ""
+        return v
+    
+    # work out how wide the columns are supposed to be
+    num_cols = len(lines[0])
+    col_widths = [0] * num_cols # assume width 0 to start with
+    for row in lines:
+        #princ(row)
+        for i in range(0, num_cols):
+            #princ(i)
+            v = at(row, i)
+            if isinstance(v, str):
+                col_width = len(v)
+            else:
+                col_width = 9                
+            col_widths[i] = max(col_widths[i], col_width)
+    #princ(col_widths)
+
+    # create output
+    output = []
+    for row in lines:
+        fields = []
+        for i in range(0, num_cols):
+            v = at(row, i)
+            fmt = '{0:>' + str(col_widths[i])
+            if type(v) is float: fmt += '.2f'
+            fmt += '}'
+            text = fmt.format(v)
+            fields.append(text)
+        #cols = 
+                
+        #cols = map(fmt_text, row)
+        line = ' '.join(fields)
+        output.append(line)
+        
+    save_report(filename, output)
+
+###########################################################################
 def init_global_period():
     p = Period()
     try:
@@ -181,7 +226,7 @@ def global_inc(num_months):
     'Increase the global period by NUM_MONTHS'
     global g_period
     g_period.inc(num_months)
-    common.set_reg_value("Period", g_period.yyyymm())
+    registry.set_reg_value("Period", g_period.yyyymm())
 
     
 def mmmmyyyy():

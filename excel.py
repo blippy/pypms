@@ -78,6 +78,24 @@ def create_workbook(file_name, func):
     del xlapp 
 
 
+###########################################################################
+
+
+class Book:
+    def __init__(self, filename):
+        self.filename = filename
+        if os.path.isfile(filename): os.remove(filename)
+        self.xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
+        self.wb = self.xlapp.Workbooks.Add()
+        
+    def __del__(self):
+        princ('Book:__del__()')
+        self.wb.SaveAs(self.filename)
+        self.wb.Close(SaveChanges = 0)
+        self.xlapp.Quit()
+        del self.xlapp 
+        
+###########################################################################
 
 def create_report(desc, list_of_rows, numeric_fields):
     
