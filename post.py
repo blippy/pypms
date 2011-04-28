@@ -23,11 +23,22 @@ import win32com.client
 import common
 from common import print_timing
 import db, excel, unpost
-import invsummary
+#import invsummary
 #import invtweaks
 import period
 from common import AsAscii, AsFloat, princ
-        
+   
+
+###########################################################################
+
+
+    
+def accumulate(d):
+    # FIXME - this can probably be used in many other places
+    result = {}
+    for el in d['manual_invoices']:
+        common.dplus(result, el['job'], el['net'])
+    return result
 
 ############################################################################
 
@@ -91,7 +102,7 @@ def update_pms(conn, d):
     codes = [str(rec[0]) for rec in code_records]
     invoices = d['auto_invoices']
     
-    manual_invoices = invsummary.accumulate(d)
+    manual_invoices = accumulate(d)
     tweaks = accumulate_tweaks(d)
     
     for code in codes:
@@ -175,7 +186,7 @@ def add_purchase_orders(conn):
 @print_timing
 def post_main(d):
     conn = db.DbOpen()
-    invsummary.import_manual_invoices(d)
+    #import_manual_invoices(d)
     unpost.zap_entries()
     InsertFreshMonth(conn)
     update_pms(conn, d)

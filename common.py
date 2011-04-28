@@ -211,12 +211,13 @@ def AsFloat(text):
 
 
 def print_timing(func):
+    show_timing = False
     def wrapper(*arg):
-        print("Executing {0}".format(func.func_name))
+        if show_timing: princ("Executing {0}".format(func.func_name))
         t1 = time.time()
         res = func(*arg)
         t2 = time.time()
-        princ('%s took %0.3f s' % (func.func_name, (t2-t1)))
+        if show_timing: princ('%s took %0.3f s' % (func.func_name, (t2-t1)))
         return res
     return wrapper
 

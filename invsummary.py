@@ -15,6 +15,9 @@ import period
   
 VAT = 0.20
 
+
+def number(input): return '%.2f' % (input)    
+
 ###########################################################################
 
 @print_timing
@@ -46,16 +49,7 @@ def import_manual_invoices(d):
         manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
     d['manual_invoices'] = manual_invoices
     
-def XXXaccumulate(d):
-    # FIXME - this can probably be used in many other places
-    result = {}
-    for el in d['manual_invoices']:
-        common.dplus(result, el['job'], el['net'])
-    return result
     
-
-###########################################################################
-
 def enumerate_invoices(d):
     mans = d['manual_invoices']
 
@@ -67,6 +61,7 @@ def enumerate_invoices(d):
         inv['job'] = job
         inv['client'] = ''
         inv['irn'] = ''
+        inv['desc'] = ''
         autos.append(inv)
     autos = filter(lambda x: x['net'] <> 0.0,  autos)
 
@@ -75,7 +70,8 @@ def enumerate_invoices(d):
     # augment vat rates
     jobs = d['jobs']
     for inv in invoices:
-        vatable = jobs[inv['job']]
+        job = jobs[inv['job']]
+        vatable = job['vatable']
         inv['vat_rate'] = tri(vatable, VAT, 0.0)
     
     net = common.summate(invoices, lambda x: x['net'])
@@ -84,7 +80,28 @@ def enumerate_invoices(d):
 ###########################################################################
 @print_timing
 def create_text_invoice_summary(invoices):
-    princ('FIXME NOW')
+    output = [['Ref', 'Client', 'Job', 'Net', 'VAT', 'Gross', 'Desc']]
+    
+    net_total = 0.0
+    vat_total = 0.0
+    #gross_tot
+    for inv in invoices:
+        irn = inv['irn']
+        client = inv['client']
+        job = inv['job']
+        net = inv['net']
+        net_total += net
+        vat = inv['vat_rate']* net
+        vat_total += vat
+        gross = net + vat
+        desc = inv['desc']
+        #print inv.keys()
+        line = [irn, client, job, number(net), number(vat), number(gross), desc]        
+        output.append(line)
+        
+    output.append(['total', '', '', number(net_total), number(vat_total), number(net_total + vat_total)])
+    output.append([])
+    period.create_text_report("invoices.txt", output)
     
 ###########################################################################
 @print_timing
@@ -96,7 +113,7 @@ def create_excel_invoice_summary(invoices):
     
     def numbered(alist): return itertools.izip(range(0, len(alist)), alist)        
     def txt(text): return common.AsAscii(text)
-    def number(input): return '%.2f' % (input)
+    
     
 
 
@@ -131,7 +148,7 @@ def create_excel_invoice_summary(invoices):
     
     
 ###########################################################################
-def main(d):
+def XXXmain(d):
     'Extract the manual invoices from the spreadsheets'
     import_manual_invoices(d)
     create_invoice_summary(d)
