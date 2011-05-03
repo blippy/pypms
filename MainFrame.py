@@ -113,10 +113,10 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu.AppendItem(self.menu_externals_open_reports_folder)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Externals")
         wxglade_tmp_menu = wx.Menu()
-        self.menu_print_timesheets = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Timesheets", "", wx.ITEM_NORMAL)
-        wxglade_tmp_menu.AppendItem(self.menu_print_timesheets)
         self.menu_print_workstatements = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Workstatements", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_print_workstatements)
+        self.menu_print_timesheets = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Timesheets", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_print_timesheets)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Print")
         self.SetMenuBar(self.frmMain_menubar)
         # Menu Bar end
@@ -144,8 +144,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_externals_html_selected, self.menu_externals_html)
         self.Bind(wx.EVT_MENU, self.menu_externals_invoice_summary_selected, self.menu_externals_invoice_summary)
         self.Bind(wx.EVT_MENU, self.menu_externals_open_reports_folder_selected, self.menu_externals_open_reports_folder)
-        self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
+        self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
         self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
@@ -304,13 +304,13 @@ class MainFrame(wx.Frame):
 
     def menu_print_timesheets_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
-        rtfsprint.timesheets(period.g_period)
+        rtfsprint.timesheets()
         wx.MessageBox('Finished', 'Info')
 
 
     def menu_print_workstatements_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not long_calc(self): return
-        rtfsprint.work_statements(period.g_period)
+        rtfsprint.work_statements()
 
 
         
