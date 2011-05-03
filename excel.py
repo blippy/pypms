@@ -59,11 +59,19 @@ def ImportWorksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned
 
+
+def camelxls():
+    #global g_period
+    p = period.g_period
+    file_name = "M:\\Finance\\camel\\{0}\\camel-{1}.xls".format(p.y,p.yyyymm())  # M:\Finance\camel\2011\camel-2011-04.xls
+    #princ(file_name)
+    return file_name
+
 def ImportCamelWorksheet(wsName, max_rows = 70000, max_cols = 300):
     #def camelxls():
     #'Return the filename for the Camel Excel input file'
-    fname = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (period.g_period.y, period.g_period.yyyymm())
-    return ImportWorksheet(fname, wsName, max_rows = 70000, max_cols = 300)
+    #fname = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (period.g_period.y, period.g_period.yyyymm())
+    return ImportWorksheet(camelxls(), wsName, max_rows = 70000, max_cols = 300)
     
 ###########################################################################
 

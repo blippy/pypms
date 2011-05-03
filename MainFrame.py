@@ -24,6 +24,7 @@ import budget
 import common
 from common import princ, print_timing
 import db
+import excel
 import expenses
 import health
 import html
@@ -282,7 +283,7 @@ class MainFrame(wx.Frame):
 
 
     def menu_externals_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file(period.camelxls(period.g_period))
+        open_file(excel.camelxls())
 
     def menu_externals_gizmo_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\gizmo\\gizmo04.xls')
@@ -296,7 +297,7 @@ class MainFrame(wx.Frame):
         open_file(fname)
 
     def menu_externals_open_reports_folder_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        cmd = 'explorer ' + period.reportdir(period.g_period)
+        cmd = 'explorer ' + period.reportdir()
         os.system(cmd)
 
 

@@ -135,31 +135,7 @@ class Period:
         return result
         
 
-###########################################################################
-# directories dependent on period
 
-
-
-def perioddir():
-    return common.outroot + "\\" + g_period.yyyymm()
-    
-def reportdir():
-    'Return the report directory'
-    dir =  perioddir() + "\\reports"
-    common.makedirs(dir)
-    return dir
-
-# FIXME - use this more extensively
-def reportfile(fname):
-    'Return a full filename for a report'
-    return reportdir() + '\\' + fname
-
-# FIXME - use this more
-def save_report(filename, text):
-    fullname = reportfile(filename)
-    if type(text) is list:
-        text = '\r\n'.join(text)
-    common.spit(fullname, text)
     
 ###########################################################################
 
@@ -228,12 +204,39 @@ def global_inc(num_months):
     g_period.inc(num_months)
     registry.set_reg_value("Period", g_period.yyyymm())
 
+###########################################################################
+# directories dependent on period
+
+
+
+def perioddir():
+    return common.outroot + "\\" + g_period.yyyymm()
+    
+def reportdir():
+    'Return the report directory'
+    dir =  perioddir() + "\\reports"
+    common.makedirs(dir)
+    return dir
+
+# FIXME - use this more extensively
+def reportfile(fname):
+    'Return a full filename for a report'
+    return reportdir() + '\\' + fname
+
+# FIXME - use this more
+def save_report(filename, text):
+    fullname = reportfile(filename)
+    if type(text) is list:
+        text = '\r\n'.join(text)
+    common.spit(fullname, text)
     
 def mmmmyyyy():
     global g_period
     return g_period.mmmmyyyy()
 
 
+
+###########################################################################
 if __name__ == "__main__":
     princ("Global period is:" + g_period.yyyymm())
     p = Period()
