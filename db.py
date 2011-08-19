@@ -3,6 +3,8 @@
 
 import datetime, pdb
 from itertools import izip
+import os
+import pickle
 
 import win32com.client
 
@@ -180,6 +182,31 @@ def task_desc(data, jobcode, taskcode):
 
 ###########################################################################
 
+__pickle_dir = os.path.expanduser("~/.config/pypms")
+__pickle_file = __pickle_dir + "/pypms.pck"
+
+def load_state():
+    fp = open(__pickle_file, "rb")
+    d = pickle.load(fp)
+    fp.close()
+    return d
+
+def save_state(d):
+    common.makedirs(__pickle_dir)
+    fp = open(__pickle_file, "wb")
+    pickle.dump(d, fp)
+    fp.close()
+    
+    
+    
+###########################################################################
+
+def test():
+    #conn = Database()
+    #conn.execute('select * from yuk')
+    pass
+        
+###########################################################################
 if  __name__ == "__main__": 
     test()
     princ('Finished')

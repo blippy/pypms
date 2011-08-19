@@ -141,6 +141,18 @@ def summate(seq, keyfunc, test = always):
         if test(el): total +=v
     return total
     
+def summate_cols(matrix):
+    "Sum a list of list of values. E.g. summate_cols([[1,2],[3,4]]) # [4,6]"
+    totals = []
+    for c in xrange(len(matrix[0])):
+        total = 0.0
+        for r in matrix:
+            try: v = AsFloat(r[c])
+            except ValueError: v = 0.0
+            total += v
+        totals.append(total)
+    return totals
+
 
 def XXXsort_by_key(lst, fieldname):
     # TODO use this more extensively
@@ -150,7 +162,9 @@ def XXXsort_by_key(lst, fieldname):
 ###########################################################################
 # dictionay functions
 
-# FIXME - use this extensively
+# FIXME - use these functions extensively
+
+
 def dget(dictionary_name, key, value = 0.0):
     '''Obtain a value from a dictionay, using default VALUE if key not found'''    
     try: 
@@ -159,14 +173,12 @@ def dget(dictionary_name, key, value = 0.0):
         result = value
     return result
 
-# FIXME - use this extensively
 def dplus(dictionary_name, key, value):
     '''Accumulate a value for a dictionary, using 0.00 if the key is not already defined'''
     if not dictionary_name.has_key(key): dictionary_name[key] = 0.0
     dictionary_name[key] += value
     
 
-# FIXME - use this extensively
 def combine_dict_keys(list_of_dicts):
     result = set()
     for dic in list_of_dicts:
@@ -175,7 +187,10 @@ def combine_dict_keys(list_of_dicts):
     result = list(result)
     result.sort()
     return result
-    
+   
+def mapdict(d, fields):
+    return map(lambda x: d[x], fields)
+
 ###########################################################################
 
 def AsAscii(text):
@@ -202,6 +217,8 @@ def AsFloat(text):
         return float(text)
     elif type(text) == float:
         return text
+    elif type(text) == int:
+        return float(text)
     else:
         text = text.replace(',', '')    
         return float(text)

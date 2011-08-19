@@ -2,6 +2,7 @@
 '''
 
 import operator
+import pdb
 
 import common
 from common import dget, princ, print_timing
@@ -15,7 +16,7 @@ import period
 def get_dbase_recoveries(d):
     #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
     field_list = ['InvJobCode', 'InvComments', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime']
-    invoices = db.GetInvoices(d, field_list)    
+    invoices = db.GetInvoices(field_list)    
 
     recoveries = {}
     for invoice in invoices:
@@ -24,7 +25,7 @@ def get_dbase_recoveries(d):
         as_floats = map(float, invoice[2:])
         InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime = as_floats
         recovery = InvBIA + InvUBI + InvWIP + InvAccrual + InvInvoice - Inv3rdParty - InvTime
-        if abs(recovery)< 20.0: continue # ignore immaterial recoveries
+        #if abs(recovery)< 20.0: continue # ignore immaterial recoveries
         recoveries[job_code] = recovery
     return recoveries
 
@@ -44,37 +45,59 @@ def get_camel_recoveries(d):
 
 ###########################################################################
 
+
+def line(amount, comment): return  '    %9.2f %s\n' % (amount, comment)
+
+###########################################################################
+
+def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
+    #pdb.set_trace()
+    job_code = job['job']
+    wip = common.tri(job['WIP'], 'wip' , '') 
+    weird = common.tri(job['Weird'], 'weird ', '')
+    output = 'JOB %s %s %s\n' % (job_code, wip, weird)
+    
+    #output += '  Per InvTweaks\n'
+    tweak_total = 0.0
+    
+    for tweak in camel_job_recoveries:
+        amount, comment = tweak
+        tweak_total += amount
+        output += line(amount, comment)
+    output += line(tweak_total , 'TWEAK TOTAL')
+
+        
+    
+    output += line(db_job_recovery , 'PMS RECOVERY')
+    diff = tweak_total - db_job_recovery
+    flag = common.tri(abs(diff) > 20.0, ' **** CHECK THIS', '')
+    output += line(diff , 'DIFF' + flag + '\n\n')
+    return tweak_total, output
+
+###########################################################################
 @print_timing
 def create_recovery_report(d):
-    db_recoveries = get_dbase_recoveries(d)
-    camel_recoveries = get_camel_recoveries(d)    
-    output = 'RECOVERY RECONILIATION\n\n'
     
-    def line(amount, comment): return  '    %9.2f %s\n' % (amount, comment)
+    camel_recoveries = get_camel_recoveries(d)
+    jobcodes_to_process = set(camel_recoveries.keys())
+    db_recoveries = get_dbase_recoveries(d)
+    for k, v in db_recoveries.items():
+        if abs(v) >= 0.01: jobcodes_to_process.add(k)    
+    jobcodes_to_process = sorted(list(jobcodes_to_process))
+    output = 'RECOVERY RECONILIATION\n\n'
+
+    #pdb.set_trace()
 
     tweaks_grand_total = 0.0
     pms_grand_total = 0.0
-    for job_code in common.combine_dict_keys([camel_recoveries, db_recoveries]):
-        job = d['jobs'][job_code] # FIXME - d['jobs'][job_code] is a common idiom which ought to be abstracted
-        wip = common.tri(job['WIP'], 'wip' , '') 
-        weird = common.tri(job['Weird'], 'weird ', '')
-        output += 'JOB %s %s %s\n' % (job_code, wip, weird)
-        
-        #output += '  Per InvTweaks\n'
-        tweak_total = 0.0
-        for tweak in dget(camel_recoveries, job_code, []):
-            amount, comment = tweak
-            tweak_total += amount
-            output += line(amount, comment)
-        output += line(tweak_total , 'TWEAK TOTAL')
-        tweaks_grand_total += tweak_total
-            
-        recovery = dget(db_recoveries, job_code)
-        output += line(recovery , 'PMS RECOVERY')
-        diff = tweak_total - recovery
-        flag = common.tri(abs(diff) > 20.0, ' **** CHECK THIS', '')
-        output += line(diff , 'DIFF' + flag + '\n\n')
-        pms_grand_total += recovery
+    for job_code in jobcodes_to_process:
+        job = d['jobs'][job_code] # FIXME - d['jobs'][job_code] is a common idiom which ought to be abstracted        
+        camel_job_recoveries = dget(camel_recoveries, job_code, [])
+        db_job_recovery = dget(db_recoveries, job_code)
+        tweak_amount, recovery_text = create_recovery_text(job, camel_job_recoveries, db_job_recovery)
+        output += recovery_text
+        tweaks_grand_total += tweak_amount
+        pms_grand_total += db_job_recovery
        
     output += 'SUMMARY:\n'
     output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
@@ -84,4 +107,6 @@ def create_recovery_report(d):
     
         
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    d = db.load_state()
+    create_recovery_report(d)
+    princ("Finished")

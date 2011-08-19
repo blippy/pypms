@@ -98,7 +98,7 @@ def update_pms(conn, d):
     
     # Jobs requiring entries
     invBillingPeriod = period.mmmmyyyy()
-    code_records = db.GetInvoices(d, ['InvJobCode'])
+    code_records = db.GetInvoices(['InvJobCode'])
     codes = [str(rec[0]) for rec in code_records]
     invoices = d['auto_invoices']
     

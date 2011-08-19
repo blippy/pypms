@@ -4,63 +4,54 @@
 import pdb
 
 import common
-from common import aggregate, AsAscii, summate, princ, print_timing
+from common import aggregate, AsAscii, AsFloat, summate, princ, print_timing
 import db
 import excel
 import period
 
 
+
 ###########################################################################
 
-def sums(invoices):
-    #pdb.set_trace()
-    ufunc = lambda x: float(x['InvUBI'])
-    wfunc = lambda x: float(x['InvWIP'])
-    ubi_ytd = summate(invoices, ufunc)
-    wip_ytd = summate(invoices, wfunc)    
-    return ubi_ytd, wip_ytd, ubi_ytd + wip_ytd
+def create_wip_line(wip_item, invoices):
+    job_code, ubi_ytd, wip_ytd = common.mapdict(wip_item, ['InvJobCode', 'SumOfInvUBI', 'SumOfInvWIP'])
+    if invoices.has_key(job_code): expenses, work = common.mapdict(invoices[job_code], ['expenses', 'work'])
+    else: expenses, work = 0.0, 0.0
+    line = [job_code, ubi_ytd + wip_ytd, wip_ytd, ubi_ytd, '', expenses + work, expenses, work]
+    return line
+
 
 ###########################################################################
 
 @print_timing
-def create_wip_lines():
-    fieldspec = [('InvJobCode', AsAscii), ('InvBillingPeriod', AsAscii), 
-        ('InvUBI', float), ('InvWIP', float)]
-    wips = db.RecordsList("SELECT * FROM tblInvoice", fieldspec)
-    billing_period = period.mmmmyyyy()
-    monthlies = filter(lambda x: x['InvBillingPeriod'] == billing_period, wips)
-    
-    
+def create_wip_lines(data):
+    sql =  "SELECT InvJobCode, Sum(tblInvoice.InvUBI) AS SumOfInvUBI, "
+    sql += "Sum(tblInvoice.InvWIP) AS SumOfInvWIP FROM tblInvoice GROUP BY tblInvoice.InvJobCode "
+    sql += "ORDER BY tblInvoice.InvJobCode;"
+    fieldspec = [('InvJobCode', AsAscii), ('SumOfInvWIP', AsFloat), ('SumOfInvUBI', AsFloat)]
+    wips = db.RecordsList(sql, fieldspec)
+    wips = filter(lambda x: abs(x['SumOfInvWIP']) + abs(x['SumOfInvUBI']) >= 0.01, wips)
+
     output = []
-    output.append(['Job', 'UBI', 'WIP', 'TOTAL', 'UBI', 'WIP', 'TOTAL'])
-    output.append(['', 'YTD', 'YTD', 'YTD', 'CUR', 'CUR', 'CUR'])
+    output.append(['Job', 'TOTAL', 'WIP', 'UBI',  '      ',  'TOTAL', 'EXPS', 'WORK'])
+    output.append(['',    'YTD',   'YTD', 'YTD',  '',  'CUR',   'CUR',  'CUR'])
     
     # output the totals for each job code
-    for job_code, invoices in aggregate(wips, common.mkKeyFunc("InvJobCode")):
-        ubi_ytd, wip_ytd, sum_ytd = sums(invoices)
-        cur = filter(lambda x: x['InvJobCode'] == job_code, monthlies)
-        ubi_cur, wip_cur, sum_cur = sums(cur)
-        line = [job_code, ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
-        
-        # maybe add the line to output
-        total = reduce( lambda x,y: abs(x)+abs(y), line[1:])
-        if total > 0.01: output.append(line)
-            
+    for wip in wips:
+        line = create_wip_line(wip, data['auto_invoices'])
+        output.append(line)
+    total = common.summate_cols(output)
+    total[0] = "TOTAL"
+    total[4] = ''
+    output.append(total)
 
-    # output the totals
-    output.append([])
-    ubi_ytd, wip_ytd, sum_ytd = sums(wips)
-    ubi_cur, wip_cur, sum_cur = sums(monthlies)
-    line = ['TOTAL', ubi_ytd, wip_ytd, sum_ytd, ubi_cur, wip_cur, sum_cur]
-    output.append(line)
-    
     return output
     
 
 ###########################################################################
 @print_timing
-def create_wip_report(output_text = True):
-    output = create_wip_lines()
+def create_wip_report(data, output_text = True):
+    output = create_wip_lines(data)
     if output_text:
         period.create_text_report("wip.txt", output)
     else:
@@ -71,4 +62,6 @@ def create_wip_report(output_text = True):
 ###########################################################################
 
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    data = db.load_state()
+    create_wip_report(data)
+    princ("Finish")

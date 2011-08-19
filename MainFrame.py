@@ -17,8 +17,6 @@ import os
 import sys
 
 import win32api
-#import wx
-#import wx.richtext
 
 import budget
 import common
@@ -29,10 +27,8 @@ import expenses
 import health
 import html
 import invsummary
-import mobil
 import period
 import post
-import reconciliation
 import recoveries
 import registry
 import rtfsprint
@@ -267,13 +263,12 @@ class MainFrame(wx.Frame):
                 invsummary.create_excel_invoice_summary(invoices)
                 
             post.post_main(cache)
+            #db.save_state(cache) # TODO remove
             recoveries.create_recovery_report(cache)
-            wip.create_wip_report(self.cbox_text_wip.IsChecked())
-            reconciliation.create_reconciliation(cache)
+            wip.create_wip_report(cache, self.cbox_text_wip.IsChecked())
             budget.create_budget(cache)
             health.create_health_report(cache)
             html.create_html()
-            mobil.create_mobil_statement(cache)
             princ('Finished')
             
             
