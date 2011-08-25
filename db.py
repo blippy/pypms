@@ -6,6 +6,7 @@ from itertools import izip
 import os
 import pickle
 
+import adodbapi
 import win32com.client
 
 import common
@@ -18,7 +19,9 @@ import period
  
 ###########################################################################
 
+tbl_billing = None
 
+###########################################################################
         
 def DbOpen():
     'Return an open connection to the database'
@@ -32,6 +35,7 @@ def IsEmpty(rs): return rs.EOF or rs.BOF # is a recordset empty?
 # FIXME - consider using the ADODB functions GetAll() or GetRows()
 
 def ForEachRecord(sql, func):
+    # TODO deprecate
     'Do the FUNC for each record in a recordset returned by a SQL statment'
     try:
         conn = DbOpen()
@@ -46,6 +50,7 @@ def ForEachRecord(sql, func):
         conn.Close()
 
 def records(fieldnames, sql):
+    # TODO deprecate
     values = []
     def func(rs): 
         rec = [rs.Fields(fieldname).Value for fieldname in fieldnames]
@@ -54,7 +59,21 @@ def records(fieldnames, sql):
     return values
  
 
-    
+def fetch_all(sql):
+    # preferred method from 25-Aug-2011 - it's much faster
+    try:
+        conStr = r'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;'    
+        con = adodbapi.connect(conStr)
+        cursor = con.cursor()
+        #sql = 'SELECT * FROM tblBilling'
+        cursor.execute(sql)
+        ds = cursor.fetchall()
+        rows = [row for row in ds]
+        cursor.close()
+    finally:
+        con.close()
+    return rows
+        
     
     
 def ExecuteSql(sql):
@@ -66,6 +85,7 @@ def ExecuteSql(sql):
    
 
 def RecordsList(sql, fieldspec):
+    # TODO deprecate
     result = []
     fieldnames = [x[0] for x in fieldspec]
     for r in records(fieldnames, sql):
@@ -88,7 +108,7 @@ def GetEmployees(p):
     for r in recs: employees[r['Person']] = r
     return employees
 
-def GetInvoices(d, field_list):
+def GetInvoices(field_list):
     sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  period.mmmmyyyy() + "'"
     return records(field_list, sql)
 
@@ -116,17 +136,52 @@ def GetTasks(p):
     tasks = {}
     for r in recs: tasks[ (r['JobCode'], r['TaskNo']) ] = r
     return tasks
-   
-def GetTimeitems(p):
-    fmt =  'SELECT * FROM tblTimeItems '
-    fmt += 'WHERE TimeVal<>0 AND LEN(JobCode) > 0 '
-    fmt += 'AND Month([DateVal]) = %d and Year([DateVal]) = %d '
-    fmt += 'ORDER BY JobCode, Task, Person, DateVal'
-    sql = fmt % (p.m , p.y)
-
+ 
+def GetTblBilling():
+    global tbl_billing
+    if tbl_billing is not None: return
+    sql = 'SELECT * FROM tblBilling'
+    rows = fetch_all(sql)
+    tbl_billing = rows
+        
     
-    fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', AsFloat), ('Task', str), ('WorkDone', unicode)]
-    recs = RecordsList(sql, fieldspec)
+    
+def GetTimeitems():
+    GetTblBilling()
+    
+    #fmt =  'SELECT * FROM tblTimeItems '
+    #fmt += 'WHERE TimeVal<>0 AND LEN(JobCode) > 0 '
+    #fmt += 'AND Month([DateVal]) = %d and Year([DateVal]) = %d '
+    #fmt += 'ORDER BY JobCode, Task, Person, DateVal'
+    #p = period.g_period
+    #sql = fmt % (p.m , p.y)
+
+    sql = 'SELECT * FROM tblTimeItems WHERE TimeVal<>0 AND LEN(JobCode) > 0 ORDER BY JobCode, Task, Person, DateVal'
+    rows = fetch_all(sql)
+    fields = 'DateVal,JobCode,Person,Task,TimeVal,WorkDone'
+    fields = fields.split(',')
+    recs = []
+    for row in rows:
+        rec = {}
+        for field, value in zip(fields, row):
+            rec[field] = value
+        recs.append(rec)
+    
+    # filter by period
+    global tbl_billing
+    def find(item, sequence, key):
+        for el in sequence:
+            if item == key(el):
+                return el
+        return None
+    per = find(period.billing_key(), tbl_billing, key = lambda x: x[0])
+    start = per[1]
+    end = per[2]
+    print per
+    def within(x): return x['DateVal'] >= start and x['DateVal'] <= end
+    recs = filter(within, recs)
+    #fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', AsFloat), ('Task', str), ('WorkDone', unicode)]
+    #recs = RecordsList(sql, fieldspec)
     return recs
 
 
@@ -157,7 +212,7 @@ def fetch():
     d['employees'] = GetEmployees(p)
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks(p)
-    d['timeItems'] = GetTimeitems(p)
+    d['timeItems'] = GetTimeitems()
     d['charges'] = GetCharges(p)
     d['clients'] = GetClients()
     d['auto_invoices'] = None

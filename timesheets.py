@@ -27,8 +27,9 @@ def AddPersonToJobsheet(personKey, personGroup, out):
         timeVal = timeItem['TimeVal']
         totalTime += timeVal
         dateVal = timeItem['DateVal']
-        asDate = datetime.date(int(dateVal[0:4]), int(dateVal[5:7]), int(dateVal[8:]))
-        day = asDate.strftime('%a %d %b')
+        #asDate = datetime.date(int(dateVal[0:4]), int(dateVal[5:7]), int(dateVal[8:]))
+        #day = asDate.strftime('%a %d %b')
+        day = dateVal.strftime('%a %d %b')
         workDone = timeItem['WorkDone']
         if workDone == '..': workDone = ''
         out.add('%s %9.3f   %s' % (day, timeVal, workDone))

@@ -4,6 +4,10 @@
 import itertools
 import timeit
 import pdb
+#from sqlalchemy import *
+import pyodbc
+import db, dbnew
+
 
 #import win32com.client
 import adodbapi
@@ -13,19 +17,21 @@ from common import princ
 class Struct:
     pass
 
-
-def test():
-    def foo(*args):
-        print args
-    foo(1,2,3)
+def way1():
+    db.records(['JobCode', 'Person'], 'tblTimeItems')
     
-    for a,b in zip([1,2,3], [4,5,6]):
-        print a,b
+def way2():
+    dbnew.TableCache('tblTimeItems')
+def test():
 
-def test1():
-    c = TableCache()
-    c.populate()
-    print c.rows
+        
+    #print timeit.Timer('way1()', 'from __main__ import way1').timeit(number = 10) # takes about 30.2 s
+    #print timeit.Timer('way2()', 'from __main__ import way2').timeit(number = 10) #takes about 4.1 s
+    #way2()
+    t = dbnew.TableCache('tblTimeItems')
+    print t.inmemory_rows
+
+
 
 if  __name__ == "__main__": 
     test()

@@ -235,7 +235,16 @@ def mmmmyyyy():
     return g_period.mmmmyyyy()
 
 
+###########################################################################
 
+def billing_key():
+    'Return the billing key for the global period'
+    global g_period
+    months = 'January,February,March,April,May,June,July,August,September,October,November,December'
+    month = months.split(',')[g_period.m - 1]
+    year = g_period.y
+    return '{0} {1}'.format(month, year)
+    
 ###########################################################################
 if __name__ == "__main__":
     princ("Global period is:" + g_period.yyyymm())
