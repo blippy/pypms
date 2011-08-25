@@ -105,8 +105,15 @@ def logerror(txt):
 def logwarn(txt): logging.warn(txt)
 
 
+###########################################################################
+# functional routines
 
-    
+def find(item, sequence, key):
+    for el in sequence:
+        if item == key(el):
+            return el
+    return None
+
     
 
 ###########################################################################
@@ -166,11 +173,13 @@ def XXXsort_by_key(lst, fieldname):
 
 
 def dget(dictionary_name, key, value = 0.0):
-    '''Obtain a value from a dictionay, using default VALUE if key not found'''    
+    '''Obtain a value from a dictionay, using default VALUE if key not found
+    or value is None'''
     try: 
         result = dictionary_name[key]
     except KeyError:
         result = value
+    if result is None: result = value
     return result
 
 def dplus(dictionary_name, key, value):

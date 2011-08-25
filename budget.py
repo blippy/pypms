@@ -11,14 +11,14 @@ def get_budget_line(d, job_code, cum_utilised):
     job = d['jobs'][job_code]
     title = job['title']
     client = dget(d['clients'], job['briefclient'], '')
-    po = job['references']
+    po = dget(job, 'references', '')
     po = po.split('\n')
     po = po[0]
     po = po.replace('\r', '')
-    budget = job['PoBudget']
+    budget = dget(job, 'PoBudget', 0.0)
     start = job['PoStartDate']
     end = job['PoEndDate']
-    utilised_pos = job['UtilisedPOs']
+    utilised_pos = dget(job, 'UtilisedPOs', 0.0)
     remaining_budget = budget + utilised_pos - cum_utilised
     text = fmt.format(job_code, title, client, po, budget, start, end, remaining_budget)
     return text

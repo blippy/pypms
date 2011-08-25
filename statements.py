@@ -25,6 +25,7 @@ typeWork, typeExpense = range(2) # create enumerated invoice type
 
 def AddTopInfo(out, job):
     address = job['address'] # whole address
+    if address is None: address = ''
     address = address.split('\r')
     address1 = address[0] # first line of address
     out.add(address1)    
@@ -34,6 +35,7 @@ def AddTopInfo(out, job):
     
     #if job_code  == '2638' : pdb.set_trace()
     references = job['references']
+    if references is None: references = ''
     references = references.replace('\n', '\\par \n')
     #references = common.AsAscii(references)
     out.add(references, 2)

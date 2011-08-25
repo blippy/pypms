@@ -1,9 +1,11 @@
 # information stored in the database
 # TODO hopefully everything below will be obsoleted eventually
 
-import datetime, pdb
+import datetime
+import decimal
 from itertools import izip
 import os
+import pdb
 import pickle
 
 import adodbapi
@@ -65,7 +67,6 @@ def fetch_all(sql):
         conStr = r'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;'    
         con = adodbapi.connect(conStr)
         cursor = con.cursor()
-        #sql = 'SELECT * FROM tblBilling'
         cursor.execute(sql)
         ds = cursor.fetchall()
         rows = [row for row in ds]
@@ -74,6 +75,18 @@ def fetch_all(sql):
         con.close()
     return rows
         
+def fetch_and_dictify(sql, fields):
+    # preferred method from 25-Aug-2011
+    rows = fetch_all(sql)
+    fields = fields.split(',')
+    recs = []
+    for row in rows:
+        rec = {}
+        for field, value in zip(fields, row):
+            if type(value) is decimal.Decimal: value = float(value)
+            rec[field] = value
+        recs.append(rec)
+    return recs
     
     
 def ExecuteSql(sql):
@@ -115,13 +128,10 @@ def GetInvoices(field_list):
     
 def GetJobs():
     sql = 'SELECT * FROM jobs ORDER BY job'
-    fieldspec = [('ID', int), ('job', str), ('title', str), ('address', AsAscii), 
-        ('references', AsAscii), ('briefclient', AsInt),
-        ('active', bool), ('vatable', bool), ('exp_factor', AsFloat), ('WIP', bool), ('Weird', bool), 
-        ('Autoprint', bool), ('Comments', AsAscii), ('TsApprover', AsAscii), 
-        ('UtilisedPOs', AsFloat), ('PoBudget', AsFloat), ('PoStartDate', StdDate), 
-        ('PoEndDate', StdDate), ('ProjectManager', AsAscii)]
-    recs = RecordsList(sql, fieldspec)
+    fields = 'ID,job,title,address,references,briefclient,active,vatable,exp_factor,'
+    fields += 'WIP,Weird,Autoprint,Comments,TsApprover,UtilisedPOs,'
+    fields += 'PoBudget,PoStartDate,PoEndDate,ProjectManager'
+    recs = fetch_and_dictify(sql, fields)
     jobs = {}
     for r in recs: jobs[r['job']] = r
     return jobs
@@ -131,8 +141,8 @@ def GetJobs():
 
 def GetTasks(p):
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
-    fieldspec = [('JobCode', str), ('JCDescription', str), ('TaskNo', str), ('TaskDes', str)]
-    recs = RecordsList(sql, fieldspec)
+    fields = 'JobCode,JCDescription,TaskNo,TaskDes,JobActive,TotalBudget,CSLBudget,PManager,BManager,IssuingOfficer,CapStock,AgencyFee'
+    recs = fetch_and_dictify(sql, fields)
     tasks = {}
     for r in recs: tasks[ (r['JobCode'], r['TaskNo']) ] = r
     return tasks
@@ -149,55 +159,34 @@ def GetTblBilling():
 def GetTimeitems():
     GetTblBilling()
     
-    #fmt =  'SELECT * FROM tblTimeItems '
-    #fmt += 'WHERE TimeVal<>0 AND LEN(JobCode) > 0 '
-    #fmt += 'AND Month([DateVal]) = %d and Year([DateVal]) = %d '
-    #fmt += 'ORDER BY JobCode, Task, Person, DateVal'
-    #p = period.g_period
-    #sql = fmt % (p.m , p.y)
-
     sql = 'SELECT * FROM tblTimeItems WHERE TimeVal<>0 AND LEN(JobCode) > 0 ORDER BY JobCode, Task, Person, DateVal'
-    rows = fetch_all(sql)
-    fields = 'DateVal,JobCode,Person,Task,TimeVal,WorkDone'
-    fields = fields.split(',')
-    recs = []
-    for row in rows:
-        rec = {}
-        for field, value in zip(fields, row):
-            rec[field] = value
-        recs.append(rec)
+    fields = 'DateVal,JobCode,Person,Task,TimeVal,WorkDone'    
+    recs = fetch_and_dictify(sql, fields)
     
     # filter by period
-    global tbl_billing
-    def find(item, sequence, key):
-        for el in sequence:
-            if item == key(el):
-                return el
-        return None
-    per = find(period.billing_key(), tbl_billing, key = lambda x: x[0])
+    global tbl_billing 
+    per = common.find(period.billing_key(), tbl_billing, key = lambda x: x[0])
     start = per[1]
     end = per[2]
-    print per
     def within(x): return x['DateVal'] >= start and x['DateVal'] <= end
     recs = filter(within, recs)
-    #fieldspec = [('JobCode', str), ('Person', str), ('DateVal', StdDate), ('TimeVal', AsFloat), ('Task', str), ('WorkDone', unicode)]
-    #recs = RecordsList(sql, fieldspec)
+    
     return recs
 
 
 
-def GetCharges(p):
-    sql = 'SELECT JobCode, TaskNo, Person, PersonCharge FROM tblCharges;'
-    fieldspec = [('JobCode', str), ('TaskNo', str), ('Person', str), ('PersonCharge', AsFloat)]
-    recs = RecordsList(sql, fieldspec)
+def GetCharges():
+    sql = 'SELECT * FROM tblCharges'
+    fields = 'JobCode,TaskNo,Person,PersonCharge'
+    recs = fetch_and_dictify(sql, fields)
     charges = {}
     for r in recs: charges[ (r['JobCode'], r['TaskNo'], r['Person'] )] = r['PersonCharge']
     return charges
 
 def GetClients():
     sql = 'SELECT * FROM tblClients;'
-    fieldspec = [('ID', int), ('brief', str)]
-    recs = RecordsList(sql, fieldspec)
+    fields = 'ID,brief'
+    recs = fetch_and_dictify(sql, fields)
     clients = {}
     for r in recs: clients[r['ID']] = r['brief']
     return clients
@@ -213,7 +202,7 @@ def fetch():
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks(p)
     d['timeItems'] = GetTimeitems()
-    d['charges'] = GetCharges(p)
+    d['charges'] = GetCharges()
     d['clients'] = GetClients()
     d['auto_invoices'] = None
     d['manual_invoices'] = None
