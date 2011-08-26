@@ -1,5 +1,6 @@
 # information stored in the database
-# TODO hopefully everything below will be obsoleted eventually
+
+# TODO have an ability to key on fields
 
 import datetime
 import decimal
@@ -22,6 +23,7 @@ import period
 ###########################################################################
 
 tbl_billing = None
+jobs = None
 
 ###########################################################################
         
@@ -97,49 +99,42 @@ def ExecuteSql(sql):
         conn.Close()
    
 
-def RecordsList(sql, fieldspec):
-    # TODO deprecate
-    result = []
-    fieldnames = [x[0] for x in fieldspec]
-    for r in records(fieldnames, sql):
-        recs = {}
-        for (fieldname, fieldtype), fieldvalue in izip(fieldspec, r):
-            recs[fieldname] = fieldtype(fieldvalue)
-        result.append(recs)
-    return result
- 
-def StdDate(d):
-    if d is None: return None
-    d1 = datetime.date(d.year, d.month, d.day)
-    return d1.strftime('%Y-%m-%d')
 
-def GetEmployees(p):
+def GetEmployees():
     sql = 'SELECT * FROM tblEmployeeDetails'
-    fieldspec = [('Person', AsAscii), ('PersonNAME', AsAscii), ('IsStaff', bool), ('MobilSmn', AsAscii)]
-    recs = RecordsList(sql, fieldspec)
+    #fieldspec = [('Person', AsAscii), ('PersonNAME', AsAscii), ('IsStaff', bool), ('MobilSmn', AsAscii)]
+    fields = 'Person,PersonNAME,Active,Complete,IsStaff,MobilSmn'
+    recs = fetch_and_dictify(sql, fields)
     employees = {}    
     for r in recs: employees[r['Person']] = r
     return employees
 
-def GetInvoices(field_list):
+def GetInvoices():
     sql = "SELECT * FROM tblInvoice WHERE InvBillingPeriod='" +  period.mmmmyyyy() + "'"
-    return records(field_list, sql)
+    fields = 'InvDate,InvBillingPeriod,InvBIA,InvUBI,InvWIP,InvAccrual,InvInvoice,'
+    fields += 'Inv3rdParty,InvTime,InvJobCode,InvComments,InvPODatabaseCosts,'
+    fields += 'InvCapital,InvStock'
+    recs = fetch_and_dictify(sql, fields)
+    return recs
 
     
 def GetJobs():
+    global jobs
+    if jobs is not None: return jobs
     sql = 'SELECT * FROM jobs ORDER BY job'
     fields = 'ID,job,title,address,references,briefclient,active,vatable,exp_factor,'
     fields += 'WIP,Weird,Autoprint,Comments,TsApprover,UtilisedPOs,'
     fields += 'PoBudget,PoStartDate,PoEndDate,ProjectManager'
     recs = fetch_and_dictify(sql, fields)
-    jobs = {}
-    for r in recs: jobs[r['job']] = r
+    result = {}
+    for r in recs: result[r['job']] = r
+    jobs = result
     return jobs
  
 
 
 
-def GetTasks(p):
+def GetTasks():
     sql = 'SELECT * FROM tblTasks ORDER BY JobCode, TaskNo'
     fields = 'JobCode,JCDescription,TaskNo,TaskDes,JobActive,TotalBudget,CSLBudget,PManager,BManager,IssuingOfficer,CapStock,AgencyFee'
     recs = fetch_and_dictify(sql, fields)
@@ -165,7 +160,7 @@ def GetTimeitems():
     
     # filter by period
     global tbl_billing 
-    per = common.find(period.billing_key(), tbl_billing, key = lambda x: x[0])
+    per = common.find(period.mmmmyyyy(), tbl_billing, key = lambda x: x[0])
     start = per[1]
     end = per[2]
     def within(x): return x['DateVal'] >= start and x['DateVal'] <= end
@@ -198,9 +193,9 @@ def fetch():
     
     # table data
     #d['period'] = p # TODO HIGH: eliminate this, as we should now be seitching over to g_period
-    d['employees'] = GetEmployees(p)
+    d['employees'] = GetEmployees()
     d['jobs'] = GetJobs()
-    d['tasks'] = GetTasks(p)
+    d['tasks'] = GetTasks()
     d['timeItems'] = GetTimeitems()
     d['charges'] = GetCharges()
     d['clients'] = GetClients()

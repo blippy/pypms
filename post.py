@@ -17,14 +17,13 @@ This query takes 3 paramemters, in the following order:
 import csv
 import datetime
 import itertools 
+import pdb
 
 import win32com.client
 
 import common
 from common import print_timing
 import db, excel, unpost
-#import invsummary
-#import invtweaks
 import period
 from common import AsAscii, AsFloat, princ
    
@@ -46,10 +45,10 @@ def InsertFreshMonth(conn):
     'Put a selection of zeros in tblInvoice'
     
     # Determine which jobs need to be recorded in tblInvoice
+    # Do we need to do nearly all of them, or just the active ones?
     invBillingPeriod = period.mmmmyyyy()
-    sql = "SELECT JobCode FROM tblTasks WHERE JobActive=Yes"
-    sql = "SELECT JobCode FROM tblTasks"
-    activeJobs = set([str(rec[0]) for rec in db.records(['JobCode'], sql)])
+    recs = db.GetTasks()
+    activeJobs = set([key[0] for key in recs.keys()])
     ignoreJobs = set(['010500', '010400', '010300', '010200', '3. Sundry', '404550'])
     jobsToCreate = activeJobs - ignoreJobs
     
@@ -98,8 +97,9 @@ def update_pms(conn, d):
     
     # Jobs requiring entries
     invBillingPeriod = period.mmmmyyyy()
-    code_records = db.GetInvoices(['InvJobCode'])
-    codes = [str(rec[0]) for rec in code_records]
+    code_records = db.GetInvoices()
+    #pdb.set_trace()
+    codes = [str(rec['InvJobCode']) for rec in code_records]
     invoices = d['auto_invoices']
     
     manual_invoices = accumulate(d)
@@ -194,4 +194,6 @@ def post_main(d):
     conn.Close()
     
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    data = db.load_state()
+    post_main(data)
+    princ("Finished")

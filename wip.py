@@ -28,8 +28,8 @@ def create_wip_lines(data):
     sql =  "SELECT InvJobCode, Sum(tblInvoice.InvUBI) AS SumOfInvUBI, "
     sql += "Sum(tblInvoice.InvWIP) AS SumOfInvWIP FROM tblInvoice GROUP BY tblInvoice.InvJobCode "
     sql += "ORDER BY tblInvoice.InvJobCode;"
-    fieldspec = [('InvJobCode', AsAscii), ('SumOfInvWIP', AsFloat), ('SumOfInvUBI', AsFloat)]
-    wips = db.RecordsList(sql, fieldspec)
+    fields = 'InvJobCode,SumOfInvWIP,SumOfInvUBI'
+    wips = db.fetch_and_dictify(sql, fields)
     wips = filter(lambda x: abs(x['SumOfInvWIP']) + abs(x['SumOfInvUBI']) >= 0.01, wips)
 
     output = []

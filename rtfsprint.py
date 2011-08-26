@@ -24,17 +24,17 @@ def work_statements():
         if f0 in ['0','5']: continue # special files that don't need to be printed
         print_file(fname)
     
-def timesheets():
-    jobs = db.records(['job'], 'SELECT job FROM jobs WHERE Autoprint=Yes ORDER BY job')
-    jobs = [x[0] for x in jobs] # flatten the jobs list
+def timesheets(debug = False):
+    jobs = [x['job'] for x in db.GetJobs().values() if x['Autoprint']]
+    jobs.sort()
     for job in jobs:
-        pattern = '{0}\\timesheets\\{1}*.rtf'.format(period.perioddir(), job)
-        files = glob.glob(pattern)
-        files.sort()
-        for fname in files: print_file(fname)
+        fname = '{0}\\timesheets\\{1}.rtf'.format(period.perioddir(), job)
+        if not os.path.isfile(fname): continue
+        if debug: print fname
+        else: print_file(fname)
 
     
 if  __name__ == "__main__":
-    #timesheets()
-    work_statements()
+    timesheets(debug = True)
+    #work_statements()
     princ("Finished xls")

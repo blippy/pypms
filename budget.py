@@ -28,8 +28,8 @@ def get_budget_line(d, job_code, cum_utilised):
 @print_timing
 def create_budget(d):
     sql = 'SELECT InvJobCode, Sum(InvUBI+InvWIP+InvInvoice) AS SumUsed FROM tblInvoice GROUP BY InvJobCode'
-    fieldspec = [('InvJobCode', str), ('SumUsed', float)]
-    recs = db.RecordsList(sql, fieldspec)
+    fields = 'InvJobCode,SumUsed'
+    recs = db.fetch_and_dictify(sql, fields)
     utilisations = {}    
     for r in recs: utilisations[r['InvJobCode']] = r['SumUsed']
     

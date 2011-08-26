@@ -116,9 +116,7 @@ class Period:
     
     def mmmmyyyy(self):
         ' Return the period in the form March 2010'
-        d = datetime.date(self.y, self.m, 1)
-        result = d.strftime('%B %Y')
-        return result
+        
     
     def first(self):
         'Return the first day of the invoice billing period in the form 01/01/2010'
@@ -232,12 +230,15 @@ def save_report(filename, text):
     
 def mmmmyyyy():
     global g_period
-    return g_period.mmmmyyyy()
+    d = datetime.date(g_period.y, g_period.m, 1)
+    result = d.strftime('%B %Y')
+    return result
+ 
 
 
 ###########################################################################
 
-def billing_key():
+def billing_keyXXX():
     'Return the billing key for the global period'
     global g_period
     months = 'January,February,March,April,May,June,July,August,September,October,November,December'

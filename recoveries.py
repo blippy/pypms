@@ -15,18 +15,24 @@ import period
 
 def get_dbase_recoveries(d):
     #=[InvBIA]+[InvUBI]+[InvWIP]+[InvAccrual]+[InvInvoice]-[Inv3rdParty]-[InvTime]
-    field_list = ['InvJobCode', 'InvComments', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime']
-    invoices = db.GetInvoices(field_list)    
+    #field_list = ['InvJobCode', 'InvComments', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime']
+    invoices = db.GetInvoices()
+    #pdb.set_trace()
 
     recoveries = {}
     for invoice in invoices:
-        job_code = common.AsAscii(invoice[0])
-        comment = invoice[1]
-        as_floats = map(float, invoice[2:])
-        InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime = as_floats
-        recovery = InvBIA + InvUBI + InvWIP + InvAccrual + InvInvoice - Inv3rdParty - InvTime
+        #def value(x): return float(invoice[x])
+        def sum_values(fields): return sum(map(lambda x: float(invoice[x]), fields))
+        job_code = common.AsAscii(invoice['InvJobCode'])
+        comment = invoice['InvComments']
+        #as_floats = map(float, invoice[2:])
+        recovery = sum_values(['InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice'])
+        #InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime = as_floats
+        #recovery = InvBIA + InvUBI + InvWIP + InvAccrual + InvInvoice - Inv3rdParty - InvTime
+        recovery -= sum_values(['Inv3rdParty', 'InvTime'])
         #if abs(recovery)< 20.0: continue # ignore immaterial recoveries
         recoveries[job_code] = recovery
+        #if job_code == '2799': pdb.set_trace()
     return recoveries
 
 def get_camel_recoveries(d):
