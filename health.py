@@ -5,13 +5,17 @@ import pdb
 
 import common
 from common import summate, mkKeyFunc, princ, print_timing
+import db
 import period
     
 ###########################################################################
 
+debug = False
 
 @print_timing
 def create_health_report(d):
+    #db.save_state(d)
+    global debug
     stats = {}
     
     total_all_hours = 0.0
@@ -44,6 +48,7 @@ def create_health_report(d):
         full_name = employee['PersonNAME']
         time_val = mkKeyFunc('TimeVal')
 
+        #if debug and employee_initials == "AM": pdb.set_trace()
         staff_hours = summate(worker_times, time_val, lambda(x): employee['IsStaff'])
         total_staff_hours += staff_hours
                 
@@ -71,4 +76,7 @@ def create_health_report(d):
 ###########################################################################
 
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    debug = True
+    data = db.load_state()
+    create_health_report(data)
+    princ("Finished")

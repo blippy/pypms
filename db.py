@@ -103,7 +103,7 @@ def ExecuteSql(sql):
 def GetEmployees():
     sql = 'SELECT * FROM tblEmployeeDetails'
     #fieldspec = [('Person', AsAscii), ('PersonNAME', AsAscii), ('IsStaff', bool), ('MobilSmn', AsAscii)]
-    fields = 'Person,PersonNAME,Active,Complete,IsStaff,MobilSmn'
+    fields = 'Person,PersonNAME,PersonCompany,Active,Complete,IsStaff,MobilSmn'
     recs = fetch_and_dictify(sql, fields)
     employees = {}    
     for r in recs: employees[r['Person']] = r

@@ -95,6 +95,9 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu.AppendItem(self.menu_data_jobs)
         self.menu_data_timegrid = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Time grid", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_data_timegrid)
+        wxglade_tmp_menu.AppendSeparator()
+        self.menu_data_pickle = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Pickle", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_data_pickle)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Data")
         wxglade_tmp_menu = wx.Menu()
         self.menu_externals_expenses = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Expenses", "", wx.ITEM_NORMAL)
@@ -135,6 +138,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_data_expenses_selected, self.menu_data_expenses)
         self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
         self.Bind(wx.EVT_MENU, self.menu_data_timegrid_selected, self.menu_data_timegrid)
+        self.Bind(wx.EVT_MENU, self.menu_data_pickle_selected, self.menu_data_pickle)
         self.Bind(wx.EVT_MENU, self.menu_externals_expenses_selected, self.menu_externals_expenses)
         self.Bind(wx.EVT_MENU, self.menu_externals_gizmo_selected, self.menu_externals_gizmo)
         self.Bind(wx.EVT_MENU, self.menu_externals_html_selected, self.menu_externals_html)
@@ -157,6 +161,7 @@ class MainFrame(wx.Frame):
         registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_expenses, 'expenses_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_invoices, 'invoices_as_text', True)
+        self.cache = None
         
         # redirect stdout and sterr to window
         redir = RedirectText(self.text_output)
@@ -263,12 +268,12 @@ class MainFrame(wx.Frame):
                 invsummary.create_excel_invoice_summary(invoices)
                 
             post.post_main(cache)
-            #db.save_state(cache) # TODO remove
             recoveries.create_recovery_report(cache)
             wip.create_wip_report(cache, self.cbox_text_wip.IsChecked())
             budget.create_budget(cache)
             health.create_health_report(cache)
             html.create_html()
+            self.cache = cache # useful if we want to pickle it
             princ('Finished')
             
             
@@ -328,6 +333,8 @@ class MainFrame(wx.Frame):
         if not self.expenses_frame.IsShown():
             self.expenses_frame.Show()
 
+    def menu_data_pickle_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        db.save_state(self.cache)
 
 
 # end of class MainFrame
