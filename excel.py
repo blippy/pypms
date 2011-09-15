@@ -9,15 +9,19 @@ from common import princ
 import period
 
  
- 
+###########################################################################
+
+MAX_ROWS = 65535
+MAX_COLS = 255
         
 ###########################################################################
 
 def gcell(ws, r, c):
     'Return the contents of a cell as text'
+    #print r, " ", c
     return ws.Cells(r, c).Text
 
-def read_worksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
+def read_worksheet(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
     '''max_rows - the maximum number of rows you are prepared to import (default = 70000)
     max_cols - ditto for columns (default = 300)
     '''
@@ -54,8 +58,8 @@ def prune_results(sloppy, numActualRows, numActualCols):
     return pruned
 
 
-def ImportWorksheet(fileName, wsName, max_rows = 70000, max_cols = 300):
-    sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName, max_rows = 70000, max_cols = 300)
+def ImportWorksheet(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+    sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName, max_rows, max_cols)
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned
 
@@ -67,11 +71,11 @@ def camelxls():
     #princ(file_name)
     return file_name
 
-def ImportCamelWorksheet(wsName, max_rows = 70000, max_cols = 300):
+def ImportCamelWorksheet(wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
     #def camelxls():
     #'Return the filename for the Camel Excel input file'
     #fname = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (period.g_period.y, period.g_period.yyyymm())
-    return ImportWorksheet(camelxls(), wsName, max_rows = 70000, max_cols = 300)
+    return ImportWorksheet(camelxls(), wsName, max_rows, max_cols)
     
 ###########################################################################
 

@@ -1,16 +1,21 @@
 # Extract expenses from the spreadsheet
 
+
+
+import pdb
 import time
 
 import win32com.client.dynamic
 
 import common
+import db
 import dbnew
 from dbnew import TableCache
 import excel
 import period
 from common import princ, print_timing
 
+debug = False
 
 
 
@@ -75,22 +80,15 @@ class ExpenseCache(TableCache):
             # TODO Consider zapping Excel output option if considered unecessary
             excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
     
-#cache = db.TableCache('tblCamelExpenses')
 cache = ExpenseCache()
-#print cache.table_name
 
 
-    
-
-
-  
-###########################################################################
-
-def main(d):
-    read_expenses(d)
-    create_report(d)
-    
 ###########################################################################
 
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    debug = True
+    cache.import_expenses()
+    cache.create_expense_report(True)
+    pdb.set_trace()
+    princ("Finished")
+
