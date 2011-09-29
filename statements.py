@@ -73,6 +73,8 @@ class Section:
  
 ###########################################################################
  
+class LineItem: pass
+
 def subtotal(out, desc, value):
     'Output a subtotal'
     #FIXME - devise a better way so that the format depends on whether something is a string or a number
@@ -83,10 +85,9 @@ def ProcessSubsection(out, items, subtotalTitle):
     if len(items) == 0: return 0, 0 # don't do anything if there are no items
     total = 0
     for el in items:
-        desc, qty, price = el['desc'], el['qty'], el['price']
-        value = round(qty * price, 2)
+        value = round(el.qty * el.price, 2)
         total += value
-        text = '   {0:41.41s}{1:9.2f}{2:9.2f}{3:9.2f}'.format(desc , qty, price, value)
+        text = '   {0:41.41s}{1:9.2f}{2:9.2f}{3:9.2f}'.format(el.desc , el.qty, el.price, value)
         out.add(text)
        
     numItems = len(items)
@@ -170,15 +171,15 @@ def CreateJobStatmentXXX(jobKey, invItems, d):
     d['auto_invoices'][jobKey] = invoice
 
 
-def create_job_statement(job, all_tasks, times, exps):
+def create_job_statement(job, all_tasks, exps, times):
 
 
     title = "Work Statement: %s" % (period.mmmmyyyy())
     out = rtf.Rtf()
     out.addTitle(title)
     AddTopInfo(out, job)          
-    exp_factor = job['exp_factor']
-    # TODO - print a warning if exp_factor > 1.05
+
+
 
     job_code = job['job']
     time_tasks = set([t['Task'] for t in times])
@@ -195,8 +196,12 @@ def create_job_statement(job, all_tasks, times, exps):
             desc = all_tasks[(job_code, task_key)]['JCDescription']
             heading = 'Task {0}: {1}'.format(task_key,desc)
         out.add(heading)
-        ProcessSubsection(out, times, 'Work subtotal')
+        
+ 
+        ProcessSubsection(out, times, 'Work subtotal')        
         ProcessSubsection(out, exps, 'Expenses subtotal')
+        
+        
         # TODO NOW
         print job_code, " ", heading
         #s = create_section(task)
@@ -290,6 +295,7 @@ def create_statementsXXX(d):
 
 def create_statements(d):
     
+    # TODO - print a warning if exp_factor > 1.05
     work_codes = set([common.AsAscii(t['JobCode']) for t in d['timeItems']])
     expense_codes = set([e['JobCode'] for e in expenses.cache.expenses])
     job_codes = list(work_codes.union(expense_codes))
@@ -298,10 +304,30 @@ def create_statements(d):
     for job_code in job_codes:
         #pdb.set_trace()
         if job_code[0:2] == "01": continue
-        job = d['jobs'][job_code]
-        times = [ t for t in d['timeItems'] if t['JobCode'] == job_code]
-        exps = [ e for e in expenses.cache.expenses if e['JobCode'] == job_code]
-        create_job_statement(job, d['tasks'], times, exps)
+        job = d['jobs'][job_code]        
+        
+        exps = []
+        for exp in expenses.cache.expenses:
+            if exp['JobCode'] <> job_code: continue
+            item = LineItem()
+            item.task = exp['Task']
+            item.desc = '{0} - {1} - {2}'.format(exp['Period'], exp['Name'], exp['Desc'])
+            item.qty  = job['exp_factor']
+            item.price = exp['Amount']
+            exps.append(item)
+
+        times = []
+        for tim in d['timeItems']:
+            if exp['JobCode'] <> job_code: continue
+            item = LineItem()
+            item.task = tim['Task']
+            item.desc = "TODO NOW"
+            item.qty = "TODO NOW"
+            item.price = "TODO NOW"
+            times.append(item)
+            
+        if len(exps) > 0 or len(times)> 0:
+            create_job_statement(job, d['tasks'], exps, times)
         
 
 
