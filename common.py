@@ -115,6 +115,14 @@ def find(item, sequence, key):
     return None
 
     
+###########################################################################
+# list functions
+
+def unique(alist):
+    result = []
+    for el in alist:
+        if el not in result: result.append(el)
+    return result
 
 ###########################################################################
 # aggregation routines

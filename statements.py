@@ -97,80 +97,6 @@ def ProcessSubsection(out, items, subtotalTitle):
     
 ###########################################################################
 
-def CreateJobStatmentXXX(jobKey, invItems, d):
-    if jobKey[0:2] == "01": return
-
-    job = d['jobs'][jobKey]
-    title = "Work Statement: %s" % (period.mmmmyyyy())
-    out = rtf.Rtf()
-    out.addTitle(title)
-    AddTopInfo(out, job)
-    
-    invItems = list(invItems)
-      
-    exp_factor = job['exp_factor']
-    # TODO - print a warning if exp_factor > 1.05
-    
-    # distribute invoice items into sections
-    sections = [] # a list of Section classes
-    for taskKey, taskGroup in aggregate(invItems, common.mkKeyFunc('Task')):
-        s = Section()
-        if taskKey == '' : 
-            s.heading = 'Expenses not categorised to a specific task'
-            s.ordering = 'ZZZ'
-        else:
-            s.heading = 'Task {0}: {1}'.format(taskKey, db.task_desc(d, jobKey, taskKey))
-            s.ordering = s.heading
-            
-        for item in taskGroup: 
-            # FIXME - I think we aggregated work and expenses together - now we're splitting them out - which doesn't make sense - we should have kept them spearate in the first place
-            if item['iType'] == typeWork: 
-                person = item['Person']
-                price = d['charges'][(jobKey, taskKey, person)]
-                personName = db.initials_to_name(d, person)
-                s.AddWork(item, price, personName)
-            else: s.AddExpense(item, exp_factor)
-        sections.append(s)
-    
-
-        
-    # output the sections
-    sections.sort(key= lambda x: x.ordering)    
-    totalWork = 0
-    totalExpenses = 0
-    for s in sections:
-        out.add(s.heading)
-        work, numPeople = ProcessSubsection(out, s.Work(), 'Work subtotal')
-        expenses, numExpenses = ProcessSubsection(out, s.expenseEntries, 'Expenses subtotal')
-        totalWork += work
-        totalExpenses += expenses
-        if numPeople > 0 and numExpenses >0: 
-            subtotal(out, 'Task subtotal', work+expenses)
-            out.para()
-        
-    # output grand summary
-    out.add('Overall summary')
-    subtotal(out, 'Work total', totalWork)
-    subtotal(out, 'Expenses total', totalExpenses)
-    net = totalWork+totalExpenses
-    subtotal(out, 'Net total', net)
-
-     
-    out.annotation(job, '')
-    #out.save(d['period'].outDir() + '\\statements', jobKey + '.rtf')
-    outdir = period.perioddir() + '\\statements'
-    outfile = jobKey + '.rtf'
-    out.save(outdir, outfile)
-    
-    # remember what we have produced for the invoice summaries
-    if job['Weird'] or job['WIP']: 
-        billed = 0.0
-    else:
-        billed = net
-    invoice = { 'work': totalWork , 'expenses': totalExpenses, 'net': billed}
-    d['auto_invoices'][jobKey] = invoice
-
-
 def create_job_statement(job, all_tasks, exps, times):
 
 
@@ -180,17 +106,17 @@ def create_job_statement(job, all_tasks, exps, times):
     AddTopInfo(out, job)          
 
 
-
-    job_code = job['job']
-    time_tasks = set([t['Task'] for t in times])
-    exp_tasks = set([e['Task'] for e in exps])
-    tasks = list(time_tasks.union(exp_tasks))
-    tasks.sort()    
+    tasks = map(lambda o: getattr(o, 'task'), times + exps)
+    tasks = common.unique(tasks)
+    tasks.sort()
     if tasks[0] == '' and len(tasks)>1: tasks = tasks[1:] + [tasks[0]] # rotate unassigned to end
 
     # distribute invoice items into sections
+    job_code = job['job']
     sections = [] # a list of Section classes
     for task_key in tasks:
+        
+        # work out heading
         if len(task_key) == 0: heading = 'Expenses not categorised to a specific task'
         else: 
             desc = all_tasks[(job_code, task_key)]['JCDescription']
@@ -268,31 +194,6 @@ def create_job_statement(job, all_tasks, exps, times):
 
 ###########################################################################
 
-@print_timing
-def create_statementsXXX(d):
-    
-    # create invoice items
-    invItems = []        
-    def AddItem(item, typeText, typeValue):
-        x['iType'] = typeValue
-        
-        # FIXME - use common.assert_job instead of this:
-        if not d['jobs'].has_key(x['JobCode']):
-            fmt = "Found {0} with Jobcode '{1}', but no entry in jobs table"
-            msg = fmt.format(typeText, x['JobCode'])
-            raise common.DataIntegrityError(msg)
-        
-        invItems.append(x)
-    for x in d['timeItems']: AddItem(x, "time item", typeWork)        
-    for x in expenses.cache.expenses: AddItem(x, "expense", typeExpense)
-    
-    def invSorter(a, b): return cmp(a['JobCode'], b['JobCode']) or cmp(a['Task'], b['Task']) or (a['iType'] < b['iType'])        
-    invItems.sort(invSorter)
-        
-    d['auto_invoices'] = {}
-    for jobKey, jobGroup in aggregate(invItems, common.mkKeyFunc('JobCode')): 
-        CreateJobStatment(jobKey, jobGroup, d)
-
 def create_statements(d):
     
     # TODO - print a warning if exp_factor > 1.05
@@ -318,12 +219,13 @@ def create_statements(d):
 
         times = []
         for tim in d['timeItems']:
-            if exp['JobCode'] <> job_code: continue
+            if tim['JobCode'] <> job_code: continue
             item = LineItem()
+            #if job_code == '2825': pdb.set_trace()
             item.task = tim['Task']
-            item.desc = "TODO NOW"
-            item.qty = "TODO NOW"
-            item.price = "TODO NOW"
+            item.desc = tim['Person']
+            item.qty = tim['TimeVal']
+            item.price = job['exp_factor']
             times.append(item)
             
         if len(exps) > 0 or len(times)> 0:

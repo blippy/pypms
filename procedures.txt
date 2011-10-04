@@ -1,35 +1,13 @@
 PROCEDURES
 
-run pydra.bat
+======================================================================================
+DEVELOPER PROCEDURES
 
-stage1() - purely time-related activities:
-  dbg() - Fetch data for the action period into the cache  
-  times() - create timesheets
+syncit - use rsync to copy files from the M drive to the C drive
 
-stage2() - does the following:
-  expg() - Fetch expenses from spreadsheet for period.
-  exps() - Create expenses spreadsheet.
-  works() - create the invoice work statements
+======================================================================================
+USER PROCEDURES
 
-Adjust camel.xls!InvTweaks
-
-stage3() - does the following:
-  invsummary - creates invoices.xls, monthrec.txt
-  invtweaks
-  post - !DANGER! - it removes current invoice information for month
-  recoveries
-  wip - creates wip.xls
-  invsummary - creates reconciliation report
-  
-stage4() - sundry report creation:
-  budgets() - generate budgets
-  health.main() - generate Jon's health and safety report
-  mobils() - generate the Mobil workstatement
-
-ptimes() - print the timesheets
-
-quit() - exit out of the whole thing
-  
 Send to Craig:
   invoice summary spreadsheet
   chargeability report
