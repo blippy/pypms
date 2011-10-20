@@ -145,6 +145,7 @@ def aggregate(seq, keyfunc):
     lis.sort(key = lambda x: x[0]) # sort on the key
     
     return lis
+
     
 def always(*kargs): return True
 
@@ -155,6 +156,13 @@ def summate(seq, keyfunc, test = always):
         v = keyfunc(el)
         if test(el): total +=v
     return total
+
+def summate_to_dict(seq, keyfunc, valuefunc):
+    "Return a dictionary with key values determined by KEYFUNC, and values determined by VALUEFUNC, over SEQ"
+    result = {}
+    for el in seq:
+        dplus(result, keyfunc(el), valuefunc(el))
+    return result
     
 def summate_cols(matrix):
     "Sum a list of list of values. E.g. summate_cols([[1,2],[3,4]]) # [4,6]"

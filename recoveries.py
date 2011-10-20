@@ -52,7 +52,7 @@ def get_camel_recoveries(d):
 ###########################################################################
 
 
-def line(amount, comment): return  '    %9.2f %s\n' % (amount, comment)
+def line(amount, comment): return  '    %9.2f %s' % (amount, comment)
 
 ###########################################################################
 
@@ -61,7 +61,7 @@ def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
     job_code = job['job']
     wip = common.tri(job['WIP'], 'wip' , '') 
     weird = common.tri(job['Weird'], 'weird ', '')
-    output = 'JOB %s %s %s\n' % (job_code, wip, weird)
+    output = ['JOB %s %s %s' % (job_code, wip, weird)]
     
     #output += '  Per InvTweaks\n'
     tweak_total = 0.0
@@ -69,15 +69,16 @@ def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
     for tweak in camel_job_recoveries:
         amount, comment = tweak
         tweak_total += amount
-        output += line(amount, comment)
-    output += line(tweak_total , 'TWEAK TOTAL')
+        output.append(line(amount, comment))
+    output.append(line(tweak_total , 'TWEAK TOTAL'))
 
         
     
-    output += line(db_job_recovery , 'PMS RECOVERY')
+    output.append(line(db_job_recovery , 'PMS RECOVERY'))
     diff = tweak_total - db_job_recovery
     flag = common.tri(abs(diff) > 20.0, ' **** CHECK THIS', '')
-    output += line(diff , 'DIFF' + flag + '\n\n')
+    output.append(line(diff , 'DIFF' + flag))
+    output += ['']
     return tweak_total, output
 
 ###########################################################################
@@ -90,7 +91,7 @@ def create_recovery_report(d):
     for k, v in db_recoveries.items():
         if abs(v) >= 0.01: jobcodes_to_process.add(k)    
     jobcodes_to_process = sorted(list(jobcodes_to_process))
-    output = 'RECOVERY RECONILIATION\n\n'
+    output = ['RECOVERY RECONILIATION', '']
 
     #pdb.set_trace()
 
@@ -105,10 +106,10 @@ def create_recovery_report(d):
         tweaks_grand_total += tweak_amount
         pms_grand_total += db_job_recovery
        
-    output += 'SUMMARY:\n'
-    output += line(tweaks_grand_total, 'TWEAKS GRAND TOTAL')
-    output += line(pms_grand_total, 'PMS GRAND TOTAL')
-    output += line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF')        
+    output.append('SUMMARY:')
+    output.append(line(tweaks_grand_total, 'TWEAKS GRAND TOTAL'))
+    output.append(line(pms_grand_total, 'PMS GRAND TOTAL'))
+    output.append(line(tweaks_grand_total - pms_grand_total, 'OVERALL DIFF'))
     period.save_report('recoveries.txt', output)
     
         
