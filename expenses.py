@@ -13,7 +13,7 @@ import dbnew
 from dbnew import TableCache
 import excel
 import period
-from common import princ, print_timing
+from common import dget, princ, print_timing
 
 debug = False
 
@@ -39,7 +39,7 @@ class ExpenseCache(TableCache):
                 try: expense[fieldName] = fieldType(text)
                 except ValueError: pass
             job_code = expense['JobCode']
-            if job_code == '': continue
+            if job_code == '' or not expense.has_key('Amount'): continue
         
             # peform error checking
             # TODO should possibly reinstate this somehow
@@ -59,15 +59,16 @@ class ExpenseCache(TableCache):
         output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
         sorted_expenses = sorted(self.expenses, key= lambda x: x['JobCode'])
         for expense_item in sorted_expenses:
-            job_code = expense_item['JobCode']
-            per = expense_item['Period']
-            name = expense_item['Name']
-            desc = expense_item['Desc']
+            job_code = dget(expense_item,'JobCode', "")
+            per = dget(expense_item, 'Period', "")
+            name = dget(expense_item, 'Name', "")
+            desc = dget(expense_item, 'Desc', "")
             desc_upper = desc.upper()
             if 'ACCOM' in desc_upper: desc += ' - Munros'
             if 'FLIGHT' in desc_upper: desc += ' - Munros'
             if 'TAXI' in desc_upper: desc += ' - Rainbow'        
-            amount = expense_item['Amount']
+            amount = dget(expense_item, 'Amount', 0.0)
+            if amount == 0.0: continue
             total += amount
             output.append([job_code, amount, per, '', name, '', desc])
 

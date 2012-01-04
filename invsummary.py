@@ -43,7 +43,7 @@ def import_manual_invoices(d):
         if job =='Job' or job == '' or job == "TOTAL:": continue
         if not d['jobs'].has_key(job):
             fmt = "ERR: No database job '{0}' camel workbook '{1}' sheet manualInvoices row {2}"
-            msg = fmt.format(job, input_filename, row_num)
+            msg = fmt.format(job, excel.camelxls(), row_num)
             raise common.DataIntegrityError(msg)
         net = common.AsFloat(net)        
         manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
