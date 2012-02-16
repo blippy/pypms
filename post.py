@@ -64,10 +64,10 @@ def InsertFreshMonth(conn):
 
 ###########################################################################
 
-def accumulate_tweaks(d):
+def accumulate_tweaks(d, xl):
     '''Accumulate invoice tweaks to job level'''
 
-    xl = excel.ImportCamelWorksheet('InvTweaks')
+    #xl = excel.ImportCamelWorksheet('InvTweaks')
     field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
     f = common.AsFloat
     field_types = [str, f, f, f, f, f, f, f, f, str]
@@ -91,7 +91,7 @@ def accumulate_tweaks(d):
 
 ###########################################################################
 
-def update_pms(conn, d):
+def update_pms(conn, d, xl_invtweaks):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
     
@@ -103,7 +103,7 @@ def update_pms(conn, d):
     invoices = d['auto_invoices']
     
     manual_invoices = accumulate(d)
-    tweaks = accumulate_tweaks(d)
+    tweaks = accumulate_tweaks(d, xl_invtweaks)
     
     for code in codes:
         
@@ -184,12 +184,12 @@ def add_purchase_orders(conn):
 ###########################################################################
 
 @print_timing
-def post_main(d):
+def post_main(d, xl_invtweaks):
     conn = db.DbOpen()
     #import_manual_invoices(d)
     unpost.zap_entries()
     InsertFreshMonth(conn)
-    update_pms(conn, d)
+    update_pms(conn, d, xl_invtweaks)
     add_purchase_orders(conn)
     conn.Close()
     

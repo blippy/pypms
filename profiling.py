@@ -2,9 +2,9 @@ import cProfile
 import io
 import pstats
 
-import excel
+#import excel
 import pydra
-import pypms
+#import pypms
 from common import princ
 
 __raw_profile_file = '../profresults.dat'
@@ -23,11 +23,9 @@ def create_readable_profile():
     ostream.close()
 
 def main():
-    #create_raw_profile('pypms.protectedProcess(True)')
-    #create_raw_profile('pydra.init(); pydra.stage2()')
-    create_raw_profile('excel.ImportWorksheet("M:/Finance/camel/2010/camel-2010-07.xls", "Expenses")')    
-    
-    
+    #cmd = 'excel.ImportWorksheet("M:/Finance/camel/2010/camel-2010-07.xls", "Expenses")'
+    cmd = 'pydra.main()'
+    create_raw_profile(cmd)    
     create_readable_profile()
     
 if  __name__ == "__main__":

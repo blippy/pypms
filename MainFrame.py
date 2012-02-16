@@ -18,23 +18,11 @@ import sys
 
 import win32api
 
-import budget
 import common
 from common import princ, print_timing
-import db
-import excel
-import expenses
-import health
-import html
-import invsummary
 import period
-import post
-import recoveries
+import pydra
 import registry
-import rtfsprint
-import statements
-import timesheets
-import wip
 
 
 import ExpensesFrame
@@ -85,6 +73,10 @@ class MainFrame(wx.Frame):
         # begin wxGlade: MainFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
+        self.notebook_1 = wx.Notebook(self, -1, style=0)
+        self.notebook_options = wx.Panel(self.notebook_1, -1)
+        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
+        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         
         # Menu Bar
         self.frmMain_menubar = wx.MenuBar()
@@ -119,17 +111,15 @@ class MainFrame(wx.Frame):
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Print")
         self.SetMenuBar(self.frmMain_menubar)
         # Menu Bar end
-        self.notebook_1 = wx.Notebook(self, -1, style=0)
-        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
         self.btn_inc_period = wx.Button(self.notebook_1_pane_2, -1, "+")
-        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
         self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
         self.cbox_text_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Expenses as text, not XL")
         self.cbox_text_invoices = wx.CheckBox(self.notebook_1_pane_1, -1, "Invoice summary as text, not XL")
         self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
+        self.cbox_single_input_spreadsheet = wx.CheckBox(self.notebook_options, -1, "Single Input Spreadsheet")
         self.text_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
 
         self.__set_properties()
@@ -161,6 +151,7 @@ class MainFrame(wx.Frame):
         registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_expenses, 'expenses_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_invoices, 'invoices_as_text', True)
+        registry.RegistryBoundCheckbox(self, self.cbox_single_input_spreadsheet, 'single_input_spreadsheet', False)
         self.cache = None
         
         # redirect stdout and sterr to window
@@ -208,6 +199,7 @@ class MainFrame(wx.Frame):
     def __do_layout(self):
         # begin wxGlade: MainFrame.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        sizer_15 = wx.BoxSizer(wx.VERTICAL)
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
         sizer_5 = wx.BoxSizer(wx.VERTICAL)
         sizer_10 = wx.BoxSizer(wx.HORIZONTAL)
@@ -222,8 +214,11 @@ class MainFrame(wx.Frame):
         sizer_3.Add(self.cbox_text_invoices, 0, 0, 0)
         sizer_3.Add(self.cbox_text_wip, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
+        sizer_15.Add(self.cbox_single_input_spreadsheet, 0, 0, 0)
+        self.notebook_options.SetSizer(sizer_15)
         self.notebook_1.AddPage(self.notebook_1_pane_2, "Settings")
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
+        self.notebook_1.AddPage(self.notebook_options, "Options")
         sizer_1.Add(self.notebook_1, 0, wx.EXPAND, 0)
         sizer_1.Add(self.text_output, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_1)
@@ -248,36 +243,8 @@ class MainFrame(wx.Frame):
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         p = period.g_period
         question = 'Process period {0}?'.format(p.yyyymm())
-        if not long_calc(self, question): return
-    
-        @print_timing
-        def really_process():            
-            p.describe()
-            cache = db.fetch()
-            timesheets.create_timesheets(cache)
-            if self.cbox_expenses.IsChecked():
-                expenses.cache.import_expenses()
-                expenses.cache.create_expense_report(self.cbox_text_expenses.IsChecked())    
-            statements.create_statements(cache)
-            
-            invsummary.import_manual_invoices(cache)            
-            invoices = invsummary.enumerate_invoices(cache)
-            if self.cbox_text_invoices.IsChecked():
-                invsummary.create_text_invoice_summary(invoices)
-            else:
-                invsummary.create_excel_invoice_summary(invoices)
-                
-            post.post_main(cache)
-            recoveries.create_recovery_report(cache)
-            wip.create_wip_report(cache, self.cbox_text_wip.IsChecked())
-            budget.create_budget(cache)
-            health.create_health_report(cache)
-            html.create_html()
-            self.cache = cache # useful if we want to pickle it
-            princ('Finished')
-            
-            
-        really_process()
+        if not long_calc(self, question): return    
+        self.cache = pydra.main()
         wx.MessageBox('Finished', 'Info')
 
 

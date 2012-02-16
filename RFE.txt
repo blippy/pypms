@@ -1,16 +1,12 @@
-In current statements.py work:
-- 2605 multiple tasks
-- 2642 uncategorised expenses
+Some of the externals menu items don't work
+
+To speed up excel importation, export it as CSV files first
 
 write a gizmo equivalent
-
-To speed up excel importation, allow caps on the number of rows and columns imported
 
 show the cursor waiting when the app is chugging away
 
 Create an unposting facility
-
-Currently working on expenses form
 
 email chargeability report
 

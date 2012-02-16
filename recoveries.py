@@ -35,11 +35,10 @@ def get_dbase_recoveries(d):
         #if job_code == '2799': pdb.set_trace()
     return recoveries
 
-def get_camel_recoveries(d):
-    xl = excel.ImportCamelWorksheet('InvTweaks')
+def get_camel_recoveries(d, xl_invtweaks):
+    #xl = excel.ImportCamelWorksheet('InvTweaks')
     recoveries = {}
-
-    for line in xl[1:]:
+    for line in xl_invtweaks[1:]:
         job_code = line[0]
         amount = common.AsFloat(line[8])
         if amount == 0.0: continue
@@ -83,9 +82,9 @@ def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
 
 ###########################################################################
 @print_timing
-def create_recovery_report(d):
+def create_recovery_report(d, xl_invtweaks):
     
-    camel_recoveries = get_camel_recoveries(d)
+    camel_recoveries = get_camel_recoveries(d, xl_invtweaks)
     jobcodes_to_process = set(camel_recoveries.keys())
     db_recoveries = get_dbase_recoveries(d)
     for k, v in db_recoveries.items():

@@ -254,6 +254,7 @@ def AsFloat(text):
 
 def print_timing(func):
     show_timing = False
+    #show_timing = True
     def wrapper(*arg):
         if show_timing: princ("Executing {0}".format(func.func_name))
         t1 = time.time()

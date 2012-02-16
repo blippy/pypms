@@ -21,7 +21,7 @@ def gcell(ws, r, c):
     #print r, " ", c
     return ws.Cells(r, c).Text
 
-def read_worksheet(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+def read_worksheetXXX(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
     '''max_rows - the maximum number of rows you are prepared to import (default = 70000)
     max_cols - ditto for columns (default = 300)
     '''
@@ -48,7 +48,7 @@ def read_worksheet(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
     del xlapp
     return sloppy, numActualRows, numActualCols
 
-def prune_results(sloppy, numActualRows, numActualCols):
+def prune_resultsXXX(sloppy, numActualRows, numActualCols):
     # now reduce the number of rows and columns read in
     sloppy = sloppy[0:numActualRows]
     pruned = []
@@ -58,20 +58,21 @@ def prune_results(sloppy, numActualRows, numActualCols):
     return pruned
 
 
-def ImportWorksheet(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+def ImportWorksheetXXX(fileName, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+    
     sloppy, numActualRows, numActualCols = read_worksheet(fileName, wsName, max_rows, max_cols)
     pruned = prune_results(sloppy, numActualRows, numActualCols)
     return pruned
 
 
-def camelxls():
+def camelxlsXXX():
     #global g_period
     p = period.g_period
-    file_name = "M:\\Finance\\camel\\{0}\\camel-{1}.xls".format(p.y,p.yyyymm())  # M:\Finance\camel\2011\camel-2011-04.xls
+    file_name = "M:\\Finance\\pypms\\{0}\\pypms.xls".format(p.yyyymm())  # M:\Finance\camel\2011\camel-2011-04.xls
     #princ(file_name)
     return file_name
 
-def ImportCamelWorksheet(wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+def ImportCamelWorksheetXXX(wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
     #def camelxls():
     #'Return the filename for the Camel Excel input file'
     #fname = 'M:\\Finance\\camel\\%s\\camel-%s.xls' % (period.g_period.y, period.g_period.yyyymm())
@@ -127,12 +128,61 @@ def create_report(desc, list_of_rows, numeric_fields):
     file_name = period.reportfile(desc.lower() + '.xls')
     create_workbook(file_name, excel_func)
     
+###########################################################################
+def read_worksheet(wb, wsName, max_rows = MAX_ROWS, max_cols = MAX_COLS):
+    ws = wb.Worksheets(wsName)    
+    numApproxRows = min(max_rows, ws.UsedRange.Rows.Count) # not necessarily truly accurate, but good enough
+    numApproxCols = min(max_cols, ws.UsedRange.Columns.Count) # ditto
+    numActualRows = 0
+    numActualCols = 0
+    sloppy = []
+    for rowNum in xrange(0, numApproxRows):
+        row = []
+        for colNum in xrange(0,numApproxCols):
+            value = common.AsAscii(gcell(ws, rowNum+1, colNum+1))
+            row.append(value)
+            if len(value) > 0:
+                numActualRows = rowNum +1
+                if colNum >= numActualCols: numActualCols = colNum+1  
+        sloppy.append(row)           
+    sloppy = sloppy[0:numActualRows]
     
+    pruned = []
+    for sloppyRow in sloppy:
+        row = sloppyRow[0:numActualCols]
+        pruned.append(row)        
+    return pruned
+
+
+def import_excel_data():
+    xlapp = None
+    wb = None    
+    try:
+        p = period.g_period
+        file_name = "M:\\Finance\\pypms\\{0}\\pypms.xls".format(p.yyyymm()) 
+        excel_data = {}
+        xlapp = win32com.client.dynamic.Dispatch("Excel.Application")
+        wb = xlapp.Workbooks.Open(file_name)
+        for sheet in [('Expenses', 200, 10), ('InvTweaks', 200, 10) , ('ManualInvoices', 200, 7)]:
+            wsname, mrows, mcols = sheet
+            excel_data[wsname] = read_worksheet(wb, wsname, mrows, mcols)
+
+    finally:
+        if wb is not None: wb.Close(SaveChanges = 0)
+        if xlapp is not None:
+            xlapp.Quit()
+            del xlapp
+    return excel_data # sloppy, numActualRows, numActualCols
+
+
+###########################################################################
 if  __name__ == "__main__":
-    def xlfunc(wb):
-        ws = wb.Worksheets('Sheet1')
-        ws.Cells(1,1).Value = 'Basic test works'
-    fname = 'c:\\test.xls'
-    create_workbook(fname, xlfunc)
-    princ('Simple spreadsheet created at ' + fname)
+    data = import_excel_data()
+    princ(data)
+    #def xlfunc(wb):
+    #    ws = wb.Worksheets('Sheet1')
+    #    ws.Cells(1,1).Value = 'Basic test works'
+    #fname = 'c:\\test.xls'
+    #create_workbook(fname, xlfunc)
+    #princ('Simple spreadsheet created at ' + fname)
     princ('Finished')

@@ -21,12 +21,12 @@ def number(input): return '%.2f' % (input)
 ###########################################################################
 
 @print_timing
-def import_manual_invoices(d):
+def import_manual_invoices(d, invoiceLines):
     'Import invoices entered manually in spreadsheet'
 
     #pdb.set_trace()
     #input_filename = period.camelxls()
-    invoiceLines = excel.ImportCamelWorksheet('ManualInvoices')
+    #invoiceLines = excel.ImportCamelWorksheet('ManualInvoices')
     
     def nth(row, index):
         try: result = row[index]
