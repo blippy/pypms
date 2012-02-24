@@ -18,7 +18,8 @@ def create_readable_profile():
     global __raw_profile_file
     ostream = io.open('..\\profile.txt', mode = 'wb')
     p = pstats.Stats(__raw_profile_file, stream = ostream)
-    p.sort_stats('cumulative')
+    p.sort_stats('time')
+    #p.sort_stats('cumulative')
     p.print_stats()
     ostream.close()
 
@@ -30,4 +31,3 @@ def main():
     
 if  __name__ == "__main__":
     main()
-    princ('Finished')

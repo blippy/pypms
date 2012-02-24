@@ -1,5 +1,3 @@
-Some of the externals menu items don't work
-
 To speed up excel importation, export it as CSV files first
 
 write a gizmo equivalent
