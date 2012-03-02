@@ -1,3 +1,3 @@
-rem c:\python26\python.exe pypms.py
-cmd
+start c:\python26\pythonw.exe pydrag.pyw
+clear
 exit
