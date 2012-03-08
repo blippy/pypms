@@ -21,6 +21,7 @@ import win32api
 
 import common
 from common import princ, print_timing
+import db
 import excel
 import period
 import pydra

@@ -166,10 +166,10 @@ def add_purchase_orders(conn):
         tblPurchaseOrders.PONumber = tblPurchaseItems.PONumber
         WHERE (((tblPurchaseOrders.PODate) Between #%s# And #%s#))
         GROUP BY tblPurchaseItems.POJobCode"""
-    fmt = "SELECT * FROM qryPO WHERE BillingPeriod='%s'"
+    fmt = "SELECT Code, Cost FROM qryPO WHERE BillingPeriod='%s'"
     sql = fmt % (p.yyyymm())
     costs = {}
-    for rec in db.records(['Code', 'Cost'], sql):
+    for rec in db.fetch_all(sql):
         costs[str(rec[0])] = rec[1]
     
     # Add PO costs to database
