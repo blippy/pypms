@@ -45,7 +45,7 @@ def main():
     budget.create_budget(cache)
     health.create_health_report(cache)
     html.create_html()
-    princ('Finished')
+    #princ('Finished')
     return cache # useful if we want to pickle it
     
 if __name__ == "__main__":

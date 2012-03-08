@@ -2,8 +2,6 @@ To speed up excel importation, export it as CSV files first
 
 write a gizmo equivalent
 
-show the cursor waiting when the app is chugging away
-
 Create an unposting facility
 
 email chargeability report

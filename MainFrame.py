@@ -13,6 +13,7 @@ import wx
 # notes on windows redirects:
 # http://www.velocityreviews.com/forums/t515815-wxpython-redirect-the-stdout-to-a-textctrl.html    
 
+import datetime
 import os
 import sys
 
@@ -248,12 +249,16 @@ class MainFrame(wx.Frame):
         question = 'Process period {0}?'.format(p.yyyymm())
         if not long_calc(self, question): return
     
+        self.text_output.SetValue("")
+        self.text_output.Refresh()
+        princ('Started: ' + str(datetime.datetime.now()))
         wx.SetCursor ( wx.StockCursor ( wx.CURSOR_WAIT ) ) 
         try:
             self.cache = pydra.main()
+            princ('Finished: ' + str(datetime.datetime.now()))
         finally:
             #princ('Entered finally')
-            wx.SetCursor ( wx.StockCursor ( wx.CURSOR_ARROW ) ) 
+            wx.SetCursor ( wx.StockCursor ( wx.CURSOR_ARROW ) )
             
         wx.MessageBox('Finished', 'Info')
 
