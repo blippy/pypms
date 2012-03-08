@@ -243,10 +243,18 @@ class MainFrame(wx.Frame):
             self.timegrid_frame.Show()
         
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
+        # main process loop
         p = period.g_period
         question = 'Process period {0}?'.format(p.yyyymm())
-        if not long_calc(self, question): return    
-        self.cache = pydra.main()
+        if not long_calc(self, question): return
+    
+        wx.SetCursor ( wx.StockCursor ( wx.CURSOR_WAIT ) ) 
+        try:
+            self.cache = pydra.main()
+        finally:
+            #princ('Entered finally')
+            wx.SetCursor ( wx.StockCursor ( wx.CURSOR_ARROW ) ) 
+            
         wx.MessageBox('Finished', 'Info')
 
 
