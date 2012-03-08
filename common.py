@@ -25,7 +25,7 @@ class DataIntegrityError(Exception):
         return repr(self.value)
     
     
-# FIXME prolly need to use this more
+# TODO prolly need to use this more
 def assert_job(d, job_code, source_info):
     "Require that a job exists in the database"
     if not d['jobs'].has_key(job_code):
@@ -67,8 +67,8 @@ outroot = 'M:\\Finance\\pypms'
 makedirs(outroot)
 
 
-# FIXME - ensure all file saving goes though this function
-# FIXME - should create intermediate directories if necessary
+# TODO - ensure all file saving goes though this function
+# TODO - should create intermediate directories if necessary
 def spit(fname, text):
     'Write TEXT to file FNAME'
     #with open(fname, "w") as f: f.write(text)
@@ -76,10 +76,6 @@ def spit(fname, text):
     with codecs.open(fname, "w", "Latin-1") as f: f.write(text)
 
 
-def XXXspit_lines(fname, lines):
-    'Create a text file FNAME from a list of LINES'
-    text = '\r\n'.join(lines)
-    spit(fname, text)
 
 
 ###########################################################################
@@ -132,7 +128,7 @@ def mkKeyFunc(fieldName):
     return func
 
 def aggregate(seq, keyfunc):
-    #FIXME prolly use this extensively
+    #TODO prolly use this extensively
     dic = {}
     for x in seq:
         key = keyfunc(x)
@@ -150,7 +146,7 @@ def aggregate(seq, keyfunc):
 def always(*kargs): return True
 
 def summate(seq, keyfunc, test = always):
-    # FIXME - make more use of this function
+    # TODO - make more use of this function
     total = 0.0
     for el in seq:
         v = keyfunc(el)
@@ -177,15 +173,12 @@ def summate_cols(matrix):
     return totals
 
 
-def XXXsort_by_key(lst, fieldname):
-    # TODO use this more extensively
-    #return sorted(lst, key= lambda a, b: cmp(a[fieldname], b[fieldname]))
-    return sorted(lst, key = lambda x: x[fieldname])
+
 
 ###########################################################################
 # dictionay functions
 
-# FIXME - use these functions extensively
+# TODO - use these functions extensively
 
 
 def dget(dictionary_name, key, value = 0.0):

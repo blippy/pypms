@@ -148,10 +148,7 @@ def create_excel_invoice_summary(invoices):
     
     
 ###########################################################################
-def XXXmain(d):
-    'Extract the manual invoices from the spreadsheets'
-    import_manual_invoices(d)
-    create_invoice_summary(d)
+
         
 if  __name__ == "__main__":
     princ("Didn't do anything")

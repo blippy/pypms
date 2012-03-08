@@ -62,7 +62,6 @@ class RegistryBoundCheckbox:
         princ("cbox_change_event")
         set_binary_reg_value(self.registry_key, self.checkbox.GetValue())
         
-    def XXXIsChecked(self):
-        return self.checkbox.IsChecked()
+
 
 ###########################################################################

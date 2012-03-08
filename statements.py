@@ -13,16 +13,6 @@ import period
 
 debug = False
 
-
-###########################################################################
-
-# FIXME - probable bad idea
-#typeWork, typeExpense = range(2) # create enumerated invoice type
-
-
-
-
-
 ###########################################################################
 
 def AddTopInfo(out, job):
@@ -44,32 +34,6 @@ def AddTopInfo(out, job):
     
     heading =  '{0:44s}{1:>9s}{2:>9s}{3:>9s}'.format('', 'Quantity', 'Price', 'Value')
     out.add(heading,  2)
-
-
- 
-###########################################################################
-
-# TODO remove this eventually
-#class Section:
-#    def __init__(self):
-#        self.heading = 'Fill with something sensible'
-#        self.workEntries = {}
-#        self.expenseEntries = []
-#        
-#    def AddWork(self, item, price, personName):
-#        if not self.workEntries.has_key(personName): self.workEntries[personName] = { 'desc' : personName , 'qty' : 0, 'price' : price }
-#        self.workEntries[personName]['qty'] += item['TimeVal']
-#        
-#    def Work(self):
-#        items = self.workEntries.values()
-#        items.sort(key=lambda x: x['desc'])
-#        return items
-#    
-#    def AddExpense(self, item, exp_factor):
-#        desc = ' - '.join([item['Period'], item['Name'], item['Desc']])
-#        self.expenseEntries.append( { 'desc' : desc , 'qty' : exp_factor, 'price' : item['Amount'] })
-        
-
  
 ###########################################################################
  
@@ -77,7 +41,7 @@ class LineItem: pass
 
 def subtotal(out, desc, value):
     'Output a subtotal'
-    #FIXME - devise a better way so that the format depends on whether something is a string or a number
+    #TODO - devise a better way so that the format depends on whether something is a string or a number
     text = '   {0:41.41s}{1:9.2s}{2:9.2s}{3:9.2f}'.format(desc , '', '', value)
     out.add(text)
         
@@ -105,7 +69,6 @@ def create_job_statement(job, all_tasks, exps, times):
     out = rtf.Rtf()
     out.addTitle(title)
     AddTopInfo(out, job)     
-    #pdb.set_trace()
 
 
     tasks = map(lambda o: getattr(o, 'task'), times + exps)
@@ -136,42 +99,6 @@ def create_job_statement(job, all_tasks, exps, times):
         if num_times > 0 and num_expenses > 0:
             subtotal(out, 'Task subtotal', amount_work + amount_expenses)
             out.para()
-        
-        
-#    for taskKey, taskGroup in aggregate(invItems, common.mkKeyFunc('Task')):
-#        s = Section()
-#        if taskKey == '' : 
-#            s.heading = 'Expenses not categorised to a specific task'
-#            s.ordering = 'ZZZ'
-#        else:
-#            s.heading = 'Task {0}: {1}'.format(taskKey, db.task_desc(d, jobKey, taskKey))
-#            s.ordering = s.heading
-#            
-#        for item in taskGroup: 
-#            # FIXME - I think we aggregated work and expenses together - now we're splitting them out - which doesn't make sense - we should have kept them spearate in the first place
-#            if item['iType'] == typeWork: 
-#                person = item['Person']
-#                price = d['charges'][(jobKey, taskKey, person)]
-#                personName = db.initials_to_name(d, person)
-#                s.AddWork(item, price, personName)
-#            else: s.AddExpense(item, exp_factor)
-#        sections.append(s)
-    
-
-        
-#    # output the sections
-#    sections.sort(key= lambda x: x.ordering)    
-#    totalWork = 0
-#    totalExpenses = 0
-#    for s in sections:
-#        out.add(s.heading)
-#        work, numPeople = ProcessSubsection(out, s.Work(), 'Work subtotal')
-#        expenses, numExpenses = ProcessSubsection(out, s.expenseEntries, 'Expenses subtotal')
-#        totalWork += work
-#        totalExpenses += expenses
-#        if numPeople > 0 and numExpenses >0: 
-#            subtotal(out, 'Task subtotal', work+expenses)
-#            out.para()
         
     # output grand summary
     out.add('Overall summary')

@@ -1,6 +1,6 @@
 # http://code.activestate.com/recipes/149461-mapi-send/
 
-# FIXME NOW
+# TODO
 
 ## {{{ http://code.activestate.com/recipes/149461/ (r1)
 # SendMAPIMail Module.

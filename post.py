@@ -23,7 +23,8 @@ import win32com.client
 
 import common
 from common import print_timing
-import db, excel, unpost
+import db
+import excel
 import period
 from common import AsAscii, AsFloat, princ
    
@@ -33,12 +34,20 @@ from common import AsAscii, AsFloat, princ
 
     
 def accumulate(d):
-    # FIXME - this can probably be used in many other places
+    # TODO - this can probably be used in many other places
     result = {}
     for el in d['manual_invoices']:
         common.dplus(result, el['job'], el['net'])
     return result
 
+############################################################################
+
+def zap_entries():
+    'Remove all recorded invoices for the period PER'
+    fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'"
+    sql = fmt % (period.mmmmyyyy())
+    db.ExecuteSql(sql)
+    
 ############################################################################
 
 def InsertFreshMonth(conn):
@@ -186,8 +195,7 @@ def add_purchase_orders(conn):
 @print_timing
 def post_main(d, xl_invtweaks):
     conn = db.DbOpen()
-    #import_manual_invoices(d)
-    unpost.zap_entries()
+    zap_entries()
     InsertFreshMonth(conn)
     update_pms(conn, d, xl_invtweaks)
     add_purchase_orders(conn)

@@ -9,8 +9,6 @@ import os
 import pdb
 import sys, traceback
 
-#from _winreg import *
-
 import common
 from common import princ
 import registry
@@ -56,29 +54,6 @@ class Period:
         princ('YEAR: {0}, MONTH: {1}'.format(self.y, self.m))
         
 
-    def ask(self, text, default):
-        inp = raw_input(text)
-        if len(inp) == 0: inp = default
-        return inp
-
-    def askNumber(self, fieldDescription, default, low, high):
-        text = '%s (%d-%d) [%d]:' % (fieldDescription, low, high, default)
-        while 1:
-            try:
-                value = self.ask(text, default)
-                value = int(value)
-                if value < low or value > high: raise ValueError
-                break
-            except ValueError:
-                princ("Invalid input. Try again")
-        return value
-
-    def askYear(self):
-        return self.askNumber('Year', now().year, 2000, 2020)
-            
-    def askMonth(self):
-        return self.askNumber('Month', now().month, 1, 12)
-
     def decMonth(self):
         self.inc(-1)
             
@@ -89,22 +64,7 @@ class Period:
         self.m = month_num - self.y*12 + 1
         
             
-    def inputPeriod(self):
-        self.setToCurrent()
-        while 1:
-            inp = raw_input("Use (r)ecent (c)urrent or (o)ther billing period ([r]/c/o)?")
-            if inp == "" or inp =="r":
-                self.decMonth()                
-                break
-            elif inp == "c":
-                break
-            elif inp == "o":
-                self.y = self.askYear()
-                self.m = self.askMonth()
-                break
-            else: 
-                princ("Invalid input. Try again" )   
-        
+       
 
     def within(self, d):
         return d.year == self.y and d.month == self.m
@@ -216,12 +176,12 @@ def reportdir():
     common.makedirs(dir)
     return dir
 
-# FIXME - use this more extensively
+# TODO - use this more extensively
 def reportfile(fname):
     'Return a full filename for a report'
     return reportdir() + '\\' + fname
 
-# FIXME - use this more
+# TODO - use this more
 def save_report(filename, text):
     fullname = reportfile(filename)
     if type(text) is list:
