@@ -95,6 +95,9 @@ def create_text_invoice_summary(invoices):
         vat_total += vat
         gross = net + vat
         desc = inv['desc']
+        desc.strip()
+        #desc += ' '*12
+        if len(desc) > 12: desc = desc[0:12]
         #print inv.keys()
         line = [irn, client, job, number(net), number(vat), number(gross), desc]        
         output.append(line)

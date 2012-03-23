@@ -16,7 +16,8 @@ MAX_COLS = 255
         
 def camelxls():
     p = period.g_period
-    return "M:\\Finance\\camel\\{0}\\camel-{1}.xls".format(p.y, p.yyyymm())
+    #return "M:\\Finance\\camel\\{0}\\camel-{1}.xls".format(p.y, p.yyyymm())
+    return "M:\\Finance\\pypms\\{0}\\summary-{0}.xls".format(p.yyyymm())
 
     
 ###########################################################################

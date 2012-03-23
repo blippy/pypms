@@ -96,16 +96,14 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu.AppendItem(self.menu_data_pickle)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Data")
         wxglade_tmp_menu = wx.Menu()
-        self.menu_externals_expenses = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Expenses", "", wx.ITEM_NORMAL)
-        wxglade_tmp_menu.AppendItem(self.menu_externals_expenses)
         self.menu_externals_gizmo = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Gizmo", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_externals_gizmo)
         self.menu_externals_html = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Html", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_externals_html)
-        self.menu_externals_invoice_summary = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Invoice Summary", "", wx.ITEM_NORMAL)
-        wxglade_tmp_menu.AppendItem(self.menu_externals_invoice_summary)
         self.menu_externals_open_reports_folder = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Open Reports Folder", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_externals_open_reports_folder)
+        self.menu_externals_spreadsheet = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Spreadsheet", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_externals_spreadsheet)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Externals")
         wxglade_tmp_menu = wx.Menu()
         self.menu_print_workstatements = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Workstatements", "", wx.ITEM_NORMAL)
@@ -133,11 +131,10 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
         self.Bind(wx.EVT_MENU, self.menu_data_timegrid_selected, self.menu_data_timegrid)
         self.Bind(wx.EVT_MENU, self.menu_data_pickle_selected, self.menu_data_pickle)
-        self.Bind(wx.EVT_MENU, self.menu_externals_expenses_selected, self.menu_externals_expenses)
         self.Bind(wx.EVT_MENU, self.menu_externals_gizmo_selected, self.menu_externals_gizmo)
         self.Bind(wx.EVT_MENU, self.menu_externals_html_selected, self.menu_externals_html)
-        self.Bind(wx.EVT_MENU, self.menu_externals_invoice_summary_selected, self.menu_externals_invoice_summary)
         self.Bind(wx.EVT_MENU, self.menu_externals_open_reports_folder_selected, self.menu_externals_open_reports_folder)
+        self.Bind(wx.EVT_MENU, self.menu_externals_spreadsheet_selected, self.menu_externals_spreadsheet)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
@@ -265,8 +262,6 @@ class MainFrame(wx.Frame):
 
 
 
-    def menu_externals_expenses_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        open_file(excel.camelxls())
 
     def menu_externals_gizmo_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\gizmo\\gizmo04.xls')
@@ -274,10 +269,6 @@ class MainFrame(wx.Frame):
     def menu_externals_html_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file('M:\\Finance\\pypms\\texts.htm')
 
-    def menu_externals_invoice_summary_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        p = period.g_period
-        fname = '"M:\\Finance\\Invoices\\Inv summaries {0}\\Inv Summary {1}.xls"'.format(p.y, p.yyyymm())
-        open_file(fname)
 
     def menu_externals_open_reports_folder_selected(self, event): # wxGlade: MainFrame.<event_handler>
         cmd = 'explorer ' + period.reportdir()
@@ -320,6 +311,8 @@ class MainFrame(wx.Frame):
         db.save_state(self.cache)
 
 
+    def menu_externals_spreadsheet_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        open_file(excel.camelxls())
 # end of class MainFrame
 
 
