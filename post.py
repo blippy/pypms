@@ -18,6 +18,7 @@ import csv
 import datetime
 import itertools 
 import pdb
+import traceback
 
 import win32com.client
 
@@ -73,34 +74,11 @@ def InsertFreshMonth(conn):
 
 ###########################################################################
 
-def accumulate_tweaks(d, xl):
-    '''Accumulate invoice tweaks to job level'''
 
-    #xl = excel.ImportCamelWorksheet('InvTweaks')
-    field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
-    f = common.AsFloat
-    field_types = [str, f, f, f, f, f, f, f, f, str]
-    tweaks = []
-
-    for line in xl[1:]:
-        tweak = {}
-        for field, value, converter in itertools.izip(field_names, line, field_types):
-            tweak[field] = converter(value)
-        tweaks.append(tweak)
-
-    
-    jobs = {}
-    for entry in tweaks:
-        code = entry['Job']
-        if not jobs.has_key(code): jobs[code] = {}
-        job = jobs[code]
-        for key in ['Inv3rdParty', 'InvAccrual', 'InvBIA', 'InvInvoice', 'InvTime', 'InvUBI', 'InvWIP']:
-            common.dplus(job, key, common.dget(entry, key))
-    return jobs
 
 ###########################################################################
 
-def update_pms(conn, d, xl_invtweaks):
+def update_pms(conn, d, accumulated_tweaks):
     '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
     records, so we only have to update, and not insert'''
     
@@ -112,7 +90,7 @@ def update_pms(conn, d, xl_invtweaks):
     invoices = d['auto_invoices']
     
     manual_invoices = accumulate(d)
-    tweaks = accumulate_tweaks(d, xl_invtweaks)
+    #tweaks = accumulate_tweaks(d, xl_invtweaks)
     
     for code in codes:
         
@@ -141,7 +119,7 @@ def update_pms(conn, d, xl_invtweaks):
         invoice_total += common.dget(manual_invoices, code, 0.0)
         
         # adjust for invoice tweaks
-        tweak = common.dget(tweaks, code, None)
+        tweak = common.dget(accumulated_tweaks, code, None)
         if tweak:
             party3 += tweak['Inv3rdParty']
             accrual += tweak['InvAccrual']
@@ -193,15 +171,16 @@ def add_purchase_orders(conn):
 ###########################################################################
 
 @print_timing
-def post_main(d, xl_invtweaks):
+def post_main(d, accumulated_tweaks):
     conn = db.DbOpen()
     zap_entries()
     InsertFreshMonth(conn)
-    update_pms(conn, d, xl_invtweaks)
+    update_pms(conn, d, accumulated_tweaks)
     add_purchase_orders(conn)
     conn.Close()
     
 if  __name__ == "__main__":
     data = db.load_state()
+    #print data
     post_main(data)
     princ("Finished")

@@ -9,6 +9,7 @@ from common import dget, princ, print_timing
 import db
 import excel
 import period
+import tweaks
 
 
 ###########################################################################
@@ -25,9 +26,10 @@ def get_dbase_recoveries(d):
         recoveries[job_code] = recovery
     return recoveries
 
-def get_camel_recoveries(d, xl_invtweaks):
+def XXXget_camel_recoveries(d, xl_invtweaks):
     recoveries = {}
     for line in xl_invtweaks[1:]:
+        #print line
         job_code = line[0]
         amount = common.AsFloat(line[8])
         if amount == 0.0: continue
@@ -66,10 +68,10 @@ def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
 
 ###########################################################################
 @print_timing
-def create_recovery_report(d, xl_invtweaks):
+def create_recovery_report(d, the_tweaks):
     
-    camel_recoveries = get_camel_recoveries(d, xl_invtweaks)
-    jobcodes_to_process = set(camel_recoveries.keys())
+    camel_recoveries = tweaks.tweak_recoveries(the_tweaks)
+    jobcodes_to_process = set(tweaks.tweaked_jobs(the_tweaks))
     db_recoveries = get_dbase_recoveries(d)
     for k, v in db_recoveries.items():
         if abs(v) >= 0.01: jobcodes_to_process.add(k)    

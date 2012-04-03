@@ -12,6 +12,7 @@ import post
 import recoveries
 import statements
 import timesheets
+import tweaks
 import wip
 
 @print_timing
@@ -39,8 +40,10 @@ def main():
     #else:
     #    invsummary.create_excel_invoice_summary(invoices)
         
-    post.post_main(cache, excel_data['InvTweaks'])
-    recoveries.create_recovery_report(cache, excel_data['InvTweaks'])
+    the_tweaks = tweaks.decipher_tweaks(excel_data['InvTweaks'])
+    accumulated_tweaks = tweaks.accum_tweaks_to_job_level(the_tweaks)
+    post.post_main(cache, accumulated_tweaks)
+    recoveries.create_recovery_report(cache, the_tweaks)
     wip.create_wip_report(cache, True) # self.cbox_text_wip.IsChecked())
     budget.create_budget(cache)
     health.create_health_report(cache)
