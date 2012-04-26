@@ -1,3 +1,5 @@
+facility to view the comments for a job
+
 To speed up excel importation, export it as CSV files first
 
 write a gizmo equivalent
