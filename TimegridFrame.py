@@ -51,7 +51,8 @@ class TimegridFrame(wx.Frame):
         self.grid_time.CreateGrid(0, 3)
         self.grid_time.SetColLabelValue(0, "IN")
         self.grid_time.SetColLabelValue(1, "NAME")
-        self.grid_time.SetColLabelValue(2, "SUM")
+        self.grid_time.SetColLabelValue(2, "STAF")
+        self.grid_time.SetColLabelValue(3, "SUM")
         # end wxGlade
 
     def __do_layout(self):
@@ -80,7 +81,7 @@ class TimegridFrame(wx.Frame):
         dim = p.dim()
         
         #maybe delete some columns
-        DATE_COL0 = 3
+        DATE_COL0 = 4
         num_cols = grid.GetNumberCols()
         num_cols_required = dim + DATE_COL0
         if num_cols_required > num_cols:
@@ -94,17 +95,22 @@ class TimegridFrame(wx.Frame):
         grid.ForceRefresh()
         
         
-        employees = db.GetEmployees(p)
+        employees = db.GetEmployees()
         data_rows = {}
-        for initials in employees.keys():
+        for initials in sorted(employees.keys()):
+            if employees[initials]['Active'] == 0: continue
+            #print initials
             data_rows[initials] = DataRow(initials, employees[initials]['PersonNAME'], dim)
+        #print data_rows
 
         # accumulate time items by person and date
-        timeItems = db.GetTimeitems(p)
+        timeItems = db.GetTimeitems()
         for timeItem in timeItems:
             initials = timeItem['Person']
             dstamp = timeItem['DateVal']
-            day = int(dstamp[-2:])
+            #print str(dstamp)
+            day = dstamp.day #int(str(dstamp[-2:]))
+            #print day
             qty = timeItem['TimeVal']
             if not data_rows.has_key(initials):
                 data_rows[initials] = DataRow(initials, '???', dim)
@@ -119,7 +125,9 @@ class TimegridFrame(wx.Frame):
             grid.AppendRows(1)
             grid.SetCellValue(row_num,0, initials)
             grid.SetCellValue(row_num,1, data_row.name)
-            grid.SetCellValue(row_num, 2, str(sum(data_row.times)))
+            staff = "yes" if employees[initials]['IsStaff'] else ""
+            grid.SetCellValue(row_num, 2, staff)
+            grid.SetCellValue(row_num, 3, str(sum(data_row.times)))
             for c in range(0, dim):
                 v = data_row.times[c]
                 if v == 0: v = ''
@@ -134,6 +142,7 @@ class TimegridFrame(wx.Frame):
                     bcolour = wx.WHITE
                 grid.SetCellBackgroundColour(row_num,c+DATE_COL0, bcolour)
                 
+        # self.Refresh()
         grid.SetFocus()
 
 # end of class TimegridFrame
