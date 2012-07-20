@@ -46,13 +46,16 @@ class TimegridFrame(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: TimegridFrame.__set_properties
         self.SetTitle("Time grid")
-        self.SetSize((1334, 1041))
         self.label_period.SetBackgroundColour(wx.Colour(255, 255, 255))
-        self.grid_time.CreateGrid(0, 3)
+        self.grid_time.CreateGrid(0, 4)
         self.grid_time.SetColLabelValue(0, "IN")
+        self.grid_time.SetColSize(0, 40)
         self.grid_time.SetColLabelValue(1, "NAME")
-        self.grid_time.SetColLabelValue(2, "STAF")
+        self.grid_time.SetColLabelValue(2, "STAFF")
+        self.grid_time.SetColSize(2, 40)
         self.grid_time.SetColLabelValue(3, "SUM")
+        self.grid_time.SetColSize(3, 40)
+        self.grid_time.SetMinSize((1250, 600))
         # end wxGlade
 
     def __do_layout(self):
@@ -64,6 +67,7 @@ class TimegridFrame(wx.Frame):
         sizer_2.Add(sizer_4, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
         sizer_2.Add(self.grid_time, 1, wx.EXPAND, 0)
         self.SetSizer(sizer_2)
+        sizer_2.Fit(self)
         self.Layout()
         # end wxGlade
 
