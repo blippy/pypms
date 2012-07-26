@@ -13,6 +13,7 @@ import wx.grid
 
 # end wxGlade
 
+import common
 import db
 import period
 
@@ -74,11 +75,7 @@ class TimegridFrame(wx.Frame):
     def btn_calculate_clicked(self, event): # wxGlade: TimegridFrame.<event_handler>
     
         grid = self.grid_time
-        num_rows = grid.GetNumberRows()
-        if num_rows >0:
-            grid.DeleteRows(0, num_rows)
-        
-
+        common.empty_wxgrid(grid)        
         
         p = period.g_period
         self.label_period.SetLabel(p.yyyymm())
@@ -86,12 +83,7 @@ class TimegridFrame(wx.Frame):
         
         #maybe delete some columns
         DATE_COL0 = 4
-        num_cols = grid.GetNumberCols()
-        num_cols_required = dim + DATE_COL0
-        if num_cols_required > num_cols:
-            grid.AppendCols(num_cols_required - num_cols)
-        elif num_cols_required < num_cols:
-            grid.DeleteCols(dim + DATE_COL0 - 1, num_cols - num_cols_required)
+        common.rectify_num_grid_columns(grid, dim + DATE_COL0)
         #number the columns
         for c in range(0, dim):
             grid.SetColLabelValue(c + DATE_COL0 , str(c + 1))

@@ -263,3 +263,19 @@ def tri(truth, true_result, false_result):
         return true_result
     else:
         return false_result
+    
+###########################################################################
+# common operations on GUIs
+
+def empty_wxgrid(grid):
+    num_rows = grid.GetNumberRows()
+    if num_rows >0:
+        grid.DeleteRows(0, num_rows)
+
+def rectify_num_grid_columns(grid, n):
+    num_cols = grid.GetNumberCols()
+    num_cols_required = n
+    if num_cols_required > num_cols:
+        grid.AppendCols(num_cols_required - num_cols)
+    elif num_cols_required < num_cols:
+        grid.DeleteCols(n - 1, num_cols - num_cols_required)

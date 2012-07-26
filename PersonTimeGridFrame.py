@@ -13,7 +13,7 @@ import wx.grid
 
 import common
 import db
-#print "Running PersonTimGridFrame"
+import period
 
 def fetch_people():
     result = []
@@ -43,8 +43,8 @@ def aggregate_time_items(initials):
                 if titem['JobCode'] == coding[0] and titem['Task'] == coding[1] and titem['DateVal'].day == d:
                     total += titem['TimeVal']
             time_vals.append(total)
-        result.append([coding, time_vals])
-    print result
+        result.append([coding[0], coding[1], time_vals])
+    return result
 
 class PersonTimeGridFrame(wx.Frame):
     def __init__(self, *args, **kwds):
@@ -60,12 +60,16 @@ class PersonTimeGridFrame(wx.Frame):
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self.clicked_fetch_people, self.button_fetch_peope)
+        self.Bind(wx.EVT_BUTTON, self.clicked_calculate, self.button_calculate)
         # end wxGlade
 
     def __set_properties(self):
         # begin wxGlade: PersonTimeGridFrame.__set_properties
         self.SetTitle("Person time Grid")
-        self.grid_time.CreateGrid(10, 3)
+        self.grid_time.CreateGrid(1, 3)
+        self.grid_time.SetColLabelValue(0, "JOB")
+        self.grid_time.SetColLabelValue(1, "TASK")
+        self.grid_time.SetColLabelValue(2, "SUM")
         self.grid_time.SetMinSize((1250,600))
         # end wxGlade
 
@@ -91,18 +95,74 @@ class PersonTimeGridFrame(wx.Frame):
         self.choice_person.SetFont(font1)
         self.choice_entries = fetch_people()
         for entry in self.choice_entries:
-            print entry
+            #print entry
             self.choice_person.Append(entry[1])
         self.choice_person.Select(0)
         
+
+    def clicked_calculate(self, event): # wxGlade: PersonTimeGridFrame.<event_handler>
+        #print "Event handler `clicked_calculate' not implemented"
+        #event.Skip()
+        if self.choice_person.GetCount() == 0: return
+        DATE_COL0 = 3
+        initials = self.choice_entries[self.choice_person.GetSelection()] #  'CJO' # fixme
+        initials = initials[0]
+        #print "initials = ", initials
+        rows = aggregate_time_items(initials)
+        grid = self.grid_time
+        common.empty_wxgrid(grid)
+        p = period.g_period
+        #self.label_period.SetLabel(p.yyyymm())
+        dim = p.dim()
+        common.rectify_num_grid_columns(grid, dim + DATE_COL0)
+        for c in range(0, dim):
+            grid.SetColLabelValue(c + DATE_COL0 , str(c + 1))
+            grid.SetColSize(c+DATE_COL0, 30)
+        grid.ForceRefresh()
+        
+        # totals
+        total_row = []
+        for c in range(0, dim):
+            total = 0
+            for row in rows:
+                total +=  row[2][c]
+                print total
+            #total = [row[c+2]  for row in rows]            
+            total_row.append(total)
+        total_row = [ 'TOTAL', '', total_row]
+        rows.append(total_row)
+            
+        
+        row_num = -1
+        for row in rows:
+            row_num += 1
+            grid.AppendRows(1)
+            job_code, task, time_spent = row
+            grid.SetCellValue(row_num, 0, job_code)
+            grid.SetCellValue(row_num, 1, task)
+            grid.SetCellValue(row_num, 2, str(sum(time_spent)))
+            for d in range(0, dim):
+                v = time_spent[d]
+                if v == 0: v = ''
+                grid.SetCellValue(row_num,d + DATE_COL0, str(v))
+
+                # TODO a lot of this code is in common with TimegridFrame
+                # colour the cell according to whether it is a week day or end
+                if period.is_weekend(p.y, p.m, d+1):
+                    bcolour = wx.LIGHT_GREY
+                else:
+                    bcolour = wx.WHITE
+                grid.SetCellBackgroundColour(row_num,d+DATE_COL0, bcolour)
+            #print row
+            #grid.SetCellValue(row_num,c+DATE_COL0,v)
 
 # end of class PersonTimeGridFrame
 
 
 if __name__ == "__main__":
     #fetch_people()
-    aggregate_time_items('CJO')
-    exit(0)
+    #aggregate_time_items('CJO')
+    #exit(0)
     
     app = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()

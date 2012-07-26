@@ -32,6 +32,7 @@ import rtfsprint
 import ExpensesFrame
 import JobsFrame
 import TimegridFrame
+import PersonTimeGridFrame
 
 def open_file(filename):
     win32api.ShellExecute(0, "open", filename, None, ".", 0)
@@ -91,6 +92,8 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu.AppendItem(self.menu_data_jobs)
         self.menu_data_timegrid = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Time grid", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_data_timegrid)
+        self.menu_data_persontimegrid = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Person Time grid", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_data_persontimegrid)
         wxglade_tmp_menu.AppendSeparator()
         self.menu_data_pickle = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Pickle", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_data_pickle)
@@ -130,6 +133,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_data_expenses_selected, self.menu_data_expenses)
         self.Bind(wx.EVT_MENU, self.menu_data_jobs_selected, self.menu_data_jobs)
         self.Bind(wx.EVT_MENU, self.menu_data_timegrid_selected, self.menu_data_timegrid)
+        self.Bind(wx.EVT_MENU, self.menu_data_persontimegrid_selected, self.menu_data_persontimegrid)
         self.Bind(wx.EVT_MENU, self.menu_data_pickle_selected, self.menu_data_pickle)
         self.Bind(wx.EVT_MENU, self.menu_externals_gizmo_selected, self.menu_externals_gizmo)
         self.Bind(wx.EVT_MENU, self.menu_externals_html_selected, self.menu_externals_html)
@@ -148,6 +152,7 @@ class MainFrame(wx.Frame):
         self.expenses_frame = ExpensesFrame.ExpensesFrame(self)
         self.jobs_frame = JobsFrame.JobsFrame(self)
         self.timegrid_frame = TimegridFrame.TimegridFrame(self)
+        self.persontimegrid_frame = PersonTimeGridFrame.PersonTimeGridFrame(self)
         registry.RegistryBoundCheckbox(self, self.cbox_expenses, 'import_expenses', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_expenses, 'expenses_as_text', True)
@@ -313,6 +318,10 @@ class MainFrame(wx.Frame):
 
     def menu_externals_spreadsheet_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file(excel.camelxls())
+    def menu_data_persontimegrid_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not self.persontimegrid_frame.IsShown():
+            self.persontimegrid_frame.Show()
+
 # end of class MainFrame
 
 
