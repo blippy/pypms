@@ -126,7 +126,7 @@ class PersonTimeGridFrame(wx.Frame):
             total = 0
             for row in rows:
                 total +=  row[2][c]
-                print total
+                #print total
             #total = [row[c+2]  for row in rows]            
             total_row.append(total)
         total_row = [ 'TOTAL', '', total_row]

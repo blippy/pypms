@@ -1,13 +1,9 @@
-Worsk statement to include special instructions for client signed
+Work statement to include special instructions for client signed
 
 To speed up excel importation, export it as CSV files first
-
-write a gizmo equivalent
 
 Create an unposting facility
 
 email chargeability report
-
-jobs gui
 
 log errors and also bail out

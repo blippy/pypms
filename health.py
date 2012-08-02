@@ -63,7 +63,7 @@ def create_health_report(d):
     add_formatted_line('', 'TOTALS' , total_leave_and_sickness, total_staff_hours, total_all_hours)
 
     add_line('\nHealth & Safety Stats:')
-    add_line('Staff hours less leave & sickness: {0}'.format(total_staff_hours - total_leave_and_sickness))
+    add_line('Staff hours less leave & sickness: {0} - * this goes into cell I8'.format(total_staff_hours - total_leave_and_sickness))
     add_line('Total all hours: {0}'.format(total_all_hours))
 
     #output.close()
