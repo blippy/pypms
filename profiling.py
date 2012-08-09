@@ -3,9 +3,7 @@ import io
 import pstats
 
 import excel
-import excel_experimental
 import pydra
-#import pypms
 from common import princ
 
 __raw_profile_file = '../profresults.dat'
@@ -26,8 +24,7 @@ def create_readable_profile():
 
 def main():
     cmd = 'excel.import_excel_data()'
-    cmd = 'excel_experimental.import_excel_data()'
-    #cmd = 'pydra.main()'
+    cmd = 'pydra.main()'
     create_raw_profile(cmd)    
     create_readable_profile()
     
