@@ -3,14 +3,15 @@ import traceback
 
 from common import dget, princ, print_timing
 import common
+import excel
 
 #def accumulate_tweaks(d, xl):
-def decipher_tweaks(xl):    
+def load():    
 
-    #xl = excel.ImportCamelWorksheet('InvTweaks')
-    field_names = ['Job', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
+    xl = excel.read_worksheet('InvTweaks')
+    field_names = ['JobCode', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
     f = common.AsFloat
-    field_types = [str, f, f, f, f, f, f, f, f, str]
+    field_types = [excel.fix_str, f, f, f, f, f, f, f, f, str]
     the_tweaks = []
 
     all_ok = True
@@ -29,7 +30,7 @@ def decipher_tweaks(xl):
                 msg = "Problem with tweaks: line: {0}, field name: {1}, Contents: '{2}'".format(line_num+1, field, value)
                 princ(msg)
                 princ(traceback.format_exc())
-        if tweak_ok and len(tweak['Job']) > 0: 
+        if tweak_ok and len(tweak['JobCode']) > 0: 
             the_tweaks.append(tweak) # TODO handle case Job isn't found
         
     if not all_ok:
@@ -42,7 +43,7 @@ def decipher_tweaks(xl):
 def tweaked_jobs(the_tweaks):
     jobs = []
     for a_tweak in the_tweaks:
-        job = a_tweak['Job']
+        job = a_tweak['JobCode']
         if job not in jobs: jobs.append(job)
     jobs.sort()
     return jobs
@@ -52,7 +53,7 @@ def tweak_recoveries(the_tweaks):
     recoveries = {}
     for tweak in the_tweaks:
         #print line
-        job_code = tweak['Job']
+        job_code = tweak['JobCode']
         amount = tweak['Recovery']
         if amount == 0.0: continue
         comment = tweak['Comment']
@@ -64,7 +65,7 @@ def accum_tweaks_to_job_level(the_tweaks):
     
     jobs = {}
     for entry in the_tweaks:
-        code = entry['Job']
+        code = entry['JobCode']
         if not jobs.has_key(code): jobs[code] = {}
         job = jobs[code]
         for key in ['Inv3rdParty', 'InvAccrual', 'InvBIA', 'InvInvoice', 'InvTime', 'InvUBI', 'InvWIP']:

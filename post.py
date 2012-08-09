@@ -38,15 +38,15 @@ def accumulate(d):
     # TODO - this can probably be used in many other places
     result = {}
     for el in d['manual_invoices']:
-        common.dplus(result, el['job'], el['net'])
+        common.dplus(result, el['JobCode'], el['net'])
     return result
 
 ############################################################################
 
 def zap_entries():
     'Remove all recorded invoices for the period PER'
-    fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='%s'"
-    sql = fmt % (period.mmmmyyyy())
+    fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='{0}'"
+    sql = fmt.format(period.mmmmyyyy())
     db.ExecuteSql(sql)
     
 ############################################################################

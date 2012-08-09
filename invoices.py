@@ -21,74 +21,78 @@ def number(input): return '%.2f' % (input)
 ###########################################################################
 
 @print_timing
-def import_manual_invoices(d, invoiceLines):
+def import_manual_invoices(data):
     'Import invoices entered manually in spreadsheet'
 
-    #pdb.set_trace()
-    #input_filename = period.camelxls()
-    #invoiceLines = excel.ImportCamelWorksheet('ManualInvoices')
-    
-    def nth(row, index):
-        try: result = row[index]
-        except IndexError: result = ''
-        return result
-    
+    invoiceLines = excel.read_worksheet('ManualInvoices')
     manual_invoices = []
+    # TODO abstract similarities to expenses.import_expenses()
+    fieldspec = [(1, 'irn', excel.fix_str), (2, 'client', str), (3, 'JobCode', excel.fix_str),(4, 'net', float), (7, 'desc', str)]
     row_num = 0
-    for row in invoiceLines:
+    for row in invoiceLines[1:]:
         row_num += 1
-        irn, client, job, net = [nth(row, idx) for idx in range(0,4)]
-        desc =nth(row, 6)
-        #pdb.set_trace()
-        if job =='Job' or job == '' or job == "TOTAL:": continue
-        if not d['jobs'].has_key(job):
+        
+        record = {}
+        for colNum, fieldName, fieldType in fieldspec:
+            text = row[colNum-1]
+            try: record[fieldName] = fieldType(text)
+            except ValueError: pass
+        job_code = record['JobCode']
+        if job_code == '' or not record.has_key('net'): continue
+        
+        #irn, client, job, net = [nth(row, idx) for idx in range(0,4)]
+        #desc =nth(row, 6)
+        #if job =='Job' or job == '' or job == "TOTAL:": continue
+        if not data['jobs'].has_key(job_code):
             fmt = "ERR: No database job '{0}' camel workbook '{1}' sheet manualInvoices row {2}"
-            msg = fmt.format(job, excel.camelxls(), row_num)
+            msg = fmt.format(job_code, excel.camelxls(), row_num)
             raise common.DataIntegrityError(msg)
-        net = common.AsFloat(net)        
-        manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
-    d['manual_invoices'] = manual_invoices
+        #net = common.AsFloat(net)        
+        #manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
+        manual_invoices.append(record)
+    data['manual_invoices'] = manual_invoices
     
     
-def enumerate_invoices(d):
-    mans = d['manual_invoices']
+def enumerate_invoices(data):
+    mans = data['manual_invoices']
 
-    job_codes = d['auto_invoices'].keys()
+    job_codes = data['auto_invoices'].keys()
     job_codes.sort()
     autos = []
     for job in job_codes:
-        inv = d['auto_invoices'][job]
-        inv['job'] = job
+        inv = data['auto_invoices'][job]
+        inv['JobCode'] = job
         inv['client'] = ''
         inv['irn'] = ''
         inv['desc'] = ''
         autos.append(inv)
     autos = filter(lambda x: x['net'] <> 0.0,  autos)
 
-    invoices = mans + autos
+    the_invoices = mans + autos
     
     # augment vat rates
-    jobs = d['jobs']
-    for inv in invoices:
-        job = jobs[inv['job']]
+    jobs = data['jobs']
+    for inv in the_invoices:
+        #print inv.keys()
+        job = jobs[inv['JobCode']]
         vatable = job['vatable']
         inv['vat_rate'] = tri(vatable, VAT, 0.0)
     
-    net = common.summate(invoices, lambda x: x['net'])
-    return invoices
+    net = common.summate(the_invoices, lambda x: x['net'])
+    return the_invoices
 
 ###########################################################################
 @print_timing
-def create_text_invoice_summary(invoices):
+def create_text_invoice_summary(the_invoices):
     output = [['Ref', 'Client', 'Job', 'Net', 'VAT', 'Gross', 'Desc']]
     
     net_total = 0.0
     vat_total = 0.0
     #gross_tot
-    for inv in invoices:
+    for inv in the_invoices:
         irn = inv['irn']
         client = inv['client']
-        job = inv['job']
+        job = inv['JobCode']
         net = inv['net']
         net_total += net
         vat = inv['vat_rate']* net
@@ -154,4 +158,5 @@ def create_excel_invoice_summary(invoices):
 
         
 if  __name__ == "__main__":
-    princ("Didn't do anything")
+    import_manual_invoices({})
+    princ("Finished")

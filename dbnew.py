@@ -2,6 +2,8 @@ import copy
 
 import adodbapi
 
+#TODO hopefullu obsolete this module
+
 ###########################################################################
 
 class TableCache:

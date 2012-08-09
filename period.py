@@ -194,7 +194,11 @@ def mmmmyyyy():
     result = d.strftime('%B %Y')
     return result
  
-
+def yyyymm():
+    'Return the period in the form 2010-01'
+    global g_period
+    result = "%04d-%02d" % (g_period.y, g_period.m)
+    return result
     
 ###########################################################################
 if __name__ == "__main__":

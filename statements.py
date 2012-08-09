@@ -65,7 +65,7 @@ def ProcessSubsection(out, items, task_key, subtotalTitle):
 def create_job_statement(job, all_tasks, exps, times):
 
 
-    title = "Work Statement: %s" % (period.mmmmyyyy())
+    title = "Work Statement: {0}".format(period.mmmmyyyy())
     out = rtf.Rtf()
     out.addTitle(title)
     AddTopInfo(out, job)     
@@ -125,21 +125,22 @@ def create_job_statement(job, all_tasks, exps, times):
 
 ###########################################################################
 
-def create_statements(d):
+def create_statements(data):
     
     # TODO - print a warning if exp_factor > 1.05
-    work_codes = set([common.AsAscii(t['JobCode']) for t in d['timeItems']])
-    expense_codes = set([e['JobCode'] for e in expenses.cache.expenses])
+    work_codes = set([common.AsAscii(t['JobCode']) for t in data['timeItems']])
+    the_expenses = data['expenses']
+    expense_codes = set([e['JobCode'] for e in the_expenses])
     job_codes = list(work_codes.union(expense_codes))
     job_codes.sort()
-    if d['auto_invoices'] is None: d['auto_invoices'] = {}
+    if data['auto_invoices'] is None: data['auto_invoices'] = {}
 
     for job_code in job_codes:
         if job_code[0:2] == "01": continue
-        job = d['jobs'][job_code]        
+        job = data['jobs'][job_code]        
         
         exps = []
-        for exp in expenses.cache.expenses:
+        for exp in the_expenses:
             if exp['JobCode'] <> job_code: continue
             item = LineItem()
             item.task = exp['Task']
@@ -149,7 +150,7 @@ def create_statements(d):
             exps.append(item)
 
         times = []
-        times1 = filter(lambda x: x['JobCode'] == job_code, d['timeItems'])
+        times1 = filter(lambda x: x['JobCode'] == job_code, data['timeItems'])
         times2 = common.summate_to_dict(times1, lambda x: (x['Task'], x['Person']), common.mkKeyFunc('TimeVal'))
         keys = times2.keys()
         keys = sorted(keys, key = lambda x: x[0] + ' ' + x[1])
@@ -157,14 +158,14 @@ def create_statements(d):
             item = LineItem()
             item.task = k[0]
             initials = k[1]
-            item.desc = db.initials_to_name(d, initials)
+            item.desc = db.initials_to_name(data, initials)
             item.qty = times2[k]
-            item.price = price = d['charges'][(job_code, item.task, initials)]
+            item.price = price = data['charges'][(job_code, item.task, initials)]
             times.append(item)
             
         if len(exps) + len(times)> 0:
-            invoice = create_job_statement(job, d['tasks'], exps, times)            
-            d['auto_invoices'][job_code] = invoice
+            invoice = create_job_statement(job, data['tasks'], exps, times)            
+            data['auto_invoices'][job_code] = invoice
 
         
 

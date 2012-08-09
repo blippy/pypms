@@ -1,9 +1,14 @@
 # Excel manipulation
 
+import datetime
+import math
 import os
 import pdb
 
 import win32com.client.dynamic
+
+import xlrd
+
 import common
 from common import princ
 import period
@@ -15,9 +20,7 @@ MAX_ROWS = 65535
 MAX_COLS = 255
         
 def camelxls():
-    p = period.g_period
-    #return "M:\\Finance\\camel\\{0}\\camel-{1}.xls".format(p.y, p.yyyymm())
-    return "M:\\Finance\\pypms\\{0}\\summary-{0}.xls".format(p.yyyymm())
+    return r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
 
     
 ###########################################################################
@@ -105,7 +108,35 @@ def import_excel_data():
             del xlapp
     return excel_data # sloppy, numActualRows, numActualCols
 
+###########################################################################
 
+def fix_date(v):
+    if isinstance(v, basestring):
+        result = v
+    else:
+        d1 = int(math.floor(v)) + datetime.datetime(1900,1,1).toordinal() -2
+        d2 = datetime.datetime.fromordinal(d1)
+        result = d2.strftime('%d-%b-%Y')
+    return result
+
+def fix_str(s):
+    "Fix quirk in xlrd where what we think should be a string became converted to a float"
+    s1 = str(s)
+    if len(s1)>1:
+        if s1[-2:] == '.0': s1 = s1[:-2]
+    return s1
+
+def read_worksheet(wsname):
+    wb = None
+    try:
+        fname = r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
+        wb = xlrd.open_workbook(fname)
+        ws = wb.sheet_by_name(wsname)
+        result = [ws.row_values(i) for i in xrange(ws.nrows)] #    nal.extend(sh.row_values(rowx))
+        return result
+    finally:
+        if wb is not None: wb.release_resources()
+        
 ###########################################################################
 if  __name__ == "__main__":
     data = import_excel_data()
