@@ -31,6 +31,9 @@ def get_budget_line(d, job_code, cum_utilised):
 
 @print_timing
 def create_budget(d):
+    
+    if True: return # this module should be considered semi-deprecated because it's not really serving much of a purpose
+
     sql = 'SELECT InvJobCode, Sum(InvUBI+InvWIP+InvInvoice) AS SumUsed FROM tblInvoice GROUP BY InvJobCode'
     fields = 'InvJobCode,SumUsed'
     recs = db.fetch_and_dictify(sql, fields)

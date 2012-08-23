@@ -5,8 +5,23 @@ from common import dget, princ, print_timing
 import common
 import excel
 
-#def accumulate_tweaks(d, xl):
-def load():    
+def load(data):
+    f = common.AsFloat
+    s = excel.fix_str
+    fieldspec = [
+        (1, 'JobCode', s, ''),
+        (2, 'InvBIA', f, 0.0),
+        (3, 'InvUBI', f, 0.0),
+        (4, 'InvWIP', f, 0.0),
+        (5, 'InvAccrual', f, 0.0),
+        (6, 'InvInvoice', f, 0.0),
+        (7, 'Inv3rdParty', f, 0.0),
+        (8, 'InvTime', f, 0.0),
+        (9, 'Recovery', f, 0.0),
+        (10, 'Comment', s, '')]
+    return excel.import_summary_sheet(data, 'InvTweaks', fieldspec, 2)
+
+def XXX_load():    
 
     xl = excel.read_worksheet('InvTweaks')
     field_names = ['JobCode', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']

@@ -16,27 +16,40 @@ from common import dget, princ, print_timing
 
 ###########################################################################
 
-def import_expenses():
-    excel_rows = excel.read_worksheet('Expenses')
-    result = []
-    fieldspec = [(1, 'JobCode', excel.fix_str), (2, 'Task', str), (4, 'Period', excel.fix_date),(6, 'Name', str), (8, 'Desc', str), (10, 'Amount', float)]
-    row_num = 0
-    for row in excel_rows[1:]:
-        row_num += 1
-        expense = {}
-        for colNum, fieldName, fieldType in fieldspec:
-            text = row[colNum-1]
-            try: expense[fieldName] = fieldType(text)
-            except ValueError: pass
-        job_code = expense['JobCode']
-        if job_code == '' or not expense.has_key('Amount'): continue
-    
-        # TODO HIGH error checking
-        
-        result.append(expense)
-    return result
-        
+def load(data):
+    fieldspec = [
+        (1, 'JobCode', excel.fix_str, ''),
+        (2, 'Task', str, ''), 
+        (4, 'Period', excel.fix_date, ''),
+        (6, 'Name', str, ''),
+        (8, 'Desc', str, ''), 
+        (10, 'Amount', float, None)]
+    return excel.import_summary_sheet(data, 'Expenses', fieldspec, 1)
+
 def create_expense_report(sorted_expenses, output_text = True):
+
+    output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
+    
+    xs = filter(lambda x: x['Amount'] != 0, sorted_expenses)
+    for x in xs:
+        desc = x['Desc']
+        desc_upper = desc.upper()
+        if 'ACCOM' in desc_upper: desc += ' - Munros'
+        if 'FLIGHT' in desc_upper: desc += ' - Munros'
+        if 'TAXI' in desc_upper: desc += ' - Rainbow'        
+        output.append([ x['JobCode'], x['Amount'], x['Period'], '', x['Name'], '', desc])
+
+    output.append([])
+    total = common.summate_lod(sorted_expenses, 'Amount')
+    output.append(['TOTAL', total])
+    
+    if output_text:
+        period.create_text_report("expenses.txt", output)
+    else:
+        # TODO Consider zapping Excel output option if considered unecessary
+        excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
+
+def XXX_create_expense_report(sorted_expenses, output_text = True):
     total = 0.0
 
     output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
@@ -66,7 +79,7 @@ def create_expense_report(sorted_expenses, output_text = True):
             
             
 def process(data):
-    the_expenses =  import_expenses()
+    the_expenses =  load(data)
     the_expenses.sort(key= lambda x: x['JobCode'])
     create_expense_report(the_expenses)
     data['expenses'] = the_expenses

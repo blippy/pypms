@@ -26,17 +26,6 @@ def get_dbase_recoveries(d):
         recoveries[job_code] = recovery
     return recoveries
 
-def XXXget_camel_recoveries(d, xl_invtweaks):
-    recoveries = {}
-    for line in xl_invtweaks[1:]:
-        #print line
-        job_code = line[0]
-        amount = common.AsFloat(line[8])
-        if amount == 0.0: continue
-        comment = line[9]
-        if not recoveries.has_key(job_code): recoveries[job_code] = []
-        recoveries[job_code].append((amount, comment))
-    return recoveries
 
 
 ###########################################################################

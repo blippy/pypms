@@ -20,8 +20,18 @@ def number(input): return '%.2f' % (input)
 
 ###########################################################################
 
+def load(data):
+    'Import invoices entered manually in spreadsheet'
+    fieldspec = [
+        (1, 'irn', excel.fix_str, ''),
+        (2, 'client', str, ''),
+        (3, 'JobCode', excel.fix_str, ''),
+        (4, 'net', float, None),
+        (7, 'desc', str, '')]
+    return excel.import_summary_sheet(data, 'ManualInvoices', fieldspec, 1)
+
 @print_timing
-def import_manual_invoices(data):
+def XXX_import_manual_invoices(data):
     'Import invoices entered manually in spreadsheet'
 
     invoiceLines = excel.read_worksheet('ManualInvoices')

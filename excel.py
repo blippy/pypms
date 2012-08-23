@@ -126,17 +126,57 @@ def fix_str(s):
         if s1[-2:] == '.0': s1 = s1[:-2]
     return s1
 
+def workbook_name():
+    return r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
+
 def read_worksheet(wsname):
     wb = None
     try:
-        fname = r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
-        wb = xlrd.open_workbook(fname)
+        wb = xlrd.open_workbook(workbook_name())
         ws = wb.sheet_by_name(wsname)
         result = [ws.row_values(i) for i in xrange(ws.nrows)] #    nal.extend(sh.row_values(rowx))
         return result
     finally:
         if wb is not None: wb.release_resources()
         
+def assert_worksheet_job(data, job_code, worksheet_name, row0):
+    "Require that a job in an Excel spreadsheet exists in the database"
+    if not data['jobs'].has_key(job_code):
+        #msg = fmt.format(job_code, source_info)
+        # logerror(msg) # TODO reinstate
+        raise KeyError("E100", workbook_name(), worksheet_name, row0 + 1, job_code) 
+    #fmt = "Excel workbook: {0}, sheet: {1}, row: {2}"
+    #msg = fmt.format(workbook_name(), worksheet_name, row0 + 1)
+    #common.assert_job(data, job_code, msg)
+    
+###########################################################################
+
+def import_summary_sheet(data, wsname, fieldspec, start_row = 1):    
+    rows = read_worksheet(wsname)    
+    result = []
+    for row_num in range(start_row, len(rows)):
+        row = rows[row_num]
+        record = {}
+        for colNum, fieldName, fieldType, default in fieldspec:
+            text = row[colNum-1]
+            try: record[fieldName] = fieldType(text)
+            except ValueError: record[fieldName] = default
+        job_code = record['JobCode']
+        if len(job_code) == 0: continue
+        record['ExcelRow'] = row_num + 1
+        
+        #print record
+        assert_worksheet_job(data, job_code, wsname, row_num)        
+        
+        # check that no records have None in them - they should all be set to something
+        for k in record.keys():
+            if record[k] is None:
+                msg = "Can't have a key value of None for {0} in summary worksheet {1} with record {2}".format(k, wsname, record)
+                raise common.DataIntegrityError(msg)
+        
+        result.append(record)
+    return result
+
 ###########################################################################
 if  __name__ == "__main__":
     data = import_excel_data()

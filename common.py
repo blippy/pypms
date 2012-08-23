@@ -14,9 +14,8 @@ import unicodedata
 
 
 
-
 ###########################################################################
-    
+
 class DataIntegrityError(Exception):
     def __init__(self, value):
         self.value = value
@@ -25,7 +24,6 @@ class DataIntegrityError(Exception):
         return repr(self.value)
     
     
-# TODO prolly need to use this more
 def assert_job(d, job_code, source_info):
     "Require that a job exists in the database"
     if not d['jobs'].has_key(job_code):
@@ -39,7 +37,10 @@ def assert_job(d, job_code, source_info):
             msg = fmt.format(job_code, source_info)
             logerror(msg)
             raise DataIntegrityError("ERR: missing job")
-  
+ 
+
+
+
 def assert_task(d, job_code, task_code, source_info):
     "Require that a task exist in the database"
     if not d['tasks'].has_key((job_code, task_code)):
@@ -153,6 +154,10 @@ def summate(seq, keyfunc, test = always):
         if test(el): total +=v
     return total
 
+def summate_lod(lod, key):
+    "Give a list of dictionaries, sum the values for a given KEY"
+    return sum(map(lambda x: x[key], lod))
+
 def summate_to_dict(seq, keyfunc, valuefunc):
     "Return a dictionary with key values determined by KEYFUNC, and values determined by VALUEFUNC, over SEQ"
     result = {}
@@ -181,6 +186,9 @@ def summate_cols(matrix):
 # TODO - use these functions extensively
 
 
+# TODO ought to be able to remove this function entirely and use
+# either get() or setdefault()
+# http://wiki.python.org/moin/KeyError
 def dget(dictionary_name, key, value = 0.0):
     '''Obtain a value from a dictionay, using default VALUE if key not found
     or value is None'''

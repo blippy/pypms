@@ -245,7 +245,11 @@ class MainFrame(wx.Frame):
     def menu_data_timegrid_selected(self, event): # wxGlade: MainFrame.<event_handler>
         if not self.timegrid_frame.IsShown():
             self.timegrid_frame.Show()
-        
+
+    def menu_data_persontimegrid_selected(self, event): # wxGlade: MainFrame.<event_handler>
+        if not self.persontimegrid_frame.IsShown():
+            self.persontimegrid_frame.Show()
+            
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         # main process loop
         p = period.g_period
@@ -318,9 +322,7 @@ class MainFrame(wx.Frame):
 
     def menu_externals_spreadsheet_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file(excel.camelxls())
-    def menu_data_persontimegrid_selected(self, event): # wxGlade: MainFrame.<event_handler>
-        if not self.persontimegrid_frame.IsShown():
-            self.persontimegrid_frame.Show()
+
 
 # end of class MainFrame
 

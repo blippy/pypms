@@ -164,7 +164,6 @@ def fetch():
     p = period.g_period
     
     # table data
-    #d['period'] = p # TODO HIGH: eliminate this, as we should now be seitching over to g_period
     d['employees'] = GetEmployees()
     d['jobs'] = GetJobs()
     d['tasks'] = GetTasks()

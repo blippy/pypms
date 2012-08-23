@@ -1,11 +1,12 @@
-Use figleaf to test for code coverage
+unify load() in modules excel, tweaks, invoices
+
+read spreadsheet only if necessary
 
 Work statement to include special instructions for client signed
-
-To speed up excel importation, export it as CSV files first
 
 Create an unposting facility
 
 email chargeability report
 
 log errors and also bail out
+

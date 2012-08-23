@@ -63,6 +63,13 @@ class PersonTimeGridFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.clicked_calculate, self.button_calculate)
         # end wxGlade
 
+        # added by mcarter
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+    def OnClose(self, event):
+        self.Hide()
+        
+        
     def __set_properties(self):
         # begin wxGlade: PersonTimeGridFrame.__set_properties
         self.SetTitle("Person time Grid")
