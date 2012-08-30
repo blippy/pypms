@@ -5,55 +5,6 @@ from common import dget, princ, print_timing
 import common
 import excel
 
-def load(data):
-    f = common.AsFloat
-    s = excel.fix_str
-    fieldspec = [
-        (1, 'JobCode', s, ''),
-        (2, 'InvBIA', f, 0.0),
-        (3, 'InvUBI', f, 0.0),
-        (4, 'InvWIP', f, 0.0),
-        (5, 'InvAccrual', f, 0.0),
-        (6, 'InvInvoice', f, 0.0),
-        (7, 'Inv3rdParty', f, 0.0),
-        (8, 'InvTime', f, 0.0),
-        (9, 'Recovery', f, 0.0),
-        (10, 'Comment', s, '')]
-    return excel.import_summary_sheet(data, 'InvTweaks', fieldspec, 2)
-
-def XXX_load():    
-
-    xl = excel.read_worksheet('InvTweaks')
-    field_names = ['JobCode', 'InvBIA', 'InvUBI', 'InvWIP', 'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 'Recovery', 'Comment']
-    f = common.AsFloat
-    field_types = [excel.fix_str, f, f, f, f, f, f, f, f, str]
-    the_tweaks = []
-
-    all_ok = True
-    for line_num in range(2, len(xl)):
-        line = xl[line_num]
-        #for line in xl[1:]:
-            
-        tweak = {}
-        tweak_ok = True
-        for field, value, converter in itertools.izip(field_names, line, field_types):
-            try:
-                tweak[field] = converter(value)
-            except ValueError:
-                all_ok = False
-                tweak_ok = False
-                msg = "Problem with tweaks: line: {0}, field name: {1}, Contents: '{2}'".format(line_num+1, field, value)
-                princ(msg)
-                princ(traceback.format_exc())
-        if tweak_ok and len(tweak['JobCode']) > 0: 
-            the_tweaks.append(tweak) # TODO handle case Job isn't found
-        
-    if not all_ok:
-        raise common.DataIntegrityError("Error encountered in tweaks worksheet. Further processing abandoned")
-
-    #princ(the_tweaks)
-
-    return the_tweaks
         
 def tweaked_jobs(the_tweaks):
     jobs = []

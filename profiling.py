@@ -23,7 +23,7 @@ def create_readable_profile():
     ostream.close()
 
 def main():
-    cmd = 'excel.import_excel_data()'
+    cmd = 'excel.load()'
     cmd = 'pydra.main()'
     create_raw_profile(cmd)    
     create_readable_profile()

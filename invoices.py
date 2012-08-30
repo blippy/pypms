@@ -18,53 +18,10 @@ VAT = 0.20
 
 def number(input): return '%.2f' % (input)    
 
-###########################################################################
-
-def load(data):
-    'Import invoices entered manually in spreadsheet'
-    fieldspec = [
-        (1, 'irn', excel.fix_str, ''),
-        (2, 'client', str, ''),
-        (3, 'JobCode', excel.fix_str, ''),
-        (4, 'net', float, None),
-        (7, 'desc', str, '')]
-    return excel.import_summary_sheet(data, 'ManualInvoices', fieldspec, 1)
-
-@print_timing
-def XXX_import_manual_invoices(data):
-    'Import invoices entered manually in spreadsheet'
-
-    invoiceLines = excel.read_worksheet('ManualInvoices')
-    manual_invoices = []
-    # TODO abstract similarities to expenses.import_expenses()
-    fieldspec = [(1, 'irn', excel.fix_str), (2, 'client', str), (3, 'JobCode', excel.fix_str),(4, 'net', float), (7, 'desc', str)]
-    row_num = 0
-    for row in invoiceLines[1:]:
-        row_num += 1
-        
-        record = {}
-        for colNum, fieldName, fieldType in fieldspec:
-            text = row[colNum-1]
-            try: record[fieldName] = fieldType(text)
-            except ValueError: pass
-        job_code = record['JobCode']
-        if job_code == '' or not record.has_key('net'): continue
-        
-        #irn, client, job, net = [nth(row, idx) for idx in range(0,4)]
-        #desc =nth(row, 6)
-        #if job =='Job' or job == '' or job == "TOTAL:": continue
-        if not data['jobs'].has_key(job_code):
-            fmt = "ERR: No database job '{0}' camel workbook '{1}' sheet manualInvoices row {2}"
-            msg = fmt.format(job_code, excel.camelxls(), row_num)
-            raise common.DataIntegrityError(msg)
-        #net = common.AsFloat(net)        
-        #manual_invoices.append({ 'irn' : irn, 'client' : client, 'job' : job, 'net' : net, 'desc' : desc})
-        manual_invoices.append(record)
-    data['manual_invoices'] = manual_invoices
-    
+###########################################################################    
     
 def enumerate_invoices(data):
-    mans = data['manual_invoices']
+    mans = data['ManualInvoices']
 
     job_codes = data['auto_invoices'].keys()
     job_codes.sort()

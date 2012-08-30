@@ -129,7 +129,7 @@ def create_statements(data):
     
     # TODO - print a warning if exp_factor > 1.05
     work_codes = set([common.AsAscii(t['JobCode']) for t in data['timeItems']])
-    the_expenses = data['expenses']
+    the_expenses = data['Expenses']
     expense_codes = set([e['JobCode'] for e in the_expenses])
     job_codes = list(work_codes.union(expense_codes))
     job_codes.sort()

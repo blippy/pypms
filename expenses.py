@@ -16,7 +16,7 @@ from common import dget, princ, print_timing
 
 ###########################################################################
 
-def load(data):
+def XXXload(data):
     fieldspec = [
         (1, 'JobCode', excel.fix_str, ''),
         (2, 'Task', str, ''), 
@@ -26,7 +26,9 @@ def load(data):
         (10, 'Amount', float, None)]
     return excel.import_summary_sheet(data, 'Expenses', fieldspec, 1)
 
-def create_expense_report(sorted_expenses, output_text = True):
+def create_expense_report(data, output_text = True):
+    the_expenses =  data['Expenses']
+    sorted_expenses= sorted(the_expenses, key= lambda x: x['JobCode'])
 
     output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
     
@@ -77,12 +79,7 @@ def XXX_create_expense_report(sorted_expenses, output_text = True):
         # TODO Consider zapping Excel output option if considered unecessary
         excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
             
-            
-def process(data):
-    the_expenses =  load(data)
-    the_expenses.sort(key= lambda x: x['JobCode'])
-    create_expense_report(the_expenses)
-    data['expenses'] = the_expenses
+
     
 ###########################################################################
 if  __name__ == "__main__":

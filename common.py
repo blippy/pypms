@@ -88,7 +88,10 @@ def spit(fname, text):
 def princ(text):
     print(str(text))
     
-logging.basicConfig(level=logging.ERROR,
+log_level = logging.ERROR
+log_level = logging.INFO
+
+logging.basicConfig(level=log_level,
                     format='%(asctime)s %(levelname)s %(message)s',
                     filename= outroot + '\\pypms.log',
                     filemode='a')

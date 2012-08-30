@@ -37,7 +37,7 @@ from common import AsAscii, AsFloat, princ
 def accumulate(d):
     # TODO - this can probably be used in many other places
     result = {}
-    for el in d['manual_invoices']:
+    for el in d['ManualInvoices']:
         common.dplus(result, el['JobCode'], el['net'])
     return result
 
@@ -70,9 +70,6 @@ def InsertFreshMonth(conn):
         fmt += "('%s', '%s', 0, 0, 0, 0, 0, 0, 0, '%s', 'PyPms', 0, 0, 0) " #WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
         sql = fmt % (invDate, invBillingPeriod, jobcode)
         conn.execute(sql)
-
-
-###########################################################################
 
 
 

@@ -1,7 +1,3 @@
-unify load() in modules excel, tweaks, invoices
-
-read spreadsheet only if necessary
-
 It seems that GetInvoices and GetTasks is called twice - which seems redundant
 
 Work statement to include special instructions for client signed
