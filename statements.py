@@ -1,9 +1,10 @@
 # Create the monthly workstatements for each job
 
-#import itertools
+import itertools
 import pdb
 #from itertools import groupby, ifilter
 from operator import itemgetter, attrgetter
+import pprint
 
 import common, rtf
 from common import aggregate, princ, print_timing
@@ -127,7 +128,7 @@ def create_job_statement(job, all_tasks, exps, times):
 
 def create_statements(data):
     
-    # TODO - print a warning if exp_factor > 1.05
+    # TODO - print a warning if exp_factor > 1.05 
     work_codes = set([common.AsAscii(t['JobCode']) for t in data['timeItems']])
     the_expenses = data['Expenses']
     expense_codes = set([e['JobCode'] for e in the_expenses])
@@ -172,9 +173,22 @@ def create_statements(data):
 
 ###########################################################################
 
+class Source:
+    def __init__(self):
+        self.foo = 1
+        self.bar = 2
+        self.baz = 'zoing'
+        
+    def __str__(self):
+        return str(self.__dict__)
+        
 if  __name__ == "__main__":
     debug = True
     data = db.load_state()
-    expenses.cache.import_expenses()
+    #pprint.pprint(data['Expenses'])
+    #s = Source()
+    #print s.foo
+    #pprint.pprint(props(s))
+    #expenses.cache.import_expenses()
     create_statements(data)
     princ("Finished")

@@ -22,9 +22,9 @@ def main():
     cache = db.fetch()
     timesheets.create_timesheets(cache)
     
-    xldata = excel.load()
-    excel.verify_data(cache)
-    cache.update(xldata)
+    excel.encache(cache)
+    db.save_state(cache)
+    excel.verify(cache)
     expenses.create_expense_report(cache)
     statements.create_statements(cache)
     

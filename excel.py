@@ -4,6 +4,7 @@ import datetime
 import math
 import os
 import pdb
+import pprint
 
 import win32com.client.dynamic
 
@@ -11,16 +12,9 @@ import xlrd
 
 import common
 from common import princ
+import db
 import period
 
- 
-###########################################################################
-
-
-def camelxls():
-    return r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
-
-    
 ###########################################################################
 
 def fix_date(v):
@@ -41,6 +35,51 @@ def fix_str(s):
 
 f = common.AsFloat
 s = fix_str
+
+schema = [  ('Expenses', 1, [       (1, 'JobCode', s, ''),
+                                    (2, 'Task', s, ''), 
+                                    (4, 'Period', fix_date, ''),
+                                    (6, 'Name', str, ''),
+                                    (8, 'Desc', str, ''), 
+                                    (10, 'Amount', float, None)]),
+            ('InvTweaks', 2, [      (1, 'JobCode', s, ''),
+                                    (2, 'InvBIA', f, 0.0),
+                                    (3, 'InvUBI', f, 0.0),
+                                    (4, 'InvWIP', f, 0.0),
+                                    (5, 'InvAccrual', f, 0.0),
+                                    (6, 'InvInvoice', f, 0.0),
+                                    (7, 'Inv3rdParty', f, 0.0),
+                                    (8, 'InvTime', f, 0.0),
+                                    (9, 'Recovery', f, 0.0),
+                                    (10, 'Comment', s, '')]),
+            ('ManualInvoices', 1, [ (1, 'irn', s, ''),
+                                    (2, 'client', str, ''),
+                                    (3, 'JobCode', s, ''),
+                                    (4, 'net', float, None),
+                                    (7, 'desc', str, '')])]
+
+###########################################################################
+
+
+def camelxls():
+    return r"M:\Finance\pypms\{0}\summary-{0}.xls".format(period.yyyymm())
+
+    
+###########################################################################
+
+
+class Source:
+    def __init__(self, wsname, row):
+        self.wsname = wsname
+        self.row = row
+        
+    def __repr__(self):
+        return self.__str__()
+        
+    def __str__(self):
+        text = 'Source: Excel: ' + str(self.__dict__)
+        return text
+        
   
 def import_summary_sheet(wsname, start_row, fieldspec):    
     rows = read_worksheet(wsname)
@@ -54,7 +93,8 @@ def import_summary_sheet(wsname, start_row, fieldspec):
             except ValueError: record[fieldName] = default
         job_code = record['JobCode']
         if len(job_code) == 0: continue
-        record['ExcelRow'] = row_num + 1
+        record['source'] = Source(wsname, row_num + 1)
+        #record['type'] = wsname
         
         # check that no records have None in them - they should all be set to something
         for k in record.keys():
@@ -66,61 +106,59 @@ def import_summary_sheet(wsname, start_row, fieldspec):
     return result
 
 
-m_xlmodtime = 0
-m_xldata = None
+#m_xlmodtime = 0
+#m_xldata = None
 
 def load():
     
     #only load spreadsheet if modified recently
-    global m_xlmodtime, m_xldata
-    xlmodtime = os.path.getmtime(camelxls())
-    reload_p =  xlmodtime > m_xlmodtime
-    m_xlmodtime = xlmodtime
-    common.loginfo("Reload spreadsheet = " + str(reload_p))
-    if not reload_p: return m_xldata
+    #global m_xlmodtime, m_xldata
+    #xlmodtime = os.path.getmtime(camelxls())
+    #reload_p =  xlmodtime > m_xlmodtime
+    #m_xlmodtime = xlmodtime
+    #common.loginfo("Reload spreadsheet = " + str(reload_p))
+    #if not reload_p: return m_xldata
 
-    schema = [  ('Expenses', 1, [       (1, 'JobCode', fix_str, ''),
-                                        (2, 'Task', str, ''), 
-                                        (4, 'Period', fix_date, ''),
-                                        (6, 'Name', str, ''),
-                                        (8, 'Desc', str, ''), 
-                                        (10, 'Amount', float, None)]),
-                ('InvTweaks', 2, [      (1, 'JobCode', s, ''),
-                                        (2, 'InvBIA', f, 0.0),
-                                        (3, 'InvUBI', f, 0.0),
-                                        (4, 'InvWIP', f, 0.0),
-                                        (5, 'InvAccrual', f, 0.0),
-                                        (6, 'InvInvoice', f, 0.0),
-                                        (7, 'Inv3rdParty', f, 0.0),
-                                        (8, 'InvTime', f, 0.0),
-                                        (9, 'Recovery', f, 0.0),
-                                        (10, 'Comment', s, '')]),
-                ('ManualInvoices', 1, [ (1, 'irn', s, ''),
-                                        (2, 'client', str, ''),
-                                        (3, 'JobCode', s, ''),
-                                        (4, 'net', float, None),
-                                        (7, 'desc', str, '')])]
-                                        
-    m_xldata = {}
+
+    global schema                                    
+    xldata = {}
     for layout in schema:
         wsname, start_row, fieldspec = layout
-        m_xldata[wsname] = import_summary_sheet(wsname, start_row, fieldspec)
-    return m_xldata
+        xldata[wsname] = import_summary_sheet(wsname, start_row, fieldspec)
+    return xldata
     
 ###########################################################################
 
-def verify_data(dbase):
-    global m_xldata
-    ok = True
-    for k in sorted(m_xldata.keys()):
-        records = m_xldata[k]
-        for rec in records:
-            if not dbase['jobs'].has_key(rec['JobCode']):
-                ok = False
-                msg = "KeyError: {0}: row {1}: jobcode '{2}'".format(k, rec['ExcelRow'], rec['JobCode'])
-                common.logerror(msg)
-                
-    if not ok: raise KeyError("Spreadsheet job(s)")
+def verify(dbase):
+    #global m_xldata
+    #pprint.pprint(dbase)
+    #pprint.pprint(m_xldata)
+    #return
+    global schema
+    
+    # collect errors
+    errors = []
+    
+    
+    for rec in dbase['Expenses']:
+        if rec['Task'] == '':
+            if not dbase['jobs'].has_key(rec['JobCode']): errors.append(rec)
+        else:
+            if not dbase['tasks'].has_key((rec['JobCode'], rec['Task'])): errors.append(rec)
+            
+    for rec in dbase['InvTweaks'] + dbase['ManualInvoices']:
+        if not dbase['jobs'].has_key(rec['JobCode']): errors.append(rec)
+        
+    if len(errors) == 0: return
+
+    # we have some errors, so print them
+    def pr(): print "-----------------------------------"
+    pr()
+    print "Errors in Excel data:"
+    for e in errors:
+        print e['source']
+    pr()
+    raise KeyError("Spreadsheet job(s)")
 
 ###########################################################################
 def create_workbook(file_name, func):
@@ -182,9 +220,18 @@ def assert_worksheet_job(data, job_code, worksheet_name, row0):
     
 ###########################################################################
 
+def encache(cache):
+    xldata = load()
+    cache.update(xldata)
+    
+
 
 ###########################################################################
 if  __name__ == "__main__":
-    xldata = load()
-    princ(xldata)
+    #xldata = load()
+    #princ(xldata)
+    cache = db.load_state()    
+    #pprint.pprint(cache.keys())
+    encache(cache)
+    verify(cache)
     princ('Finished')
