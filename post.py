@@ -18,166 +18,153 @@ import csv
 import datetime
 import itertools 
 import pdb
+import pprint
 import traceback
 
+import ordereddict
 import win32com.client
 
 import common
-from common import print_timing
+from common import AsAscii, AsFloat, princ
 import db
 import excel
 import period
-from common import AsAscii, AsFloat, princ
+
    
 
-###########################################################################
-
-
-    
-def accumulate(d):
-    # TODO - this can probably be used in many other places
-    result = {}
-    for el in d['ManualInvoices']:
-        common.dplus(result, el['JobCode'], el['net'])
-    return result
 
 ############################################################################
 
 def zap_entries():
     'Remove all recorded invoices for the period PER'
     fmt = "DELETE FROM tblInvoice WHERE InvBillingPeriod='{0}'"
+    #print "zap_entries"
     sql = fmt.format(period.mmmmyyyy())
+    #print sql
     db.ExecuteSql(sql)
+    #db.commit()
     
-############################################################################
 
-def InsertFreshMonth(conn):
-    'Put a selection of zeros in tblInvoice'
+############################################################################
+def get_keys():
+    return ['InvDate', 'InvBillingPeriod', 'InvBIA', 'InvUBI', 'InvWIP', 
+        'InvAccrual', 'InvInvoice', 'Inv3rdParty', 'InvTime', 
+        'InvJobCode', 'InvComments', 'InvPODatabaseCosts', 'InvCapital',
+        'InvStock']
+  
+def create_insertion(jcode):
+        d = ordereddict.OrderedDict(map(lambda x: [x, 0.0], get_keys()))
+        d['InvDate'] = datetime.date.today().strftime('%d/%m/%Y')
+        d['InvBillingPeriod'] = period.mmmmyyyy()
+        d['InvJobCode'] = str(jcode)
+        d['InvComments'] = "PMS " + common.get_timestamp()
+        return d
     
-    # Determine which jobs need to be recorded in tblInvoice
-    # Do we need to do nearly all of them, or just the active ones?
+def setup_insertions(tasks):
     invBillingPeriod = period.mmmmyyyy()
-    recs = db.GetTasks()
-    activeJobs = set([key[0] for key in recs.keys()])
+    #recs = db.GetTasks()
+    activeJobs = set([key[0] for key in tasks.keys()])
     ignoreJobs = set(['010500', '010400', '010300', '010200', '3. Sundry', '404550'])
     jobsToCreate = activeJobs - ignoreJobs
-    
-    invDate = datetime.date.today().strftime('%d/%m/%Y')
-    for jobcode in jobsToCreate:
-        fmt =  "INSERT INTO tblInvoice "
-        fmt += "(InvDate, InvBillingPeriod, InvBIA, InvUBI, InvWIP, InvAccrual, InvInvoice, Inv3rdParty, InvTime, InvJobCode, InvComments, InvPODatabaseCosts, InvCapital,InvStock)"
-        fmt += " VALUES "
-        fmt += "('%s', '%s', 0, 0, 0, 0, 0, 0, 0, '%s', 'PyPms', 0, 0, 0) " #WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (invDate, invBillingPeriod, jobcode)
-        conn.execute(sql)
-
-
-
-###########################################################################
-
-def update_pms(conn, d, accumulated_tweaks):
-    '''Update the invoice table in PMS. Note that AugmentPms() has already inserted any necessary 
-    records, so we only have to update, and not insert'''
-    
-    # Jobs requiring entries
-    invBillingPeriod = period.mmmmyyyy()
-    code_records = db.GetInvoices()
-    #pdb.set_trace()
-    codes = [str(rec['InvJobCode']) for rec in code_records]
-    invoices = d['auto_invoices']
-    
-    manual_invoices = accumulate(d)
-    #tweaks = accumulate_tweaks(d, xl_invtweaks)
-    
-    for code in codes:
+    insertions = {}
+    for jcode in jobsToCreate:
+        insertions[jcode] = create_insertion(jcode)
+    return insertions
         
-        bia = 0.0
-        ubi = 0.0
-        wip = 0.0
-        accrual = 0.0
-        invoice_total = 0.0
-        party3 = 0.0
-        invoice_time = 0.0
-        comments = ''
+
+def process_autos(inserts, autos, d):
+    for invoice in autos.values():
+        jcode = invoice['JobCode']
+        insert = inserts[jcode]
+        invoice_time = invoice['work']
+        insert['InvTime'] += invoice_time
+        party3 = invoice['expenses']
+        insert['Inv3rdParty'] += party3
+        if d['jobs'][jcode]['WIP']:
+            insert['InvUBI'] += invoice_time
+            insert['InvWIP'] += party3
+        else:        
+            insert['InvInvoice'] += invoice['net']
+        inserts[jcode] = insert
         
-        # adjust for automated invoices
-        if invoices.has_key(code):
-            invoice = invoices[code]
-            invoice_time += invoice['work']
-            party3 += invoice['expenses']
-            if d['jobs'][code]['WIP']:
-                ubi += invoice['work']
-                wip += invoice['expenses']
-            else:        
-                invoice_total += invoice['net']
-            
-            
-        # adjust for manual invoices
-        invoice_total += common.dget(manual_invoices, code, 0.0)
-        
-        # adjust for invoice tweaks
-        tweak = common.dget(accumulated_tweaks, code, None)
-        if tweak:
-            party3 += tweak['Inv3rdParty']
-            accrual += tweak['InvAccrual']
-            bia += tweak['InvBIA']
-            invoice_total += tweak['InvInvoice']
-            invoice_time += tweak['InvTime']
-            ubi += tweak['InvUBI']
-            wip += tweak['InvWIP']
-            
+def process_manuals(inserts, manuals):
+    "Process manual invoices"
+    for m in manuals:
+        jcode = m['JobCode']
+        inserts[jcode]['InvInvoice'] += m['net']
 
-        
-        # now post those entries
-        comment = 'PyPms ' + str(period.now())
-        fmt = "UPDATE tblInvoice SET InvBIA=%.2f, InvUBI=%.2f, InvWIP=%.2f, InvAccrual=0,InvInvoice=%.2f, "
-        fmt += "Inv3rdParty=%.2f, InvTime=%.2f , InvComments='%s', InvPODatabaseCosts=0, "
-        fmt += "InvCapital=0,InvStock=0 WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (bia, ubi, wip, invoice_total, party3, invoice_time, comment, code, invBillingPeriod)
-        conn.Execute(sql)
+def process_tweaks(inserts, data):
+    tweaks = data['InvTweaks']
+    for tweak in tweaks:
+        jcode = tweak['JobCode']
+        for k in ['Inv3rdParty', 'InvAccrual', 'InvBIA', 'InvInvoice', 'InvTime', 'InvUBI', 'InvWIP']:
+            inserts[jcode][k] += tweak[k]
+        #print tweak
 
-###########################################################################
-
-def add_purchase_orders(conn):
-
+def process_pos(inserts):
     # Retrieve the relevant info from the database
-    p = period.g_period
-    from_date = p.first()
-    to_date = p.last()
-    # lifted from PMS query qselPOCosts
-    fmt = """SELECT tblPurchaseItems.POJobCode AS [code], Sum([POValue]*[POQty]) AS [cost]
-        FROM tblPurchaseOrders INNER JOIN tblPurchaseItems ON 
-        tblPurchaseOrders.PONumber = tblPurchaseItems.PONumber
-        WHERE (((tblPurchaseOrders.PODate) Between #%s# And #%s#))
-        GROUP BY tblPurchaseItems.POJobCode"""
+    #p = period.g_period
+    #from_date = p.first()
+    #to_date = p.last()
     fmt = "SELECT Code, Cost FROM qryPO WHERE BillingPeriod='%s'"
-    sql = fmt % (p.yyyymm())
+    sql = fmt % (period.yyyymm())
     costs = {}
     for rec in db.fetch_all(sql):
         costs[str(rec[0])] = rec[1]
     
     # Add PO costs to database
-    for job_code in costs:
-        cost = costs[job_code]
-        fmt = "UPDATE tblInvoice SET InvPODatabaseCosts=%.2f WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
-        sql = fmt % (cost, job_code, p.mmmmyyyy())
-        conn.Execute(sql)
-
-    
-
+    for jcode in costs:
+        cost = costs[jcode]
+        if not inserts.has_key(jcode): continue # can happen with '3. Sundry' for example
+        #    inserts[jcode] = create_insertion(jcode)
+        inserts[jcode]['InvPODatabaseCosts'] = cost
+        #fmt = "UPDATE tblInvoice SET InvPODatabaseCosts=%.2f WHERE InvJobCode='%s' AND InvBillingPeriod='%s'"
+        #sql = fmt % (cost, job_code, p.mmmmyyyy())
+        #conn.Execute(sql)
+        
+def insert_data(inserts):
+    #print inserts
+    #conn = db.DbOpen()
+    with db.Cursor() as c:
+        for ins in inserts.values():
+            keys = ' , '.join(get_keys())
+            #print keys
+            #print ins
+            values = []
+            for k in get_keys():
+                v = ins[k]
+                if isinstance(v, str): 
+                    v = "'{0}'".format(v)
+                else:
+                    v = str(v)
+                values.append(v)
+            values = ' , '.join(values)
+        
+            sql = "INSERT INTO tblInvoice ({0}) VALUES ({1})".format(keys, values)
+            #print sql
+            #conn.execute(sql)
+            c.execute(sql)
+            #print sql
 ###########################################################################
 
-@print_timing
-def post_main(d, accumulated_tweaks):
-    conn = db.DbOpen()
+
+ 
+def post_main(data, accumulated_tweaks):
     zap_entries()
-    InsertFreshMonth(conn)
-    update_pms(conn, d, accumulated_tweaks)
-    add_purchase_orders(conn)
-    conn.Close()
+    inserts = setup_insertions(data['tasks'])
+    #print data.keys()
+    autos = data['auto_invoices']
+    process_autos(inserts, autos, data)
+    manuals = data['ManualInvoices']
+    process_manuals(inserts, manuals)
+    process_tweaks(inserts, data)
+    process_pos(inserts)
+    insert_data(inserts)
+    #pprint.pprint(inserts)
     
+   
 if  __name__ == "__main__":
     data = db.load_state()
     #print data
-    post_main(data)
+    post_main(data, None)
     princ("Finished")

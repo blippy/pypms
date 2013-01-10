@@ -16,13 +16,6 @@ import unicodedata
 
 ###########################################################################
 
-class DataIntegrityError(Exception):
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        return repr(self.value)
-    
     
 def assert_job(d, job_code, source_info):
     "Require that a job exists in the database"
@@ -36,7 +29,7 @@ def assert_job(d, job_code, source_info):
             """
             msg = fmt.format(job_code, source_info)
             logerror(msg)
-            raise DataIntegrityError("ERR: missing job")
+            raise KeyError("ERR: missing job")
  
 
 
@@ -54,7 +47,7 @@ def assert_task(d, job_code, task_code, source_info):
         """
         msg = fmt.format(job_code, task_code, source_info)
         logerror(msg)
-        raise DataIntegrityError("ERR: missing task")
+        raise KeyError("ERR: missing task")
         
 
 ###########################################################################
@@ -68,7 +61,6 @@ outroot = 'M:\\Finance\\pypms'
 makedirs(outroot)
 
 
-# TODO - ensure all file saving goes though this function
 # TODO - should create intermediate directories if necessary
 def spit(fname, text):
     'Write TEXT to file FNAME'
@@ -208,14 +200,6 @@ def dplus(dictionary_name, key, value):
     dictionary_name[key] += value
     
 
-def combine_dict_keys(list_of_dicts):
-    result = set()
-    for dic in list_of_dicts:
-        for key in dic.keys():
-            result.add(key)
-    result = list(result)
-    result.sort()
-    return result
    
 def mapdict(d, fields):
     return map(lambda x: d[x], fields)
@@ -231,11 +215,6 @@ def AsAscii(text):
         return text
     else:
         return unicodedata.normalize('NFKD', text).encode('ascii','ignore')
-
-def AsInt(text):
-    'Convert text into an integer'
-    if text is None: return 0
-    return int(text)
 
     
 def AsFloat(text):
@@ -256,25 +235,15 @@ def AsFloat(text):
 # functions difficult to classify
 
 
-def print_timing(func):
-    show_timing = False
-    #show_timing = True
-    def wrapper(*arg):
-        if show_timing: princ("Executing {0}".format(func.func_name))
-        t1 = time.time()
-        res = func(*arg)
-        t2 = time.time()
-        if show_timing: princ('%s took %0.3f s' % (func.func_name, (t2-t1)))
-        return res
-    return wrapper
-
 def tri(truth, true_result, false_result):
     'Simulate the C ?: operator'
     if truth:
         return true_result
     else:
         return false_result
-    
+ 
+
+
 ###########################################################################
 # common operations on GUIs
 
@@ -290,3 +259,18 @@ def rectify_num_grid_columns(grid, n):
         grid.AppendCols(num_cols_required - num_cols)
     elif num_cols_required < num_cols:
         grid.DeleteCols(n - 1, num_cols - num_cols_required)
+
+###########################################################################
+# timestamp
+
+__timestamp = None
+
+def reset_timestamp():
+    global __timestamp
+    __timestamp = None
+    
+def get_timestamp():
+    global __timestamp
+    if __timestamp is None:
+        __timestamp = datetime.datetime.today().strftime("%d %B %Y %H:%M:%S")
+    return __timestamp

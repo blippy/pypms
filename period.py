@@ -13,87 +13,6 @@ import common
 from common import princ
 import registry
 
-###########################################################################
-
-def now(): return datetime.datetime.now()
-
-
-def is_weekend(y, m, d):
-    'Determine if a day is a weekday or weekend'
-    v = calendar.weekday(y, m, d) # mon is 0
-    v = v > 4
-    return v
-    
-###########################################################################
-
-
-# TODO this class should probably be removed
-
-class Period:
-    def __init__(self, usePrev = False):        
-        self.setToCurrent()        
-        if usePrev: self.decMonth()
-        
-    def __eq__(self, other):
-        if not other: return False # maybe None was passed in as other
-        return self.yyyymm() == other.yyyymm()
-    
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def setym(self, y, m):
-        self.y = int(y)
-        self.m = int(m)
-        
-    def setToCurrent(self):
-        t = now()
-        self.y = t.year
-        self.m = t.month
-        
-    def describe(self):
-        princ('YEAR: {0}, MONTH: {1}'.format(self.y, self.m))
-        
-
-    def decMonth(self):
-        self.inc(-1)
-            
-    def inc(self, num_months = 1):
-        month_num = self.y*12 + self.m-1
-        month_num += num_months
-        self.y = int(math.floor(month_num/12))
-        self.m = month_num - self.y*12 + 1
-        
-            
-       
-
-    def within(self, d):
-        return d.year == self.y and d.month == self.m
-
-    def yyyymm(self):
-        'Return the period in the form 2010-01'
-        result = "%04d-%02d" % (self.y, self.m)
-        return result
-    
-    def mmmmyyyy(self):
-        ' Return the period in the form March 2010'
-        
-    
-    def first(self):
-        'Return the first day of the invoice billing period in the form 01/01/2010'
-        result = '01/%02d/%04d' % (self.m, self.y)
-        return result
-    
-    def dim(self):
-        'Return the number of days in the year/month'
-        return calendar.monthrange(self.y, self.m)[1]
-    
-    def last(self):
-        'Return the last day of the invoice billing period in the form 31/01/2010'
-        result = '%02d/%02d/%04d' % (self.dim(), self.m, self.y)
-        return result
-        
-
-
     
 ###########################################################################
 
@@ -142,25 +61,85 @@ def create_text_report(filename, lines):
     save_report(filename, output)
 
 ###########################################################################
+# basic initialisation, getting, and setting
+
+g_period = None #init_global_period()
+
+def tuple():
+    'Retrieve the global period as the tuple: y, '
+    global g_period
+    return g_period[0], g_period[1]
+
+def pformat(fmt)    :
+    'Format the current period according to a specified format'
+    y, m = tuple()
+    return fmt.format(y, m)
+
+def describe():
+    princ(pformat('YEAR: {0}, MONTH: {1}'))
+
+def yyyymm():
+    'Return the period in the form 2010-01'
+    #result = "%04d-%02d" % (self.y, self.m)
+    return pformat('{0:04d}-{1:02d}')
+    #return result
+ 
+def mmmmyyyy():
+    y, m = tuple()
+    return '{0} {1}'.format(calendar.month_name[m], y)
+
+def XXXfirst(self):
+    'Return the first day of the invoice billing period in the form 01/01/2010'
+    return pformat('01/{1:02d}/{0:4d}')
+
+    
+def dim():
+    'Return the number of days in the year/month'
+    y, m = tuple()
+    return calendar.monthrange(y, m)[1]
+    
+def stuple(y, m):
+    'Set the global period from y,m'
+    global g_period
+    g_period = (y, m)
+    registry.set_reg_value("Period", yyyymm())
+    
 def init_global_period():
-    p = Period()
+    'Initialise global period'
     try:
         v = registry.get_reg_key("Period")
         ym = str(v[0])
-        y = ym[:4]
-        m = ym[5:]
-        p.setym(y, m)
+        y = int(ym[:4])
+        m = int(ym[5:])
+        #p.setym(y, m)
     except WindowsError:
-        pass
-    return p
+        p = datetime.datetime.now()
+        y = p.year
+        m = p.month
+    stuple(y, m)
 
-g_period = init_global_period()
+init_global_period()
 
-def global_inc(num_months):
+
+
+
+###########################################################################
+
+def inc(num_months):
     'Increase the global period by NUM_MONTHS'
-    global g_period
-    g_period.inc(num_months)
-    registry.set_reg_value("Period", g_period.yyyymm())
+    y, m = tuple()
+    month_num = y*12 + m-1
+    month_num += num_months
+    y = int(math.floor(month_num/12))
+    m = month_num - y*12 + 1
+    stuple(y, m)
+    
+def is_weekend(d):
+    'Determine if a day is a weekday or weekend'
+    y, m = tuple()
+    v = calendar.weekday(y, m, d) # mon is 0
+    v = v > 4
+    return v
 
 ###########################################################################
 # directories dependent on period
@@ -168,7 +147,7 @@ def global_inc(num_months):
 
 
 def perioddir():
-    return common.outroot + "\\" + g_period.yyyymm()
+    return common.outroot + "\\" + yyyymm()
     
 def reportdir():
     'Return the report directory'
@@ -188,23 +167,20 @@ def save_report(filename, text):
         text = '\r\n'.join(text)
     common.spit(fullname, text)
     
-def mmmmyyyy():
-    global g_period
-    d = datetime.date(g_period.y, g_period.m, 1)
-    result = d.strftime('%B %Y')
-    return result
+
  
-def yyyymm():
-    'Return the period in the form 2010-01'
-    global g_period
-    result = "%04d-%02d" % (g_period.y, g_period.m)
-    return result
+
     
 ###########################################################################
 if __name__ == "__main__":
-    princ("Global period is:" + g_period.yyyymm())
-    p = Period()
-    p.describe()
-    p.inc(-12)
-    p.describe()
+    #princ("Global period is:" + g_period.yyyymm())
+    #p = Period()
+    describe()
+    inc(-12)
+    describe()
+    inc(12*13)
+    describe()
+    stuple(2013,1)
+    print yyyymm()
+    print mmmmyyyy()
     princ('Finished')

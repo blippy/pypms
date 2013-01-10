@@ -5,7 +5,7 @@ import operator
 import pdb
 
 import common
-from common import dget, princ, print_timing
+from common import dget, princ
 import db
 import excel
 import period
@@ -56,7 +56,7 @@ def create_recovery_text(job, camel_job_recoveries, db_job_recovery):
     return tweak_total, output
 
 ###########################################################################
-@print_timing
+
 def create_recovery_report(d, the_tweaks):
     
     camel_recoveries = tweaks.tweak_recoveries(the_tweaks)

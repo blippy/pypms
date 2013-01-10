@@ -4,7 +4,7 @@
 import pdb
 
 import common
-from common import summate, mkKeyFunc, princ, print_timing
+from common import summate, mkKeyFunc, princ
 import db
 import period
     
@@ -12,7 +12,7 @@ import period
 
 debug = False
 
-@print_timing
+
 def create_health_report(d):
     #db.save_state(d)
     global debug

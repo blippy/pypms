@@ -7,7 +7,7 @@ from operator import itemgetter, attrgetter
 import pprint
 
 import common, rtf
-from common import aggregate, princ, print_timing
+from common import aggregate, princ
 import db
 import expenses
 import period
@@ -109,7 +109,7 @@ def create_job_statement(job, all_tasks, exps, times):
     subtotal(out, 'Net total', net)
 
      
-    out.annotation(job, '')
+    out.annotation(job)
     outdir = period.perioddir() + '\\statements'
     outfile = job_code + '.rtf'
     out.save(outdir, outfile)

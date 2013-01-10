@@ -4,7 +4,7 @@ import glob
 import os
 
 import common
-from common import print_timing
+
 
 template = '''
 <html>
@@ -19,7 +19,7 @@ CONTENTS
 '''
 
 
-@print_timing
+
 def create_html():
     global template
     root = common.outroot #"m:\\Finance\\pypms\\out"
@@ -37,7 +37,8 @@ def create_html():
             contents += href
         contents += "</p>\n\n"
     html = template.replace('CONTENTS', contents)
-    file(root + "\\texts.htm", 'w').write(html)
+    #file(root + "\\texts.htm", 'w').write(html)
+    common.spit(root + "\\texts.htm", html)
 
 if __name__ == "__main__":
     create_html()

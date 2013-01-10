@@ -140,8 +140,12 @@ class JobsFrame(wx.Frame):
         self.text_title.SetValue(job['title'])
         
         # general panel
-        client_id = job['briefclient']
-        briefclient = self.clients[client_id]
+        try:
+            client_id = job['briefclient']
+            #print "client_id=",
+            briefclient = self.clients[client_id]
+        except KeyError:
+            briefclient = "NONE"
         self.opt_client.SetStringSelection(briefclient)
         exp_factor = str(job['exp_factor'])
         self.text_exp_factor.SetValue(exp_factor)

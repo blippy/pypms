@@ -4,7 +4,7 @@
 import pdb
 
 import common
-from common import aggregate, AsAscii, AsFloat, summate, princ, print_timing
+from common import aggregate, AsAscii, AsFloat, summate, princ
 import db
 import excel
 import period
@@ -23,7 +23,7 @@ def create_wip_line(wip_item, invoices):
 
 ###########################################################################
 
-@print_timing
+
 def create_wip_lines(data):
     sql =  "SELECT InvJobCode, Sum(tblInvoice.InvUBI) AS SumOfInvUBI, "
     sql += "Sum(tblInvoice.InvWIP) AS SumOfInvWIP FROM tblInvoice GROUP BY tblInvoice.InvJobCode "
@@ -49,7 +49,7 @@ def create_wip_lines(data):
     
 
 ###########################################################################
-@print_timing
+
 def create_wip_report(data, output_text = True):
     output = create_wip_lines(data)
     if output_text:

@@ -13,7 +13,7 @@ import adodbapi
 import win32com.client
 
 import common
-from common import AsAscii, AsFloat, AsInt, princ, print_timing
+from common import AsAscii, AsFloat, princ
 import expenses
 import period
 
@@ -22,33 +22,48 @@ import period
  
 ###########################################################################
 
-tbl_billing = None
-jobs = None
+#tbl_billing = None
+#jobs = None
 
 ###########################################################################
         
-def DbOpen():
+def _DbOpen():
     'Return an open connection to the database'
-    conn = win32com.client.Dispatch(r'ADODB.Connection')
-    conn.Open('PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;')
+    #conStr = r'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;'
+    #conn = win32com.client.Dispatch(r'ADODB.Connection')
+    src = 'M:/Finance/camel/camel.mdb'
+    src = '"M:/Finance/SREL PMS/camel.mdb"'
+    constr = 'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE={0};'.format(src)
+    conn = adodbapi.connect(constr)
+    #conn.Open(constr)
     return conn
 
 
+class Cursor():
+    def __init__(self):
+        self.conn = None
+        self.cursor = None
+        
+    def __enter__(self):
+        self.conn = _DbOpen()
+        self.cursor = self.conn.cursor()
+        return self.cursor
+    def __exit__(self, type, value, traceback):
+        #print "Cursor().__exit__"
+        if self.cursor is not None: self.cursor.close()
+        if self.conn is not None: 
+            self.conn.commit()
+            self.conn.close()
+        
 
 def fetch_all(sql):
     # preferred method from 25-Aug-2011 - it's much faster
-    try:
-        conStr = r'PROVIDER=Microsoft.Jet.OLEDB.4.0;DATA SOURCE=M:/Finance/camel/camel.mdb;'    
-        con = adodbapi.connect(conStr)
-        cursor = con.cursor()
-        cursor.execute(sql)
-        ds = cursor.fetchall()
+    with Cursor() as c:
+        c.execute(sql)
+        ds = c.fetchall()
         rows = [row for row in ds]
-        cursor.close()
-    finally:
-        con.close()
     return rows
-        
+
 def fetch_and_dictify(sql, fields):
     # preferred method from 25-Aug-2011
     rows = fetch_all(sql)
@@ -64,13 +79,12 @@ def fetch_and_dictify(sql, fields):
     
     
 def ExecuteSql(sql):
-    try:
-        conn = DbOpen()
-        conn.execute(sql)
-    finally:
-        conn.Close()
+    with Cursor() as c:
+        c.execute(sql)
    
 
+        
+        
 
 def GetEmployees():
     sql = 'SELECT * FROM tblEmployeeDetails'
@@ -91,12 +105,12 @@ def GetInvoices():
 
     
 def GetJobs():
-    global jobs
-    if jobs is not None: return jobs
-    sql = 'SELECT * FROM jobs ORDER BY job'
+    #print "GetJobs()"
+    #global jobs
+    #if jobs is not None: return jobs
     fields = 'ID,job,title,address,references,briefclient,active,vatable,exp_factor,'
-    fields += 'WIP,Weird,Autoprint,Comments,TsApprover,UtilisedPOs,'
-    fields += 'PoBudget,PoStartDate,PoEndDate,ProjectManager'
+    fields += 'WIP,Weird,Autoprint,ProjectManager'
+    sql = 'SELECT {0} FROM jobs ORDER BY job'.format(fields)
     recs = fetch_and_dictify(sql, fields)
     result = {}
     for r in recs: result[r['job']] = r
@@ -115,23 +129,24 @@ def GetTasks():
     return tasks
  
 def GetTblBilling():
-    global tbl_billing
-    if tbl_billing is not None: return
+    #print "GetTblBilling()"
+    #global tbl_billing
+    #if tbl_billing is not None: return
     sql = 'SELECT * FROM tblBilling'
     rows = fetch_all(sql)
-    tbl_billing = rows
+    return rows
         
     
     
 def GetTimeitems():
-    GetTblBilling()
+    tbl_billing = GetTblBilling()
     
     sql = 'SELECT * FROM tblTimeItems WHERE TimeVal<>0 AND LEN(JobCode) > 0 ORDER BY JobCode, Task, Person, DateVal'
     fields = 'DateVal,JobCode,Person,Task,TimeVal,WorkDone'    
     recs = fetch_and_dictify(sql, fields)
     
     # filter by period
-    global tbl_billing 
+    #global tbl_billing 
     per = common.find(period.mmmmyyyy(), tbl_billing, key = lambda x: x[0])
     start = per[1]
     end = per[2]
@@ -158,7 +173,7 @@ def GetClients():
     for r in recs: clients[r['ID']] = r['brief']
     return clients
 
-@print_timing
+
 def fetch():
     d = {}
     p = period.g_period

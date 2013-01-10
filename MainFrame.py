@@ -20,7 +20,7 @@ import sys
 import win32api
 
 import common
-from common import princ, print_timing
+from common import princ
 import db
 import excel
 import period
@@ -124,7 +124,7 @@ class MainFrame(wx.Frame):
         self.cbox_text_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Expenses as text, not XL")
         self.cbox_text_invoices = wx.CheckBox(self.notebook_1_pane_1, -1, "Invoice summary as text, not XL")
         self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
-        self.cbox_single_input_spreadsheet = wx.CheckBox(self.notebook_options, -1, "Single Input Spreadsheet")
+        self.cbox_autopickle = wx.CheckBox(self.notebook_options, -1, "Auto-pickle data")
         self.text_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
 
         self.__set_properties()
@@ -157,7 +157,7 @@ class MainFrame(wx.Frame):
         registry.RegistryBoundCheckbox(self, self.cbox_text_wip, 'wip_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_expenses, 'expenses_as_text', True)
         registry.RegistryBoundCheckbox(self, self.cbox_text_invoices, 'invoices_as_text', True)
-        registry.RegistryBoundCheckbox(self, self.cbox_single_input_spreadsheet, 'single_input_spreadsheet', False)
+        registry.RegistryBoundCheckbox(self, self.cbox_autopickle, 'autopickle', False)
         self.cache = None
         
         # redirect stdout and sterr to window
@@ -197,7 +197,7 @@ class MainFrame(wx.Frame):
         self.SetSize((568, 507))
         self.text_output.SetFont(wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, "Consolas"))
         # end wxGlade
-        self.label_period.SetLabel(period.g_period.yyyymm())
+        self.label_period.SetLabel(period.yyyymm())
         
         #use_prev_month = common.get_defaulted_binary_reg_key('UsePrevMonth', True)
         #self.cbox_use_prev_month.SetValue(use_prev_month)
@@ -220,7 +220,7 @@ class MainFrame(wx.Frame):
         sizer_3.Add(self.cbox_text_invoices, 0, 0, 0)
         sizer_3.Add(self.cbox_text_wip, 0, 0, 0)
         self.notebook_1_pane_1.SetSizer(sizer_3)
-        sizer_15.Add(self.cbox_single_input_spreadsheet, 0, 0, 0)
+        sizer_15.Add(self.cbox_autopickle, 0, 0, 0)
         self.notebook_options.SetSizer(sizer_15)
         self.notebook_1.AddPage(self.notebook_1_pane_2, "Settings")
         self.notebook_1.AddPage(self.notebook_1_pane_1, "Process")
@@ -252,8 +252,7 @@ class MainFrame(wx.Frame):
             
     def click_all_stages(self, event): # wxGlade: MainFrame.<event_handler>
         # main process loop
-        p = period.g_period
-        question = 'Process period {0}?'.format(p.yyyymm())
+        question = 'Process period {0}?'.format(period.yyyymm())
         if not long_calc(self, question): return
     
         self.text_output.SetValue("")
@@ -299,8 +298,8 @@ class MainFrame(wx.Frame):
         
 
     def change_period(self, num_months):
-        period.global_inc(num_months)
-        self.label_period.SetLabel(period.g_period.yyyymm())
+        period.inc(num_months)
+        self.label_period.SetLabel(period.yyyymm())
         
     def btn_dec_period_clicked(self, event): # wxGlade: MainFrame.<event_handler>
         self.change_period(-1)

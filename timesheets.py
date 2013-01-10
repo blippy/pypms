@@ -4,7 +4,7 @@ import datetime, pdb
 #from itertools import groupby
 
 import common, rtf
-from common import aggregate, princ, print_timing
+from common import aggregate, princ
 import db
 import period
 
@@ -53,13 +53,13 @@ def CreateJobsheet(jobcode, job_times, d, title, outdir):
         AddHeader(title, jobcode, job['title'], taskTitle, person_name, out)
         #pdb.set_trace()
         AddPersonToJobsheet(initials, values, out)
-        out.annotation(job, job['TsApprover'])
+        out.annotation(job)
         if key != last_key: out.page()
     out.save(outdir, jobcode + ".rtf" )
 
 ###########################################################################
 
-@print_timing
+
 def create_timesheets(d):
     title = 'Timesheet: ' + period.mmmmyyyy()
     outdir = period.perioddir() + '\\timesheets'

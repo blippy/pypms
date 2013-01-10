@@ -1,9 +1,8 @@
-Data > Jobs > 2849 : yields KeyError: 0
+db.DbOpen() is called 12 times - which seems excessive
 
-Output in Courier New rather than Consolas
+eliminate common.tri()
 
-
-It seems that GetInvoices and GetTasks is called twice - which seems redundant
+recoveries should be computed after post.main() rather than retreived from db
 
 Work statement to include special instructions for client signed
 

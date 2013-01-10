@@ -118,9 +118,9 @@ class PersonTimeGridFrame(wx.Frame):
         rows = aggregate_time_items(initials)
         grid = self.grid_time
         common.empty_wxgrid(grid)
-        p = period.g_period
+        #p = period.g_period
         #self.label_period.SetLabel(p.yyyymm())
-        dim = p.dim()
+        dim = period.dim()
         common.rectify_num_grid_columns(grid, dim + DATE_COL0)
         for c in range(0, dim):
             grid.SetColLabelValue(c + DATE_COL0 , str(c + 1))
@@ -155,7 +155,7 @@ class PersonTimeGridFrame(wx.Frame):
 
                 # TODO a lot of this code is in common with TimegridFrame
                 # colour the cell according to whether it is a week day or end
-                if period.is_weekend(p.y, p.m, d+1):
+                if period.is_weekend(d+1):
                     bcolour = wx.LIGHT_GREY
                 else:
                     bcolour = wx.WHITE

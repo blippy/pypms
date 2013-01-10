@@ -1,7 +1,7 @@
 import itertools
 import traceback
 
-from common import dget, princ, print_timing
+from common import dget, princ
 import common
 import excel
 

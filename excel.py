@@ -81,8 +81,8 @@ class Source:
         return text
         
   
-def import_summary_sheet(wsname, start_row, fieldspec):    
-    rows = read_worksheet(wsname)
+def import_summary_sheet(wb, wsname, start_row, fieldspec):    
+    rows = read_worksheet(wb, wsname)
     result = []
     for row_num in range(start_row, len(rows)):
         row = rows[row_num]
@@ -100,7 +100,7 @@ def import_summary_sheet(wsname, start_row, fieldspec):
         for k in record.keys():
             if record[k] is None:
                 msg = "Can't have a key value of None for {0} in summary worksheet {1} with record {2}".format(k, wsname, record)
-                raise common.DataIntegrityError(msg)
+                raise KeyError(msg)
         
         result.append(record)
     return result
@@ -110,21 +110,16 @@ def import_summary_sheet(wsname, start_row, fieldspec):
 #m_xldata = None
 
 def load():
-    
-    #only load spreadsheet if modified recently
-    #global m_xlmodtime, m_xldata
-    #xlmodtime = os.path.getmtime(camelxls())
-    #reload_p =  xlmodtime > m_xlmodtime
-    #m_xlmodtime = xlmodtime
-    #common.loginfo("Reload spreadsheet = " + str(reload_p))
-    #if not reload_p: return m_xldata
-
-
     global schema                                    
     xldata = {}
-    for layout in schema:
-        wsname, start_row, fieldspec = layout
-        xldata[wsname] = import_summary_sheet(wsname, start_row, fieldspec)
+    wb = None
+    try:
+        wb = xlrd.open_workbook(camelxls())
+        for layout in schema:
+            wsname, start_row, fieldspec = layout
+            xldata[wsname] = import_summary_sheet(wb, wsname, start_row, fieldspec)
+    finally:
+        if wb is not None: wb.release_resources()
     return xldata
     
 ###########################################################################
@@ -198,15 +193,10 @@ def create_report(desc, list_of_rows, numeric_fields):
 
 
 
-def read_worksheet(wsname):
-    wb = None
-    try:
-        wb = xlrd.open_workbook(camelxls())
-        ws = wb.sheet_by_name(wsname)
-        result = [ws.row_values(i) for i in xrange(ws.nrows)] #    nal.extend(sh.row_values(rowx))
-        return result
-    finally:
-        if wb is not None: wb.release_resources()
+def read_worksheet(wb, wsname):
+    ws = wb.sheet_by_name(wsname)
+    result = [ws.row_values(i) for i in xrange(ws.nrows)] #    nal.extend(sh.row_values(rowx))
+    return result
         
 def assert_worksheet_job(data, job_code, worksheet_name, row0):
     "Require that a job in an Excel spreadsheet exists in the database"
@@ -214,9 +204,6 @@ def assert_worksheet_job(data, job_code, worksheet_name, row0):
         #msg = fmt.format(job_code, source_info)
         # logerror(msg) # TODO reinstate
         raise KeyError("E100", workbook_name(), worksheet_name, row0 + 1, job_code) 
-    #fmt = "Excel workbook: {0}, sheet: {1}, row: {2}"
-    #msg = fmt.format(workbook_name(), worksheet_name, row0 + 1)
-    #common.assert_job(data, job_code, msg)
     
 ###########################################################################
 

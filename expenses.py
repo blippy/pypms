@@ -11,20 +11,11 @@ import common
 import db
 import excel
 import period
-from common import dget, princ, print_timing
+from common import dget, princ
 
 
 ###########################################################################
 
-def XXXload(data):
-    fieldspec = [
-        (1, 'JobCode', excel.fix_str, ''),
-        (2, 'Task', str, ''), 
-        (4, 'Period', excel.fix_date, ''),
-        (6, 'Name', str, ''),
-        (8, 'Desc', str, ''), 
-        (10, 'Amount', float, None)]
-    return excel.import_summary_sheet(data, 'Expenses', fieldspec, 1)
 
 def create_expense_report(data, output_text = True):
     the_expenses =  data['Expenses']
@@ -51,33 +42,6 @@ def create_expense_report(data, output_text = True):
         # TODO Consider zapping Excel output option if considered unecessary
         excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
 
-def XXX_create_expense_report(sorted_expenses, output_text = True):
-    total = 0.0
-
-    output = [['Job', 'Amount', 'Period', '', 'Name', '', 'Desc']]
-    
-    for expense_item in sorted_expenses:
-        job_code = dget(expense_item,'JobCode', "")
-        per = dget(expense_item, 'Period', "")
-        name = dget(expense_item, 'Name', "")
-        desc = dget(expense_item, 'Desc', "")
-        desc_upper = desc.upper()
-        if 'ACCOM' in desc_upper: desc += ' - Munros'
-        if 'FLIGHT' in desc_upper: desc += ' - Munros'
-        if 'TAXI' in desc_upper: desc += ' - Rainbow'        
-        amount = dget(expense_item, 'Amount', 0.0)
-        if amount == 0.0: continue
-        total += amount
-        output.append([job_code, amount, per, '', name, '', desc])
-
-    output.append([])
-    output.append(['TOTAL', total])
-    
-    if output_text:
-        period.create_text_report("expenses.txt", output)
-    else:
-        # TODO Consider zapping Excel output option if considered unecessary
-        excel.create_report("expenses", output, [2, 3 ,4, 5, 6, 7])
             
 
     

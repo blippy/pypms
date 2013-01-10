@@ -77,9 +77,9 @@ class TimegridFrame(wx.Frame):
         grid = self.grid_time
         common.empty_wxgrid(grid)        
         
-        p = period.g_period
-        self.label_period.SetLabel(p.yyyymm())
-        dim = p.dim()
+        #p = period.g_period
+        self.label_period.SetLabel(period.yyyymm())
+        dim = period.dim()
         
         #maybe delete some columns
         DATE_COL0 = 4
@@ -132,7 +132,7 @@ class TimegridFrame(wx.Frame):
                 grid.SetCellValue(row_num,c+DATE_COL0,v)
                 
                 # colour the cell according to whether it is a week day or end
-                if period.is_weekend(p.y, p.m, c+1):
+                if period.is_weekend(c+1):
                     bcolour = wx.LIGHT_GREY
                 else:
                     bcolour = wx.WHITE

@@ -4,9 +4,12 @@ import datetime
 
 import common
 
+ 
+
 class Rtf:
     def __init__(self):
         self.text = '{\\rtf {\\fonttbl {\\f0 Consolas;}}'
+        #self.text = '{\\rtf {\\fonttbl {\\f0 Courier New;}}'
            
     def addTitle(self, title):
         self.setFontSize(30)
@@ -30,23 +33,23 @@ class Rtf:
     def setFontSize(self, size):
         self.add('\\f0\\fs%d' % (size), newLines = 0)
         
-    def annotation(self, job, approver):
+    def annotation(self, job):
         'Return some RTF text for non-vanilla jobs'
         
         self.para(3)
-        self.add('Approved: ______________________________________')        
-        self.add(approver)
-        self.add(datetime.datetime.today().strftime("%d %B %Y"))
+        #self.add('Approved: ______________________________________')        
+        #self.add(approver)
+        self.setFontSize(12)        
+        self.add(common.get_timestamp())
         
         annotations = []
         if job['Weird']: annotations.append('Unorthodox')
         if job['WIP']: annotations.append('WIP')
         if len(annotations) > 0:
-            self.para(2)
-            self.setFontSize(12)
+            self.para(2)            
             text = 'Ann: ' + ' '.join(annotations)
             self.add(text)
-            self.setFontSize(18)
+        self.setFontSize(18)
 
 
     def save(self, dir, fname):
