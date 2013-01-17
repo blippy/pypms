@@ -1,5 +1,7 @@
 db.DbOpen() is called 12 times - which seems excessive
 
+make use of param.py
+
 eliminate common.tri()
 
 recoveries should be computed after post.main() rather than retreived from db
