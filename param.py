@@ -1,5 +1,10 @@
 # http://www.artima.com/weblogs/viewpost.jsp?thread=240845
 
+# My topic on this is:
+# https://groups.google.com/forum/?hl=en-GB&fromgroups=#!topic/comp.lang.python/S0V7IZjx-kQ
+# equivalently: 
+# http://is.gd/R28AK0
+
 from functools import wraps
 
 class Param(object):
