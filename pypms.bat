@@ -1,3 +1,3 @@
-start c:\python26\pythonw.exe pydrag.pyw
+start c:\python27\pythonw.exe pydrag.pyw
 clear
 exit
