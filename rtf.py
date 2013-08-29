@@ -8,7 +8,8 @@ import common
 
 class Rtf:
     def __init__(self):
-        self.text = '{\\rtf {\\fonttbl {\\f0 Consolas;}}'
+        self.text = '{\\rtf {\\fonttbl {\\f0 Consolas;}}\n'
+        self.text += '\pard\plain\n' # single-spaced paragraphs
         #self.text = '{\\rtf {\\fonttbl {\\f0 Courier New;}}'
            
     def addTitle(self, title):
