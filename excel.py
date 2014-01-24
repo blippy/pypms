@@ -30,7 +30,8 @@ def fix_str(s):
     "Fix quirk in xlrd where what we think should be a string became converted to a float"
     s1 = str(s)
     if len(s1)>1:
-        if s1[-2:] == '.0': s1 = s1[:-2]
+        #if s1[-2:] == '.0': s1 = s1[:-2]
+        if s1[0] == '~': s1 = s1[1:]
     return s1
 
 f = common.AsFloat
@@ -215,10 +216,10 @@ def encache(cache):
 
 ###########################################################################
 if  __name__ == "__main__":
-    #xldata = load()
-    #princ(xldata)
-    cache = db.load_state()    
+    xldata = load()
+    pprint.pprint(xldata)
+    #cache = db.load_state()    
     #pprint.pprint(cache.keys())
-    encache(cache)
-    verify(cache)
+    #encache(cache)
+    #verify(cache)
     princ('Finished')
