@@ -24,7 +24,7 @@ def AddTopInfo(out, job):
     out.add(address1)    
     out.add(job['title'])
     job_code = job['job']
-    out.add("SREL job code: " + job_code, 2)
+    out.add("IMA job code: " + job_code, 2)
     
     #if job_code  == '2638' : pdb.set_trace()
     references = job['references']
