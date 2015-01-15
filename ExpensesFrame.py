@@ -23,7 +23,7 @@ class ExpensesFrame(wx.Frame):
         self.label_period = wx.StaticText(self, -1, "label_1")
         self.button_import_expenses_spreadsheet = wx.Button(self, -1, "SS")
         self.button_edit = wx.Button(self, -1, "Edit")
-        self.list_expenses = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+        self.list_expenses = wx.ListCtrl(self, -1, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
 
         self.__set_properties()
         self.__do_layout()

@@ -29,6 +29,7 @@ import registry
 import rtfsprint
 
 
+import AboutDialog
 import ExpensesFrame
 import JobsFrame
 import TimegridFrame
@@ -78,10 +79,6 @@ class MainFrame(wx.Frame):
         # begin wxGlade: MainFrame.__init__
         kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.notebook_1 = wx.Notebook(self, -1, style=0)
-        self.notebook_options = wx.Panel(self.notebook_1, -1)
-        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
-        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         
         # Menu Bar
         self.frmMain_menubar = wx.MenuBar()
@@ -114,16 +111,24 @@ class MainFrame(wx.Frame):
         self.menu_print_timesheets = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "Timesheets", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendItem(self.menu_print_timesheets)
         self.frmMain_menubar.Append(wxglade_tmp_menu, "Print")
+        wxglade_tmp_menu = wx.Menu()
+        self.menu_help_about = wx.MenuItem(wxglade_tmp_menu, wx.NewId(), "About", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.AppendItem(self.menu_help_about)
+        self.frmMain_menubar.Append(wxglade_tmp_menu, "Help")
         self.SetMenuBar(self.frmMain_menubar)
         # Menu Bar end
+        self.notebook_1 = wx.Notebook(self, -1, style=0)
+        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
         self.label_period = wx.StaticText(self.notebook_1_pane_2, -1, "label_1")
         self.btn_dec_period = wx.Button(self.notebook_1_pane_2, -1, "-")
         self.btn_inc_period = wx.Button(self.notebook_1_pane_2, -1, "+")
+        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
         self.btnAllStages = wx.Button(self.notebook_1_pane_1, -1, "All Stages")
         self.cbox_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Import expenses")
         self.cbox_text_expenses = wx.CheckBox(self.notebook_1_pane_1, -1, "Expenses as text, not XL")
         self.cbox_text_invoices = wx.CheckBox(self.notebook_1_pane_1, -1, "Invoice summary as text, not XL")
         self.cbox_text_wip = wx.CheckBox(self.notebook_1_pane_1, -1, "WIP as text, not XL")
+        self.notebook_options = wx.Panel(self.notebook_1, -1)
         self.cbox_autopickle = wx.CheckBox(self.notebook_options, -1, "Auto-pickle data")
         self.text_output = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
 
@@ -141,6 +146,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.menu_externals_spreadsheet_selected, self.menu_externals_spreadsheet)
         self.Bind(wx.EVT_MENU, self.menu_print_workstatements_selected, self.menu_print_workstatements)
         self.Bind(wx.EVT_MENU, self.menu_print_timesheets_selected, self.menu_print_timesheets)
+        self.Bind(wx.EVT_MENU, self.menu_help_about_selected, self.menu_help_about)
         self.Bind(wx.EVT_BUTTON, self.btn_dec_period_clicked, self.btn_dec_period)
         self.Bind(wx.EVT_BUTTON, self.btn_inc_period_clicked, self.btn_inc_period)
         self.Bind(wx.EVT_BUTTON, self.click_all_stages, self.btnAllStages)
@@ -322,6 +328,13 @@ class MainFrame(wx.Frame):
     def menu_externals_spreadsheet_selected(self, event): # wxGlade: MainFrame.<event_handler>
         open_file(excel.camelxls())
 
+
+    def menu_help_about_selected(self, event):  # wxGlade: MainFrame.<event_handler>
+        #print "Event handler `menu_help_about_selected' not implemented"
+        #event.Skip()
+        dlg = AboutDialog.AboutDialog(self)
+        dlg.ShowModal()
+        dlg.Destroy()
 
 # end of class MainFrame
 
