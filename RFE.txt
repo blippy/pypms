@@ -1,3 +1,5 @@
+take out time for task 0
+
 db.DbOpen() is called 12 times - which seems excessive
 
 make use of param.py
